@@ -70,7 +70,8 @@ def create_page(in_dir, page_dir, output_dir):
   os.chdir(in_dir + "/" + page_dir)
   files = os.listdir(".")
   files = map( lambda f: (os.stat(f)[stat.ST_MTIME], f), files )
-  files.reverse()
+  files.sort()
+  #files.reverse()
   for fs in files:
     f = fs[1]
     print fs
