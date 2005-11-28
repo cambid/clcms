@@ -1,0 +1,135 @@
+
+h2 {
+	color: #bb0000;
+}
+h3 {
+	color: #bb0000;
+}
+
+body {
+	background-color: #dddddd;
+	font-size: small;
+	margin: 0;
+}
+
+.white {
+	background-color: #ffffff;
+}
+
+.red {
+	background-color: #ffdddd;
+}
+
+.green {
+	background-color: #ddffdd;
+}
+
+a:link {
+	text-decoration: none;
+	color: #dd0000;
+	font-weight: bold;
+}
+
+a:visited {
+	text-decoration: none;
+	color: #bb0000;
+	font-weight: bold;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+#main {
+	position: absolute;
+	width: 80%;
+	left: 10%;
+	top: 10%;
+#	bottom: 5%;
+	right: 5%;
+	background-color: #eeeeee;
+	border: medium ridge #ff7700;
+	z-index: 2;
+}
+
+#menu {
+        z-index: 5;
+	position: absolute;
+        left: 10%;
+        top: 5%;
+        font-size: small;
+        margin: 0px;
+        height: 32px;
+}
+
+.menu_table {
+        border-width: 0px;
+        border-collapse: collapse;
+	padding: 10px;
+}
+
+#menu a:link, #menu a:visited {
+        display: block;
+
+        position: relative;
+
+        border: 1px outset #f2f2f2;
+	color: #efefef;
+	background-color: #dd0000;
+        
+        text-align: center;
+        font-weight: bold;
+        text-decoration: none;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+#menu a:hover {
+        border: 1px inset #dd0000;
+	background-color: #661111;
+}
+
+#submenu {
+        font-size: 14px;
+        z-index: 3;
+	width: 10%;
+	float: left;
+	padding-left: 2%;
+	padding-right: 0%;
+	padding-top: 2%;
+}
+
+#submenu a:link, #submenu a:visited {
+        text-decoration: none;
+        color: #bb0000;
+	font-size: small;
+	font-weight: normal;
+}
+
+#submenu a:hover {
+}
+
+
+#content {
+	float: right;
+	width: 85%;
+	height: 90%;
+	position: relative;
+	right: 0px;
+#	overflow: auto;
+}
+
+
+#updated {
+        position: fixed;
+        right: 0px;
+        bottom: 20px;
+        font-size: 10px;
+        color: #333333;
+        z-index: 1;
+	width: 8%;
+}
+
+
+
+

@@ -9,15 +9,34 @@
 # For each page, you can override this by putting a .setup file in
 # the directory of the page
 
+# This directory will be used to read the site pages from
 #
 # root_dir = ./in
 
+# This file will be used as style sheet
+# style_sheet = ./default.css
+
 # these files will be included before the content
 #
-# header_files = config/header.inc
+# header_files = ./header.inc
 
 # these files will be included after the content
 #
-# footer_files = config/footer.inc
+# footer_files = ./footer.inc
 # 
 
+# this file will be used as favicon
+# favicon = ./favicon.ico
+
+# you can specify a separate dir structure to use as the base
+# of the included menu
+# menu_root = <root_dir>
+
+# this directory will contain binary resources
+# usually, you will put both content and resources in the
+# same directory as the page or pagepart, but for some pages,
+# for instance if you have a lot of images, it might be needed
+# to put those in a separate directory.
+# These directories will not be handled as page/item dirs
+# content_dir = .
+# resource_dir = .

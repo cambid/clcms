@@ -10,3 +10,12 @@ http://jelte.nlnetlabs.nl).
 You can create the site by going to the example dir and running 
 <thisdir>/bin/clcms.py 
 
+
+
+Macro's:
+
+_MENU_ : include the menu
+_DATE_ : include the date (when running clcms.py)
+_DATE_FILE_ : include the date of the file
+
+If you want to include the word "_<macro>_" in your site, use __<macro>__.
