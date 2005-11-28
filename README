@@ -1,0 +1,12 @@
+
+Welcome to clcms, the command line content management system
+
+For now, i'll use a code first, try later type of setup, so
+the internals and names are almost certainly subject to a lot of change.
+
+See the example dir for an example of a site (based on my own, found at
+http://jelte.nlnetlabs.nl).
+
+You can create the site by going to the example dir and running 
+<thisdir>/bin/clcms.py 
+

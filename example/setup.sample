@@ -1,0 +1,23 @@
+#
+# These are default values
+#
+# To change: remove comment and change value, then save it as .setup 
+# in your document root directory
+# 
+# Some options can have multiple values separated by ,
+# 
+# For each page, you can override this by putting a .setup file in
+# the directory of the page
+
+#
+# root_dir = ./in
+
+# these files will be included before the content
+#
+# header_files = config/header.inc
+
+# these files will be included after the content
+#
+# footer_files = config/footer.inc
+# 
+
