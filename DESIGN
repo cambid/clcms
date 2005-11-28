@@ -1,0 +1,31 @@
+
+Requirements:
+	- Fully controlled from the command line
+	- Adding pages (or items?) should be as easy as creating a new file
+	  and typing some lines in it.
+	- for default pages/items no config necessary
+	
+
+Concept:
+	rootdir/<menu_dir>/page[/items]
+	page syntax in wiki style
+	.meta (?) file to override defaults
+	filename is page name, itemname is submenu name
+	some *simple* macro's
+		- %DATE% replace with date of writing (or maybe file date?)
+	default css style names: content, menu, item, etc.
+
+Algorithm:
+	first decide menu layout
+
+Open issues:
+	1) how to do links? and images?
+	2) locking?
+	3) what to do with changing filenames?
+	4) menu as separate include?
+
+Possible enhancements:
+	- web interface?
+
+
+
