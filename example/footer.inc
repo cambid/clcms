@@ -3,7 +3,7 @@
 	
 	<div id="updated">
 		Last updated:<br />
-		TODAY
+		_DATE_
 	</div>
  	</body>
 </html>

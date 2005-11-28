@@ -4,6 +4,16 @@ Welcome to clcms, the command line content management system
 For now, i'll use a code first, try later type of setup, so
 the internals and names are almost certainly subject to a lot of change.
 
+See DESIGN for a quick brainstorm of my initial thoughts 
+
+The setup is based on my simple site: every page has a few items: menu,
+submenu and content
+
+
+Ow and i'm using this to learn Python too, so things might be done a little
+awkwardly, don't hesitate to let me know if things could be done in a better
+way :)
+
 See the example dir for an example of a site (based on my own, found at
 http://jelte.nlnetlabs.nl).
 
