@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
-import os, stat, shutil
+import os
+import stat
+import shutil
 import time
 import re
 
@@ -46,6 +48,8 @@ def create_menu(base_dir):
         if not file_m:
           if not first:
             append_file_lines(menu_lines, root_dir + "/menu_item.inc")
+          else:
+            first = False
           menu_lines.append("<a href=\"" + file + ".html\">" + file + "</a>")
   append_file_lines(menu_lines, root_dir + "/menu_end.inc")
   return menu_lines
@@ -63,24 +67,44 @@ def create_page(in_dir, page_dir, output_dir):
     
   pagefiles = []
   
-  for f in os.listdir(in_dir + "/" + page_dir):
-      for ignore_mask in ignore_masks:
-        file_p = re.compile(ignore_mask)
-        file_m = file_p.match(f)
-        if not file_m:
-          pagefiles.append(f)
+  os.chdir(in_dir + "/" + page_dir)
+  files = os.listdir(".")
+  files = map( lambda f: (os.stat(f)[stat.ST_MTIME], f), files )
+  files.reverse()
+  for fs in files:
+    f = fs[1]
+    print fs
+    for ignore_mask in ignore_masks:
+      file_p = re.compile(ignore_mask)
+      file_m = file_p.match(f)
+      if not file_m:
+        pagefiles.append(f)
+  os.chdir("../..")
   
   if len(pagefiles) > 1:
     lines.append("<div id=\"submenu\">\n")
+    first = True
     for pf in pagefiles:
-      lines.append("<hr noshade=\"noshade\" size=\"1\" width=\"80%\" align=\"left\" />\n")
+      if not first:
+        lines.append("<hr noshade=\"noshade\" size=\"1\" width=\"80%\" align=\"left\" />\n")
+      else:
+        first = False
       lines.append("<a href=\"" + output_file_name + "#" + pf + "\">" + pf + "</a>\n")
     lines.append("</div>\n")
   
   lines.append("<div id=\"content\">\n")
 
+  first = True
   for pf in pagefiles:
+    if not first:
+      lines.append("<hr noshade=\"noshade\" size=\"3\" width=\"60%\" align=\"left\" />\n")
+    else:
+      first = False
+    lines.append("<p>\n")
+    lines.append("<a name=\"" + pf + " id=\"" + pf + "></a>\n")
+    lines.append("<h3>" + pf + "</h3>\n")
     append_file_lines(lines, in_dir + "/" + page_dir +  "/" + pf)
+    lines.append("</p>\n")
 
   lines.append("</div>\n")
   
