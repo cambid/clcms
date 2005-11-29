@@ -6,6 +6,108 @@ import shutil
 import time
 import re
 
+#
+# Wiki style parser
+#
+
+# VERY simple parser for wiki style input
+# takes a list of lines in wiki style
+# returns a list of lines in HTML
+# TODO: make this a general parser (i'd like it to work a lot better
+# than for instance Twiki...)
+def wiki_to_html(wiki_lines):
+    html_lines = []
+    
+    in_p = False
+    cur_bullet_depth = 0;
+    for line in wiki_lines:
+        line = line.rstrip('\n\r\t ')
+        # bold
+        if line == "":
+            if not in_p:
+                html_lines.append("<p>\n")
+            in_p = True
+        if line[:1] == "*" and line[-1:] == "*":
+            if (in_p):
+                html_lines.append("</p>\n")
+            while cur_bullet_depth > 0:
+                html_lines.append("</ul>\n")
+                cur_bullet_depth -= 1
+            html_lines.append(" <b>" + line[1:-1] + "</b> \n")
+        elif line[:1] == "_" and line[-1:] == "_":
+            if (in_p):
+                html_lines.append("</p>\n")
+            while cur_bullet_depth > 0:
+                html_lines.append("</ul>\n")
+                cur_bullet_depth -= 1
+            html_lines.append(" <i>" + line[1:-1] + "</i> \n")
+        elif line[:1] == "=" and line[-1:] == "=":
+            if (in_p):
+                html_lines.append("</p>\n")
+            while cur_bullet_depth > 0:
+                html_lines.append("</ul>\n")
+                cur_bullet_depth -= 1
+            html_lines.append(" <pre>" + line[1:-1] + "</pre> \n")
+        elif line[:4] == "   *":
+            if (in_p):
+                html_lines.append("</p>\n")
+            while cur_bullet_depth < 1:
+                html_lines.append("<ul>\n")
+                cur_bullet_depth += 1
+            html_lines.append("<li>" + line[4:] + "</li>\n")
+        elif line[:3] == "---":
+            if (in_p):
+                html_lines.append("</p>\n")
+            while cur_bullet_depth > 0:
+                html_lines.append("</ul>\n")
+                cur_bullet_depth -= 1
+            i = 3
+            while line[i] == "+":
+                i += 1
+            if (i > 3):
+                html_lines.append("<h" + str(i-3) + ">" + line[i:] + "</h" + str(i-3) +  ">\n")
+            else:
+                html_lines.append(line)
+        else:
+            if (in_p):
+                html_lines.append("</p>\n")
+            while cur_bullet_depth > 0:
+                html_lines.append("</ul>\n")
+                cur_bullet_depth -= 1
+            html_lines.append(line)
+    
+    lines = html_lines
+    html_lines = []
+    
+    # replace links and image refs
+    #simple_link_p = re.compile('[^\"]http://.*')
+    adv_link_p = re.compile('\[\[(.*)\]\[(.*)\]\]')
+    img_p = re.compile('\{\{(.*)\}\{(.*)\}\}')
+    for line in lines:
+        adv_m = adv_link_p.search(line)
+        #simple_m = simple_link_p.search(line)
+        if adv_m:
+            line = line[:adv_m.start()] + "<a href=\"" + line[adv_m.start(1):adv_m.end(1)] + "\">" + line[adv_m.start(2):adv_m.end(2)] + "</a>" + line[adv_m.end():]
+        #elif simple_m:
+        #    line = line[:simple_m.start()] + "<a href=\"" + line[simple_m.start():simple_m.end()] + "\">" + line[simple_m.start():simple_m.end()] + "</a>"
+
+        img_m = img_p.search(line)
+        if img_m:
+            line = line[:img_m.start()] + "<img src=\"" + line[img_m.start(1):img_m.end(1)] + "\" alt=\"" + line[img_m.start(2):img_m.end(2)] + "\" />" + line[img_m.end():]
+        html_lines.append(line)
+    
+    while cur_bullet_depth > 0:
+        html_lines.append("</ul>")
+        cur_bullet_depth -= 1
+
+
+    #print html_lines
+    return html_lines
+
+#
+# Option handling
+#
+
 def add_option(options, option):
 	# todo: sort uniques?
 	options.insert(0, option.replace('\n', ''))
@@ -31,7 +133,8 @@ def get_options(options, option_name):
 		if m:
 			return o[m.end():].split(',')
 	return []
-	
+
+# defaults
 options = []
 options = add_option(options, "root_dir = .")
 options = add_option(options, "in_dir = in")
@@ -47,19 +150,23 @@ options = add_option(options, "resource_dir = .")
 # (these are read as regular expressions)
 ignore_masks = [ "\\.\\\\*", ".gif$", ".png$", ".setup$" ]
 
+#
+# Utility functions
+#
+
 # if filter contain any re's, only lines matching any of them are
 # added. If filter is empty, all lines are added
 def append_file_lines(lines, file, filters = []):
     f_lines = open(file, "r")
     for l in f_lines:
-    	if filters == []:
-	        lines.append(l)
-	else:
-		for filter in filters:
-			p = re.compile(filter)
-			m = p.search(l)
-			if m:
-				lines.append(l)
+        if filters == []:
+                lines.append(l)
+        else:
+                for filter in filters:
+                        p = re.compile(filter)
+                        m = p.search(l)
+                        if m:
+                                lines.append(l)
     return lines
 
 # returns the filename without the extension
@@ -94,7 +201,7 @@ def get_dir_files(dir, ignore_masks, invert = False):
         files = map( lambda f: (file_extension(f, "ZZZ"), os.stat(f)[stat.ST_MTIME], f), files )
         #print files
         files.sort()
-        #files.reverse()
+        files.reverse()
         for fs in files:
             f = fs[2]
             matches = False
@@ -125,10 +232,12 @@ def read_dir_options(options, dir):
 # generate the menu with the given directory as its base
 # returns a list of html lines
 def create_menu(base_dir, options):
+    ignore_masks.append('.*\.nm.*')
     menu_lines = []
     append_file_lines(menu_lines, get_option(options, "root_dir") + "/menu_start.inc")
     first = True;
     for file in get_dir_files(base_dir, ignore_masks):
+        print "FILE: "+file
         if not first:
             append_file_lines(menu_lines, get_option(options, "root_dir") + "/menu_item.inc")
         else:
@@ -168,15 +277,20 @@ def create_page(in_dir, page_dir, output_dir, options):
 
     first = True
     for pf in pagefiles:
-        if not first:
-            lines.append("<hr noshade=\"noshade\" size=\"3\" width=\"60%\" align=\"left\" />\n")
+        if os.path.isdir(in_dir+"/"+page_dir+"/"+pf):
+            create_page(in_dir+"/"+page_dir, pf, output_dir+"/"+page_dir, options)
         else:
-            first = False
-        lines.append("<p>\n")
-        lines.append("<a name=\"" + pf + " id=\"" + pf + "></a>\n")
-        lines.append("<h3>" + file_base_name(pf) + "</h3>\n")
-        append_file_lines(lines, in_dir + "/" + page_dir +    "/" + pf)
-        lines.append("</p>\n")
+            if not first:
+                lines.append("<hr noshade=\"noshade\" size=\"3\" width=\"60%\" align=\"left\" />\n")
+            else:
+                first = False
+            lines.append("<p>\n")
+            lines.append("<a name=\"" + pf + " id=\"" + pf + "></a>\n")
+            lines.append("<h3>" + file_base_name(pf) + "</h3>\n")
+            #append_file_lines(lines, in_dir + "/" + page_dir +    "/" + pf)
+            wikilines = append_file_lines([], in_dir + "/" + page_dir +    "/" + pf)
+            lines.extend(wiki_to_html(wikilines))
+            lines.append("</p>\n")
 
     lines.append("</div>\n")
     
@@ -184,6 +298,7 @@ def create_page(in_dir, page_dir, output_dir, options):
         append_file_lines(lines, f)
     
     #lines = replace_macros(lines)
+    # TODO: Macro
     lines2 = []
     for l in lines:
         l_p = re.compile("_MENU_")
@@ -193,6 +308,8 @@ def create_page(in_dir, page_dir, output_dir, options):
                 lines2.append(ml)
         else:
             lines2.append(l)
+
+#    lines2 = wiki_to_html(lines2)
 
     of = open(out_dir + "/" + output_file_name, "w")
     for l in lines2:
