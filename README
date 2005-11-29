@@ -29,3 +29,10 @@ _DATE_ : include the date (when running clcms.py)
 _DATE_FILE_ : include the date of the file
 
 If you want to include the word "_<macro>_" in your site, use __<macro>__.
+
+TODO:
+- Wiki engine, add html to wiki style files
+- read .setup files
+- Macro engine, implement all html thingamabobs as (internal?) macro's
+- error handling (:p)
+
