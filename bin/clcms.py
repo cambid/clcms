@@ -15,6 +15,10 @@ import re
 # returns a list of lines in HTML
 # TODO: make this a general parser (i'd like it to work a lot better
 # than for instance Twiki...)
+def escape_url(url):
+    url = url.replace(' ', '%20')
+    return url
+
 def wiki_to_html(wiki_lines):
     html_lines = []
     
@@ -74,7 +78,7 @@ def wiki_to_html(wiki_lines):
             while cur_bullet_depth > 0:
                 html_lines.append("</ul>\n")
                 cur_bullet_depth -= 1
-            html_lines.append(line)
+            html_lines.append(line + " ")
     
     lines = html_lines
     html_lines = []
@@ -87,13 +91,13 @@ def wiki_to_html(wiki_lines):
         adv_m = adv_link_p.search(line)
         #simple_m = simple_link_p.search(line)
         if adv_m:
-            line = line[:adv_m.start()] + "<a href=\"" + line[adv_m.start(1):adv_m.end(1)] + "\">" + line[adv_m.start(2):adv_m.end(2)] + "</a>" + line[adv_m.end():]
+            line = line[:adv_m.start()] + "<a href=\"" + escape_url(line[adv_m.start(1):adv_m.end(1)]) + "\">" + line[adv_m.start(2):adv_m.end(2)] + "</a>" + line[adv_m.end():]
         #elif simple_m:
         #    line = line[:simple_m.start()] + "<a href=\"" + line[simple_m.start():simple_m.end()] + "\">" + line[simple_m.start():simple_m.end()] + "</a>"
 
         img_m = img_p.search(line)
         if img_m:
-            line = line[:img_m.start()] + "<img src=\"" + line[img_m.start(1):img_m.end(1)] + "\" alt=\"" + line[img_m.start(2):img_m.end(2)] + "\" />" + line[img_m.end():]
+            line = line[:img_m.start()] + "<img src=\"" + escape_url(line[img_m.start(1):img_m.end(1)]) + "\" alt=\"" + line[img_m.start(2):img_m.end(2)] + "\" />" + line[img_m.end():]
         html_lines.append(line)
     
     while cur_bullet_depth > 0:
@@ -188,6 +192,30 @@ def file_extension(filename, default = ""):
     else:
         return default
 
+# items must be of the form [indexnr, timestamp, name]
+def sort_dir_files(a, b):
+    try:
+      if a[0] > b[0]:
+        return 1
+      elif a[0] < b[0]:
+        return -1
+      else:
+        # sort timestamps in reverse order
+        if a[1] > b[1]:
+          return -1
+        elif a[1] < b[1]:
+          return 1
+        else:
+          if a[2] > b[2]:
+            return 1
+          elif a[2] < b[2]:
+            return -1
+          else:
+            return 0
+    except e:
+      print e
+      return 0
+
 # returns a list of filenames in the directory,
 # excluding all re matches from ignore_masks
 # sorted by extension, then by last modified date
@@ -200,8 +228,7 @@ def get_dir_files(dir, ignore_masks, invert = False):
         #files = map( lambda f: (os.stat(f)[stat.ST_MTIME], file_extension(f), f), files )
         files = map( lambda f: (file_extension(f, "ZZZ"), os.stat(f)[stat.ST_MTIME], f), files )
         #print files
-        files.sort()
-        files.reverse()
+        files.sort(sort_dir_files)
         for fs in files:
             f = fs[2]
             matches = False
@@ -219,7 +246,7 @@ def get_dir_files(dir, ignore_masks, invert = False):
 
 def read_dir_options(options, dir):
 	for f in get_dir_files(".", [ ".*\\.setup" ], True):
-		print "DIR: " + dir + " FILE: "+f
+		#print "DIR: " + dir + " FILE: "+f
 		options = add_options(options, append_file_lines([], f, ['^\s*[^#].+\s*=\s*.*\s*' ]))
 	return options
 	
@@ -237,7 +264,7 @@ def create_menu(base_dir, options):
     append_file_lines(menu_lines, get_option(options, "root_dir") + "/menu_start.inc")
     first = True;
     for file in get_dir_files(base_dir, ignore_masks):
-        print "FILE: "+file
+        #print "FILE: "+file
         if not first:
             append_file_lines(menu_lines, get_option(options, "root_dir") + "/menu_item.inc")
         else:
@@ -247,7 +274,8 @@ def create_menu(base_dir, options):
     return menu_lines
 
 
-def create_page(in_dir, page_dir, output_dir, options):
+def create_page(in_dir, page_dir, output_dir, options, dir_depth):
+    print "Creating page: "+in_dir+" <> "+page_dir
     output_file_name = page_dir + ".html"
     
     lines = []
@@ -278,7 +306,9 @@ def create_page(in_dir, page_dir, output_dir, options):
     first = True
     for pf in pagefiles:
         if os.path.isdir(in_dir+"/"+page_dir+"/"+pf):
-            create_page(in_dir+"/"+page_dir, pf, output_dir+"/"+page_dir, options)
+            if not os.path.isdir(output_dir + "/" + page_dir):
+                os.mkdir(output_dir + "/" + page_dir)
+            create_page(in_dir, page_dir+"/"+pf, output_dir+"/"+page_dir, options, dir_depth+1)
         else:
             if not first:
                 lines.append("<hr noshade=\"noshade\" size=\"3\" width=\"60%\" align=\"left\" />\n")
@@ -309,6 +339,22 @@ def create_page(in_dir, page_dir, output_dir, options):
         else:
             lines2.append(l)
 
+    lines = lines2
+    lines2 = []
+    for l in lines:
+        l_p = re.compile("_STYLE_SHEET_")
+        l_m = l_p.search(l)
+        if l_m:
+            i = 0
+            style_sheet_loc = ""
+            while i < dir_depth:
+                style_sheet_loc += "../"
+                i += 1
+            style_sheet_loc += get_option(options, "style_sheet")
+            lines2.append(l[:l_m.start()] + style_sheet_loc + l[l_m.end():])
+        else:
+            lines2.append(l)
+
 #    lines2 = wiki_to_html(lines2)
 
     of = open(out_dir + "/" + output_file_name, "w")
@@ -321,7 +367,7 @@ options = read_dir_options(options, ".")
 in_dir = get_option(options, "in_dir")
 out_dir = get_option(options, "out_dir")
 for f in get_dir_files(in_dir, ignore_masks):
-    create_page(in_dir, f, out_dir, options)
+    create_page(in_dir, f, out_dir, options, 0)
     shutil.copy(get_option(options, "style_sheet"), out_dir)
     shutil.copy(get_option(options, "favicon"), out_dir)
 
