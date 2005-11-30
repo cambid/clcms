@@ -326,7 +326,7 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, cur_d
                     page_lines.append("<hr noshade=\"noshade\" size=\"1\" width=\"80%\" align=\"left\" />\n")
                 else:
                     first = False
-                page_lines.append("<a href=\"#" + escape_url(pf) + "\">" + file_base_name(pf) + "</a>\n")
+                page_lines.append("<a href=\"#" + escape_url(file_base_name(pf)) + "\">" + file_base_name(pf) + "</a>\n")
         page_lines.append("</div>\n")
     
     page_lines.append("<div id=\"content\">\n")
@@ -357,6 +357,7 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, cur_d
             print "page_file_option_delimiter = " + get_option(options, "page_file_option_delimiter")
         else:
             # TODO: Macro
+            # TODO: is this match necessary? file_base_name()?
             if item_index > 1:
                 page_lines.append("<hr noshade=\"noshade\" size=\"3\" width=\"60%\" align=\"left\" />\n")
             pf = pf[:extension_m.start(1)]
@@ -366,7 +367,7 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, cur_d
             pf_lines.extend(file_lines(pf_orig))
             if wiki_parse:
                 pf_lines = wiki_to_html(pf_lines)
-            page_lines.append("<a name=\"" + escape_url(pf) + "\"></a>\n")
+            page_lines.append("<a name=\"" + escape_url(file_base_name(pf)) + "\"></a>\n")
             page_lines.extend(pf_lines)
             if os.stat(in_dir)[stat.ST_MTIME] > last_modified:
                 last_modified = os.stat(in_dir)[stat.ST_MTIME]
