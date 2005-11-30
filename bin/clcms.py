@@ -292,7 +292,9 @@ def create_menu(root_dir, base_dir, options):
 def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, cur_dir_depth):
     # Should this be here or in the calling function (create_pages())?
     page_lines = []
+    last_modified = os.stat(in_dir)[stat.ST_MTIME]
 
+    
     # specific page options are stored in the file name between the dots
     extension_p = re.compile(get_option(options, "page_file_name"))
     dots_p = re.compile(get_option(options, "page_file_option_delimiter"))
@@ -366,6 +368,8 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, cur_d
                 pf_lines = wiki_to_html(pf_lines)
             page_lines.append("<a name=\"" + escape_url(pf) + "\"></a>\n")
             page_lines.extend(pf_lines)
+            if os.stat(in_dir)[stat.ST_MTIME] > last_modified:
+                last_modified = os.stat(in_dir)[stat.ST_MTIME]
             item_index += 1
             
     page_lines.append("</div>\n")
@@ -382,6 +386,24 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, cur_d
     # TODO: Macro
     # TODO: Macro
     lines = page_lines
+    lines2 = []
+    for l in lines:
+        l_p = re.compile("_DATE_FILE_")
+        l_m = l_p.search(l)
+        if l_m:
+            lines2.append(l[:l_m.start()] + time.strftime("%Y-%m-%d", time.gmtime(last_modified)) + l[l_m.end():])
+        else:
+            lines2.append(l)
+    lines = lines2
+    lines2 = []
+    for l in lines:
+        l_p = re.compile("_DATE_")
+        l_m = l_p.search(l)
+        if l_m:
+            lines2.append(l[:l_m.start()] + time.strftime("%Y-%m-%d") + l[l_m.end():])
+        else:
+            lines2.append(l)
+    lines = lines2
     lines2 = []
     for l in lines:
         l_p = re.compile("_MENU_")
