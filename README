@@ -53,3 +53,15 @@ images can be included like this:
 {{<url>}{alt_tag}}
 
 only 1 link or image can be used per line atm
+
+
+algo:
+	read setup files (default *.setup)
+	read page files (default *.page)
+	if one or more page files:
+		create page, copy
+	for every subdir:
+		repeat
+	copy every other file to out/cur/
+
+

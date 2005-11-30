@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import os
+from os.path import join, getsize
 import stat
 import shutil
 import time
@@ -16,7 +17,7 @@ import re
 # TODO: make this a general parser (i'd like it to work a lot better
 # than for instance Twiki...)
 def escape_url(url):
-    url = url.replace(' ', '%20')
+    url = url.replace(' ', '_')
     return url
 
 def wiki_to_html(wiki_lines):
@@ -30,10 +31,11 @@ def wiki_to_html(wiki_lines):
         if line == "":
             if not in_p:
                 html_lines.append("<p>\n")
-            in_p = True
+                in_p = True
         if line[:1] == "*" and line[-1:] == "*":
             if (in_p):
                 html_lines.append("</p>\n")
+                in_p = False
             while cur_bullet_depth > 0:
                 html_lines.append("</ul>\n")
                 cur_bullet_depth -= 1
@@ -41,6 +43,7 @@ def wiki_to_html(wiki_lines):
         elif line[:1] == "_" and line[-1:] == "_":
             if (in_p):
                 html_lines.append("</p>\n")
+                in_p = False
             while cur_bullet_depth > 0:
                 html_lines.append("</ul>\n")
                 cur_bullet_depth -= 1
@@ -48,6 +51,7 @@ def wiki_to_html(wiki_lines):
         elif line[:1] == "=" and line[-1:] == "=":
             if (in_p):
                 html_lines.append("</p>\n")
+                in_p = False
             while cur_bullet_depth > 0:
                 html_lines.append("</ul>\n")
                 cur_bullet_depth -= 1
@@ -55,6 +59,7 @@ def wiki_to_html(wiki_lines):
         elif line[:4] == "   *":
             if (in_p):
                 html_lines.append("</p>\n")
+                in_p = False
             while cur_bullet_depth < 1:
                 html_lines.append("<ul>\n")
                 cur_bullet_depth += 1
@@ -62,6 +67,7 @@ def wiki_to_html(wiki_lines):
         elif line[:3] == "---":
             if (in_p):
                 html_lines.append("</p>\n")
+                in_p = False
             while cur_bullet_depth > 0:
                 html_lines.append("</ul>\n")
                 cur_bullet_depth -= 1
@@ -71,10 +77,14 @@ def wiki_to_html(wiki_lines):
             if (i > 3):
                 html_lines.append("<h" + str(i-3) + ">" + line[i:] + "</h" + str(i-3) +  ">\n")
             else:
+                if not in_p:
+                    html_lines.append("<p>\n")
+                    in_p = True
                 html_lines.append(line)
         else:
             if (in_p):
                 html_lines.append("</p>\n")
+                in_p = False
             while cur_bullet_depth > 0:
                 html_lines.append("</ul>\n")
                 cur_bullet_depth -= 1
@@ -149,18 +159,27 @@ options = add_option(options, "footer_files = footer.inc")
 options = add_option(options, "favicon = " + get_option(options, "root_dir") + "/favicon.ico")
 options = add_option(options, "content_dir = .")
 options = add_option(options, "resource_dir = .")
-
-# these files will be ignored when walking directories
-# (these are read as regular expressions)
-ignore_masks = [ "\\.\\\\*", ".gif$", ".png$", ".setup$" ]
+options = add_option(options, "show_menu = yes")
+options = add_option(options, "show_submenu = yes")
+options = add_option(options, "menu_depth = 1")
+options = add_option(options, "setup_file_name = .*\\.setup")
+options = add_option(options, "wiki_parse = yes")
+options = add_option(options, "show_item_title = yes")
+# this option matches page file names
+# it is a regular expression. The value between the first set of 
+# brackets will be removed when outputting to a html file
+options = add_option(options, "page_file_name = .*(\\.page)")
+options = add_option(options, "page_file_option_delimiter = .*(\..*?)\..*")
+options = add_option(options, "ignore_masks = \\.\\\\*,DEADJOE")
 
 #
 # Utility functions
 #
 
 # if filter contain any re's, only lines matching any of them are
-# added. If filter is empty, all lines are added
-def append_file_lines(lines, file, filters = []):
+# returned. If filter is empty, all lines are returned
+def file_lines(file, filters = []):
+    lines = []
     f_lines = open(file, "r")
     for l in f_lines:
         if filters == []:
@@ -173,14 +192,13 @@ def append_file_lines(lines, file, filters = []):
                                 lines.append(l)
     return lines
 
-# returns the filename without the extension
+
 def file_base_name(filename):
-    p = re.compile("\\..+$")
-    m = p.search(filename)
-    if m:
-        return filename[:m.start()]
-    else:
-        return filename
+    try:
+        result = filename[:filename.index(".")]
+    except:
+        result = filename
+    return result
 
 # returns the filename extension (without the .)
 # optional value default is returned if there is no extension
@@ -244,101 +262,141 @@ def get_dir_files(dir, ignore_masks, invert = False):
         os.chdir(orig_path)
     return dirfiles
 
-def read_dir_options(options, dir):
-	for f in get_dir_files(".", [ ".*\\.setup" ], True):
-		#print "DIR: " + dir + " FILE: "+f
-		options = add_options(options, append_file_lines([], f, ['^\s*[^#].+\s*=\s*.*\s*' ]))
-	return options
-	
-#    for l in lines:
-#        l_p = re.compile("_MENU_")
-#        l_m = l_p.match(l)
-#        if l_m:
-#            lines.append(create_menu(
-
 # generate the menu with the given directory as its base
 # returns a list of html lines
-def create_menu(base_dir, options):
+# TODO: recursively descend paths, (don't forget ../ then)
+# TODO: only add if there are .page files?
+# what to do if it is an empty nonterminal?
+def create_menu(root_dir, base_dir, options):
+    ignore_masks = get_options(options, "ignore_masks")
     ignore_masks.append('.*\.nm.*')
     menu_lines = []
-    append_file_lines(menu_lines, get_option(options, "root_dir") + "/menu_start.inc")
+    menu_lines.extend(file_lines(root_dir + "/menu_start.inc"))
     first = True;
+    menu_depth = int(get_option(options, "menu_depth"))
     for file in get_dir_files(base_dir, ignore_masks):
-        #print "FILE: "+file
+       #print "FILE: "+file
         if not first:
-            append_file_lines(menu_lines, get_option(options, "root_dir") + "/menu_item.inc")
+            menu_lines.extend(file_lines(root_dir + "/menu_item.inc"))
         else:
             first = False
-        menu_lines.append("<a href=\"" + file + ".html\">" + file_base_name(file) + "</a>")
-    append_file_lines(menu_lines, get_option(options, "root_dir") + "/menu_end.inc")
+        menu_lines.append("<a href=\"../" + escape_url(file_base_name(file)) + "/index.html\">" + file_base_name(file) + "</a>")
+    menu_lines.extend(file_lines(root_dir + "/menu_end.inc"))
     return menu_lines
 
 
-def create_page(in_dir, page_dir, output_dir, options, dir_depth):
-    print "Creating page: "+in_dir+" <> "+page_dir
-    output_file_name = page_dir + ".html"
-    
-    lines = []
-    for f in get_options(options, "header_files"):
-        append_file_lines(lines, f)
 
-#    for l in create_menu(in_dir):
-#        lines.append(l)
+def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, cur_dir_depth):
+    # Should this be here or in the calling function (create_pages())?
+    page_lines = []
 
-    orig_path = os.getcwd()
-    os.chdir(in_dir)
-    pagefiles = get_dir_files(page_dir, ignore_masks)
-    os.chdir(orig_path)
-    
-    if len(pagefiles) > 1:
-        lines.append("<div id=\"submenu\">\n")
+    # specific page options are stored in the file name between the dots
+    extension_p = re.compile(get_option(options, "page_file_name"))
+    dots_p = re.compile(get_option(options, "page_file_option_delimiter"))
+    wiki_parse = False
+    show_menu = False
+    show_submenu = False
+    show_item_title = False
+    if get_option(options, "wiki_parse") == 'yes':
+        wiki_parse = True
+    if get_option(options, "show_menu") == 'yes':
+        show_menu = True
+    if get_option(options, "show_submenu") == 'yes':
+        show_submenu = True
+    if get_option(options, "show_item_title") == 'yes':
+        show_item_title = True
+
+    # header
+    for hf in get_options(options, "header_files"):
+        page_lines.extend(file_lines(root_dir + "/" + hf))
+
+    # submenu
+    # TODO: macro's etc.
+    if show_submenu and len(page_files) > 1:
+        page_lines.append("<div id=\"submenu\">\n")
         first = True
-        for pf in pagefiles:
-            if not first:
-                lines.append("<hr noshade=\"noshade\" size=\"1\" width=\"80%\" align=\"left\" />\n")
-            else:
-                first = False
-            lines.append("<a href=\"" + output_file_name + "#" + pf + "\">" + file_base_name(pf) + "</a>\n")
-        lines.append("</div>\n")
+        for pf in page_files:
+            if pf.find(".nosubmenu") < 0:
+                if not first:
+                    page_lines.append("<hr noshade=\"noshade\" size=\"1\" width=\"80%\" align=\"left\" />\n")
+                else:
+                    first = False
+                page_lines.append("<a href=\"#" + escape_url(pf) + "\">" + file_base_name(pf) + "</a>\n")
+        page_lines.append("</div>\n")
     
-    lines.append("<div id=\"content\">\n")
+    page_lines.append("<div id=\"content\">\n")
 
-    first = True
-    for pf in pagefiles:
-        if os.path.isdir(in_dir+"/"+page_dir+"/"+pf):
-            if not os.path.isdir(output_dir + "/" + page_dir):
-                os.mkdir(output_dir + "/" + page_dir)
-            create_page(in_dir, page_dir+"/"+pf, output_dir+"/"+page_dir, options, dir_depth+1)
+    # handle the .page items
+    item_index = 1
+    for pf_orig in page_files:
+        pf = pf_orig
+        dots_m = dots_p.match(pf)
+        if dots_m:
+            while dots_m:
+                # handle option
+                option_name = pf[dots_m.start(1):dots_m.end(1)]
+                if option_name == ".nowiki":
+                    wiki_parse = False
+                elif option_name == ".wiki":
+                    wiki_parse = True
+                elif option_name == ".title":
+                    show_item_title = True
+                elif option_name == ".notitle":
+                     show_item_title = False
+                pf = pf[:dots_m.start(1)] + pf[dots_m.end(1):]
+                dots_m = dots_p.match(pf)
+        extension_m = extension_p.match(pf)
+        if not extension_m:
+            print "ERROR: Conflict in options:"
+            print "page_file_name = " + get_option(options, "page_file_name")
+            print "page_file_option_delimiter = " + get_option(options, "page_file_option_delimiter")
         else:
-            if not first:
-                lines.append("<hr noshade=\"noshade\" size=\"3\" width=\"60%\" align=\"left\" />\n")
-            else:
-                first = False
-            lines.append("<p>\n")
-            lines.append("<a name=\"" + pf + " id=\"" + pf + "></a>\n")
-            lines.append("<h3>" + file_base_name(pf) + "</h3>\n")
-            #append_file_lines(lines, in_dir + "/" + page_dir +    "/" + pf)
-            wikilines = append_file_lines([], in_dir + "/" + page_dir +    "/" + pf)
-            lines.extend(wiki_to_html(wikilines))
-            lines.append("</p>\n")
+            # TODO: Macro
+            if item_index > 1:
+                page_lines.append("<hr noshade=\"noshade\" size=\"3\" width=\"60%\" align=\"left\" />\n")
+            pf = pf[:extension_m.start(1)]
+            pf_lines = []
+            if show_item_title:
+                pf_lines.append("<h3>" + pf + "</h3>\n")
+            pf_lines.extend(file_lines(pf_orig))
+            if wiki_parse:
+                pf_lines = wiki_to_html(pf_lines)
+            page_lines.append("<a name=\"" + escape_url(pf) + "\"></a>\n")
+            page_lines.extend(pf_lines)
+            item_index += 1
+            
+    page_lines.append("</div>\n")
 
-    lines.append("</div>\n")
+    # footer
+    for hf in get_options(options, "footer_files"):
+        page_lines.extend(file_lines(root_dir + "/" + hf))
+
+    # create dir and file
+    if not os.path.isdir(out_dir):
+        os.mkdir(out_dir)
     
-    for f in get_options(options, "footer_files"):
-        append_file_lines(lines, f)
-    
-    #lines = replace_macros(lines)
     # TODO: Macro
+    # TODO: Macro
+    # TODO: Macro
+    lines = page_lines
     lines2 = []
     for l in lines:
         l_p = re.compile("_MENU_")
         l_m = l_p.search(l)
         if l_m:
-            for ml in create_menu(in_dir, options):
+            for ml in create_menu(root_dir, in_dir, options):
                 lines2.append(ml)
         else:
             lines2.append(l)
-
+    lines = lines2
+    lines2 = []
+    for l in lines:
+        l_p = re.compile("_TITLE_")
+        l_m = l_p.search(l)
+        if l_m:
+            lines2.append(l[:l_m.start()] + page_name + l[l_m.end():])
+        else:
+            lines2.append(l)
     lines = lines2
     lines2 = []
     for l in lines:
@@ -347,29 +405,99 @@ def create_page(in_dir, page_dir, output_dir, options, dir_depth):
         if l_m:
             i = 0
             style_sheet_loc = ""
-            while i < dir_depth:
+            while i < cur_dir_depth:
                 style_sheet_loc += "../"
                 i += 1
             style_sheet_loc += get_option(options, "style_sheet")
             lines2.append(l[:l_m.start()] + style_sheet_loc + l[l_m.end():])
         else:
             lines2.append(l)
+    lines = lines2
+    lines2 = []
 
-#    lines2 = wiki_to_html(lines2)
+    page_lines = lines
+    #
+    # TODO Macro end
+    #
 
-    of = open(out_dir + "/" + output_file_name, "w")
-    for l in lines2:
-        of.write(l)
-    of.close()
+    out_file = open(out_dir + "/index.html", "w")
+    out_file.writelines(page_lines)
+    out_file.close()
+    print "[CLCMS] Created " + out_dir + "/index.html"
 
-options = read_dir_options(options, ".")
 
+def create_pages(root_dir, in_dir, out_dir, options, cur_dir_depth):
+    out_dir = escape_url(out_dir)
+    dir_files = get_dir_files(".", get_options(options, "ignore_masks"))
+    # store every file that has not been handled yet in a temp list
+    # (removing elements from a list you're iterating over is a bad idea
+    dir_files2 = []
+
+    #
+    # Read setup files
+    setup_p = re.compile(get_option(options, "setup_file_name"))
+    for df in dir_files:
+        setup_m = setup_p.match(df)
+        if setup_m:
+            print "Setup File Found: "+df
+        else:
+            dir_files2.append(df)
+    dir_files = dir_files2
+    dir_files2 = []
+    
+    #
+    # Read page files
+    #print "po: "+get_option(options, "page_file_name")
+    page_p = re.compile(get_option(options, "page_file_name"))
+    page_files = []
+    for df in dir_files:
+        page_m = page_p.search(df)
+        if page_m:
+            page_files.append(df)
+        else:
+            dir_files2.append(df)
+    dir_files = dir_files2
+    dir_files2 = []
+
+    if page_files != []:
+        # TODO: dotted page options here? (like in .page file names?)
+        page_name = file_base_name(os.path.basename(out_dir))
+        create_page(root_dir, in_dir, out_dir, page_name, page_files, options, cur_dir_depth)
+
+    # 
+    # Read directories
+    for df in dir_files:
+        if os.path.isdir(df):
+            os.chdir(df)
+            create_pages(root_dir, in_dir, out_dir + "/" + file_base_name(df), options, cur_dir_depth + 1)
+            os.chdir("..")
+        else:
+            dir_files2.append(df)
+    dir_files = dir_files2
+    dir_files2 = []
+
+    #
+    # Copy rest
+    for df in dir_files:
+        shutil.copy(df, out_dir)
+        print "[CLCMS] Copied " + df + " to " + out_dir
+    
 in_dir = get_option(options, "in_dir")
+if in_dir[:1] != "/":
+    in_dir = os.getcwd() + "/" + in_dir
+root_dir = get_option(options, "root_dir")
+if root_dir[:1] != "/":
+    root_dir = os.getcwd() + "/" + root_dir
 out_dir = get_option(options, "out_dir")
-for f in get_dir_files(in_dir, ignore_masks):
-    create_page(in_dir, f, out_dir, options, 0)
-    shutil.copy(get_option(options, "style_sheet"), out_dir)
-    shutil.copy(get_option(options, "favicon"), out_dir)
+if out_dir[:1] != "/":
+    out_dir = os.getcwd() + "/" + out_dir
+if not os.path.isdir(out_dir):
+    os.mkdir(out_dir)
 
+os.chdir(in_dir)
+create_pages(root_dir, in_dir, out_dir, options, 0)
+os.chdir(root_dir)
+shutil.copy(get_option(options, "style_sheet"), out_dir)
+shutil.copy(get_option(options, "favicon"), out_dir)
 
 

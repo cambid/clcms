@@ -3,5 +3,5 @@
 		<tr>
 			<td class="menu_start">
 			</td>
-			<td class="menu_item" nowrap="nowrap"
+			<td class="menu_item" nowrap="nowrap">
 
