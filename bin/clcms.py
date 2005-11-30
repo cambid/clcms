@@ -29,6 +29,9 @@ def wiki_to_html(wiki_lines):
         line = line.rstrip('\n\r\t ')
         # bold
         if line == "":
+            while cur_bullet_depth > 0:
+                html_lines.append("</ul>\n")
+                cur_bullet_depth -= 1
             if not in_p:
                 html_lines.append("<p>\n")
                 in_p = True
