@@ -6,6 +6,7 @@ import stat
 import shutil
 import time
 import re
+import sys
 
 #
 # Wiki style parser
@@ -148,7 +149,11 @@ def get_options(options, option_name):
 	for o in options:
 		m = p.match(o)
 		if m:
-			return o[m.end():].split(',')
+                    result = o[m.end():].split(',')
+                    if result != [ '' ]:
+                        return result
+                    else:
+                        return []
 	return []
 
 # defaults
@@ -165,6 +170,9 @@ options = add_option(options, "resource_dir = .")
 options = add_option(options, "show_menu = yes")
 options = add_option(options, "show_submenu = yes")
 options = add_option(options, "menu_depth = 1")
+options = add_option(options, "menu_start_files = menu_start.inc")
+options = add_option(options, "menu_end_files = menu_start.inc")
+options = add_option(options, "menu_item1 = menu_item.inc")
 options = add_option(options, "setup_file_name = .*\\.setup")
 options = add_option(options, "wiki_parse = yes")
 options = add_option(options, "show_item_title = yes")
@@ -270,7 +278,47 @@ def get_dir_files(dir, ignore_masks, invert = False):
 # TODO: recursively descend paths, (don't forget ../ then)
 # TODO: only add if there are .page files?
 # what to do if it is an empty nonterminal?
+def create_menu_part(root_dir, base_dir, cur_depth, options):
+    menu_lines = []
+    
+    ignore_masks = get_options(options, "ignore_masks")
+    ignore_masks.append('.*\.nm.*')
+    
+    dir_files = get_dir_files(".", ignore_masks)
+    
+    for d in dir_files:
+        if os.path.isdir(d):
+            i = 0;
+            pagefiles = get_dir_files(d, get_options(options, "page_file_name"), True)
+            if pagefiles != []:
+                print "LINK",
+            while i < cur_depth:
+                print "\t",
+                i += 1
+            print d
+                
+            if cur_depth < get_option(options, "menu_depth"):
+                os.chdir(d)
+                create_menu_part(root_dir, base_dir, cur_depth + 1, options)
+                os.chdir("..")
+                
+    return menu_lines
+
 def create_menu(root_dir, base_dir, options):
+    menu_lines = []
+    for hf in get_options(options, "menu_start_files"):
+        if hf[:1] != '/':
+            hf = root_dir + '/' + hf
+        menu_lines.extend(file_lines(hf))
+    menu_lines.extend(create_menu_part(root_dir, base_dir, 0, options))
+    for hf in get_options(options, "menu_end_files"):
+        if hf[:1] != '/':
+            hf = root_dir + '/' + hf
+        menu_lines.extend(file_lines(hf))
+    return menu_lines
+    
+
+def origcreate_menu(root_dir, base_dir, options):
     ignore_masks = get_options(options, "ignore_masks")
     ignore_masks.append('.*\.nm.*')
     menu_lines = []
@@ -409,8 +457,11 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, cur_d
         l_p = re.compile("_MENU_")
         l_m = l_p.search(l)
         if l_m:
-            for ml in create_menu(root_dir, in_dir, options):
-                lines2.append(ml)
+            if get_option(options, "show_menu") == 'yes':
+                for ml in create_menu(root_dir, in_dir, options):
+                    lines2.append(ml)
+            else:
+                lines2.append(l[:l_m.start()] + l[l_m.end():])
         else:
             lines2.append(l)
     lines = lines2
@@ -509,6 +560,31 @@ def create_pages(root_dir, in_dir, out_dir, options, cur_dir_depth):
         shutil.copy(df, out_dir)
         #print "[CLCMS] Copied " + df + " to " + out_dir
     
+
+#
+#Initializer, argument parsing, and main loop call
+# 
+
+# read setup in current dir
+setup_p = re.compile(get_option(options, "setup_file_name"))
+for df in os.listdir("."):
+    setup_m = setup_p.match(df)
+    if setup_m:
+        #options.extend(file_lines(df, ['^[^#].* *= *.+']))
+        for o in file_lines(df, ['^[^#].* *= *.+']):
+            options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
+
+# parse arguments
+if len(sys.argv) > 1:
+    for arg in sys.argv[1:]:
+    	if arg == "-c" or arg == "--write-config":
+    		for l in options:
+    			print l
+		sys.exit(0)
+    else:
+    	print "Unknown argument: "+arg
+    	sys.exit(1)
+
 in_dir = get_option(options, "in_dir")
 if in_dir[:1] != "/":
     in_dir = os.getcwd() + "/" + in_dir
@@ -521,10 +597,10 @@ if out_dir[:1] != "/":
 if not os.path.isdir(out_dir):
     os.mkdir(out_dir)
 
+if not os.path.isdir(in_dir):
+	print "No such directory: " + in_dir
+	sys.exit(1)
 os.chdir(in_dir)
 create_pages(root_dir, in_dir, out_dir, options, 0)
 os.chdir(root_dir)
-shutil.copy(get_option(options, "style_sheet"), out_dir)
-shutil.copy(get_option(options, "favicon"), out_dir)
-
 
