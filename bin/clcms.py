@@ -302,14 +302,10 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, cur_d
     show_menu = False
     show_submenu = False
     show_item_title = False
-    if get_option(options, "wiki_parse") == 'yes':
-        wiki_parse = True
     if get_option(options, "show_menu") == 'yes':
         show_menu = True
     if get_option(options, "show_submenu") == 'yes':
         show_submenu = True
-    if get_option(options, "show_item_title") == 'yes':
-        show_item_title = True
 
     # header
     for hf in get_options(options, "header_files"):
@@ -334,6 +330,9 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, cur_d
     # handle the .page items
     item_index = 1
     for pf_orig in page_files:
+        wiki_parse = get_option(options, "wiki_parse") == 'yes'
+        show_item_title = get_option(options, "show_item_title") == 'yes'
+
         pf = pf_orig
         dots_m = dots_p.match(pf)
         if dots_m:
@@ -449,7 +448,7 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, cur_d
     out_file = open(out_dir + "/index.html", "w")
     out_file.writelines(page_lines)
     out_file.close()
-    print "[CLCMS] Created " + out_dir + "/index.html"
+    #print "[CLCMS] Created " + out_dir + "/index.html"
 
 
 def create_pages(root_dir, in_dir, out_dir, options, cur_dir_depth):
@@ -465,7 +464,9 @@ def create_pages(root_dir, in_dir, out_dir, options, cur_dir_depth):
     for df in dir_files:
         setup_m = setup_p.match(df)
         if setup_m:
-            print "Setup File Found: "+df
+            #options.extend(file_lines(df, ['^[^#].* *= *.+']))
+            for o in file_lines(df, ['^[^#].* *= *.+']):
+            	options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
         else:
             dir_files2.append(df)
     dir_files = dir_files2
@@ -506,7 +507,7 @@ def create_pages(root_dir, in_dir, out_dir, options, cur_dir_depth):
     # Copy rest
     for df in dir_files:
         shutil.copy(df, out_dir)
-        print "[CLCMS] Copied " + df + " to " + out_dir
+        #print "[CLCMS] Copied " + df + " to " + out_dir
     
 in_dir = get_option(options, "in_dir")
 if in_dir[:1] != "/":
