@@ -29,7 +29,7 @@ def wiki_to_html_simple(line):
         return "<p></p>\n"
     if line[:1] == '*' and line[-1:] == '*':
         return "<b>" + line[1:-1] + "</b>\n"
-    if line[:1] == '_' and line[-1:] == '_':
+    if line[:1] == '.' and line[-1:] == '.':
         return "<i>" + line[1:-1] + "</i>\n"
     if line[:1] == '=' and line[-1:] == '=':
         return "<pre>" + line[1:-1] + "</pre>\n"
@@ -53,92 +53,101 @@ def wiki_to_html_simple(line):
 def wiki_to_html(wiki_lines):
     html_lines = []
     i = 0
+    no_wiki = False
     while i < len(wiki_lines):
         line = wiki_lines[i]
-        if line[:3] == "---":
-            j = 3
-            while line[j] == "+":
-                j += 1
-            if (j > 3):
-                html_lines.append("<h" + str(j-3) + ">" + wiki_to_html_simple(line[j:]) + "</h" + str(j-3) +  ">\n")
+        if no_wiki:
+            if line == "_NO_WIKI_END_\n":
+                no_wiki = False
             else:
-                html_lines.append(wiki_to_html_simple(line))
-        elif line[:5] == "   * ":
-            html_lines.append("<ul>\n")
-            html_lines.append("\t<li>\n")
-            html_lines.append(wiki_to_html_simple(line[5:]))
-            in_list1 = True
-            while in_list1:
-                i += 1
-                if i < len(wiki_lines):
-                    line = wiki_lines[i]
-                    if line[:5] == "   * ":
-                        html_lines.append("\t</li>\n")
-                        html_lines.append("\t<li>\n")
-                        html_lines.append(wiki_to_html_simple(line[5:]))
-                    elif line[:8] == "      * ":
-                        html_lines.append("<ul>\n")
-                        html_lines.append("\t<li>\n")
-                        html_lines.append(wiki_to_html_simple(line[8:]))
-                        in_list2 = True
-                        while in_list2:
-                            i += 1
-                            if i < len(wiki_lines):
-                                line = wiki_lines[i]
-                                if line[:8] == "      * ":
-                                    html_lines.append("\t</li>\n")
-                                    html_lines.append("\t<li>\n")
-                                    html_lines.append(wiki_to_html_simple(line[8:]))
-                                #elif line[:8] == "      * ":
-                                elif line[:11] == "         * ":
-                                    html_lines.append("<ul>\n")
-                                    html_lines.append("\t<li>\n")
-                                    html_lines.append(wiki_to_html_simple(line[11:]))
-                                    in_list3 = True
-                                    while in_list3:
-                                        i += 1
-                                        if i < len(wiki_lines):
-                                            line = wiki_lines[i]
-                                            if line[:11] == "         * ":
-                                                html_lines.append("\t</li>\n")
-                                                html_lines.append("\t<li>\n")
-                                                html_lines.append(wiki_to_html_simple(line[11:]))
-                                            #elif line[:11] == "         * ":
-                                            elif line[:11] == "           ":
-                                                html_lines.append(wiki_to_html_simple(line[11:]))
+                html_lines.append(line)
+        else:
+            if line == "_NO_WIKI_\n":
+                no_wiki = True
+            elif line[:3] == "---":
+                j = 3
+                while line[j] == "+":
+                    j += 1
+                if (j > 3):
+                    html_lines.append("<h" + str(j-3) + ">" + wiki_to_html_simple(line[j:]) + "</h" + str(j-3) +  ">\n")
+                else:
+                    html_lines.append(wiki_to_html_simple(line))
+            elif line[:5] == "   * ":
+                html_lines.append("<ul>\n")
+                html_lines.append("\t<li>\n")
+                html_lines.append(wiki_to_html_simple(line[5:]))
+                in_list1 = True
+                while in_list1:
+                    i += 1
+                    if i < len(wiki_lines):
+                        line = wiki_lines[i]
+                        if line[:5] == "   * ":
+                            html_lines.append("\t</li>\n")
+                            html_lines.append("\t<li>\n")
+                            html_lines.append(wiki_to_html_simple(line[5:]))
+                        elif line[:8] == "      * ":
+                            html_lines.append("<ul>\n")
+                            html_lines.append("\t<li>\n")
+                            html_lines.append(wiki_to_html_simple(line[8:]))
+                            in_list2 = True
+                            while in_list2:
+                                i += 1
+                                if i < len(wiki_lines):
+                                    line = wiki_lines[i]
+                                    if line[:8] == "      * ":
+                                        html_lines.append("\t</li>\n")
+                                        html_lines.append("\t<li>\n")
+                                        html_lines.append(wiki_to_html_simple(line[8:]))
+                                    #elif line[:8] == "      * ":
+                                    elif line[:11] == "         * ":
+                                        html_lines.append("<ul>\n")
+                                        html_lines.append("\t<li>\n")
+                                        html_lines.append(wiki_to_html_simple(line[11:]))
+                                        in_list3 = True
+                                        while in_list3:
+                                            i += 1
+                                            if i < len(wiki_lines):
+                                                line = wiki_lines[i]
+                                                if line[:11] == "         * ":
+                                                    html_lines.append("\t</li>\n")
+                                                    html_lines.append("\t<li>\n")
+                                                    html_lines.append(wiki_to_html_simple(line[11:]))
+                                                #elif line[:11] == "         * ":
+                                                elif line[:11] == "           ":
+                                                    html_lines.append(wiki_to_html_simple(line[11:]))
+                                                else:
+                                                    html_lines.append("\t</li>\n")
+                                                    html_lines.append("</ul>\n")
+                                                    in_list3 = False
+                                                    i -= 1
                                             else:
                                                 html_lines.append("\t</li>\n")
                                                 html_lines.append("</ul>\n")
                                                 in_list3 = False
-                                                i -= 1
-                                        else:
-                                            html_lines.append("\t</li>\n")
-                                            html_lines.append("</ul>\n")
-                                            in_list3 = False
-                                elif line[:8] == "        ":
-                                    html_lines.append(wiki_to_html_simple(line[8:]))
+                                    elif line[:8] == "        ":
+                                        html_lines.append(wiki_to_html_simple(line[8:]))
+                                    else:
+                                        html_lines.append("\t</li>\n")
+                                        html_lines.append("</ul>\n")
+                                        in_list2 = False
+                                        i -= 1
                                 else:
                                     html_lines.append("\t</li>\n")
                                     html_lines.append("</ul>\n")
                                     in_list2 = False
-                                    i -= 1
-                            else:
-                                html_lines.append("\t</li>\n")
-                                html_lines.append("</ul>\n")
-                                in_list2 = False
-                    elif line[:5] == "     ":
-                        html_lines.append(wiki_to_html_simple(line[5:]))
+                        elif line[:5] == "     ":
+                            html_lines.append(wiki_to_html_simple(line[5:]))
+                        else:
+                            html_lines.append("\t</li>\n")
+                            html_lines.append("</ul>\n")
+                            in_list1 = False
+                            i -= 1
                     else:
                         html_lines.append("\t</li>\n")
                         html_lines.append("</ul>\n")
                         in_list1 = False
-                        i -= 1
-                else:
-                    html_lines.append("\t</li>\n")
-                    html_lines.append("</ul>\n")
-                    in_list1 = False
-        else:
-            html_lines.append(wiki_to_html_simple(line))
+            else:
+                html_lines.append(wiki_to_html_simple(line))
         i += 1
     return html_lines
 
@@ -320,7 +329,7 @@ def get_options(options, option_name):
                         return []
 	return []
 
-# defaults
+# default options
 options = []
 options = add_option(options, "root_dir = .")
 options = add_option(options, "in_dir = in")
@@ -341,6 +350,7 @@ options = add_option(options, "menu_item1_end = menu_item_end.inc")
 options = add_option(options, "setup_file_name = .*\\.setup")
 options = add_option(options, "wiki_parse = yes")
 options = add_option(options, "show_item_title = yes")
+options = add_option(options, "show_item_title_date = no")
 # this option matches page file names
 # it is a regular expression. The value between the first set of 
 # brackets will be removed when outputting to a html file
@@ -532,10 +542,8 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, cur_d
     # specific page options are stored in the file name between the dots
     extension_p = re.compile(get_option(options, "page_file_name"))
     dots_p = re.compile(get_option(options, "page_file_option_delimiter"))
-    wiki_parse = False
     show_menu = False
     show_submenu = False
-    show_item_title = False
     if get_option(options, "show_menu") == 'yes':
         show_menu = True
     if get_option(options, "show_submenu") == 'yes':
@@ -566,6 +574,7 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, cur_d
     for pf_orig in page_files:
         wiki_parse = get_option(options, "wiki_parse") == 'yes'
         show_item_title = get_option(options, "show_item_title") == 'yes'
+        show_item_title_date = get_option(options, "show_item_title_date") == 'yes'
 
         pf = pf_orig
         dots_m = dots_p.match(pf)
@@ -581,6 +590,7 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, cur_d
                     show_item_title = True
                 elif option_name == ".notitle":
                      show_item_title = False
+                     show_item_title_date = False
                 pf = pf[:dots_m.start(1)] + pf[dots_m.end(1):]
                 dots_m = dots_p.match(pf)
         extension_m = extension_p.match(pf)
@@ -592,11 +602,16 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, cur_d
             # TODO: Macro
             # TODO: is this match necessary? file_base_name()?
             if item_index > 1:
-                page_lines.append("<hr noshade=\"noshade\" size=\"3\" width=\"60%\" align=\"left\" />\n")
+                page_lines.append("<hr noshade=\"noshade\" size=\"1\" width=\"60%\" align=\"left\" />\n")
             pf = pf[:extension_m.start(1)]
             pf_lines = []
-            if show_item_title:
-                pf_lines.append("<h3>" + pf + "</h3>\n")
+            if show_item_title or show_item_title_date:
+                pf_lines.append("<h3>")
+                if show_item_title_date:
+                    pf_lines.append(time.strftime("%Y-%m-%d", time.gmtime(os.stat(pf_orig)[stat.ST_MTIME])))
+                if show_item_title:
+                    pf_lines.append(pf)
+                pf_lines.append("</h3>\n")
             pf_lines.extend(file_lines(pf_orig))
             if wiki_parse:
                 pf_lines = wiki_to_html(pf_lines)
@@ -688,11 +703,13 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, cur_d
     #print "[CLCMS] Created " + out_dir + "/index.html"
 
 
-def create_pages(root_dir, in_dir, out_dir, options, cur_dir_depth):
+def create_pages(root_dir, in_dir, out_dir, default_options, cur_dir_depth):
     out_dir = escape_url(out_dir)
     if not os.path.isdir(out_dir):
         os.mkdir(out_dir)
     
+    options = []
+    options.extend(default_options)
     dir_files = get_dir_files(".", get_options(options, "ignore_masks"))
     # store every file that has not been handled yet in a temp list
     # (removing elements from a list you're iterating over is a bad idea
@@ -700,17 +717,43 @@ def create_pages(root_dir, in_dir, out_dir, options, cur_dir_depth):
 
     #
     # Read setup files
+
     setup_p = re.compile(get_option(options, "setup_file_name"))
     for df in dir_files:
         setup_m = setup_p.match(df)
         if setup_m:
             #options.extend(file_lines(df, ['^[^#].* *= *.+']))
-            for o in file_lines(df, ['^[^#].* *= *.+']):
+            new_options = file_lines(df, ['^[^#].* *= *.+'])
+            print "Adding options from "+df
+            if get_option(new_options, "root_dir") != "":
+                root_dir = get_option(options, "root_dir")
+                if root_dir[:1] != "/":
+                    root_dir = os.getcwd() + "/" + root_dir
+                print "root dir now " +root_dir
+#            if get_option(new_options, "out_dir") != "":
+#                out_dir = get_option(options, "out_dir")
+#                if out_dir[:1] != "/":
+#                    out_dir = os.getcwd() + "/" + out_dir
+#                print "out dir now " +out_dir
+            if get_option(new_options, "in_dir") != "":
+                in_dir = get_option(options, "in_dir")
+                if in_dir[:1] != "/":
+                    in_dir = os.getcwd() + "/" + in_dir
+                print "in dir now " +in_dir
+                os.chdir(in_dir)
+                for o in new_options:
+                    options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
+                create_pages(root_dir, in_dir, out_dir, options, 0)
+                os.chdir("..")
+                return
+
+            for o in new_options:
             	options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
         else:
             dir_files2.append(df)
     dir_files = dir_files2
     dir_files2 = []
+
     
     #
     # Read page files
@@ -736,6 +779,7 @@ def create_pages(root_dir, in_dir, out_dir, options, cur_dir_depth):
     for df in dir_files:
         if os.path.isdir(df):
             os.chdir(df)
+            print "Entering directory " + os.getcwd()
             create_pages(root_dir, in_dir, out_dir + "/" + file_base_name(df), options, cur_dir_depth + 1)
             os.chdir("..")
         else:
