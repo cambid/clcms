@@ -29,6 +29,21 @@ def wiki_to_html_simple(line):
         return "<i>" + line[1:-1] + "</i>\n"
     if line[:1] == '=' and line[-1:] == '=':
         return "<pre>" + line[1:-1] + "</pre>\n"
+    # replace links and image refs
+    #simple_link_p = re.compile('[^\"]http://.*')
+    adv_link_p = re.compile('\[\[(.*)\]\[(.*)\]\]')
+    img_p = re.compile('\{\{(.*)\}\{(.*)\}\}')
+    adv_m = adv_link_p.search(line)
+    #simple_m = simple_link_p.search(line)
+    if adv_m:
+        line = line[:adv_m.start()] + "<a href=\"" + escape_url(line[adv_m.start(1):adv_m.end(1)]) + "\">" + line[adv_m.start(2):adv_m.end(2)] + "</a>" + line[adv_m.end():]
+    #elif simple_m:
+    #    line = line[:simple_m.start()] + "<a href=\"" + line[simple_m.start():simple_m.end()] + "\">" + line[simple_m.start():simple_m.end()] + "</a>"
+
+    img_m = img_p.search(line)
+    if img_m:
+        line = line[:img_m.start()] + "<img src=\"" + escape_url(line[img_m.start(1):img_m.end(1)]) + "\" alt=\"" + line[img_m.start(2):img_m.end(2)] + "\" />" + line[img_m.end():]
+    
     return line + "\n"
 
 def wiki_to_html(wiki_lines):
