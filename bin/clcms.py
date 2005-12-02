@@ -23,6 +23,8 @@ def escape_url(url):
 
 def wiki_to_html_simple(line):
     line = line.rstrip("\n\r\t ")
+    if line == "":
+        return "<p></p>\n"
     if line[:1] == '*' and line[-1:] == '*':
         return "<b>" + line[1:-1] + "</b>\n"
     if line[:1] == '_' and line[-1:] == '_':
@@ -56,7 +58,7 @@ def wiki_to_html(wiki_lines):
             while line[j] == "+":
                 j += 1
             if (j > 3):
-                html_lines.append("<h" + str(j-3) + ">" + wiki_to_html_simple(line[i:]) + "</h" + str(j-3) +  ">\n")
+                html_lines.append("<h" + str(j-3) + ">" + wiki_to_html_simple(line[j:]) + "</h" + str(j-3) +  ">\n")
             else:
                 html_lines.append(wiki_to_html_simple(line))
         elif line[:5] == "   * ":
