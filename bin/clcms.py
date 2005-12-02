@@ -66,11 +66,34 @@ def wiki_to_html(wiki_lines):
                             i += 1
                             if i < len(wiki_lines):
                                 line = wiki_lines[i]
-                                if line[:8] == "   * ":
+                                if line[:8] == "      * ":
                                     html_lines.append("\t</li>\n")
                                     html_lines.append("\t<li>\n")
                                     html_lines.append(wiki_to_html_simple(line[8:]))
                                 #elif line[:8] == "      * ":
+                                elif line[:11] == "         * ":
+                                    html_lines.append("<ul>\n")
+                                    html_lines.append("\t<li>\n")
+                                    html_lines.append(wiki_to_html_simple(line[11:]))
+                                    in_list3 = True
+                                    while in_list3:
+                                        i += 1
+                                        if i < len(wiki_lines):
+                                            line = wiki_lines[i]
+                                            if line[:11] == "         * ":
+                                                html_lines.append("\t</li>\n")
+                                                html_lines.append("\t<li>\n")
+                                                html_lines.append(wiki_to_html_simple(line[11:]))
+                                            #elif line[:11] == "         * ":
+                                            else:
+                                                html_lines.append("\t</li>\n")
+                                                html_lines.append("</ul>\n")
+                                                in_list3 = False
+                                                i -= 1
+                                        else:
+                                            html_lines.append("\t</li>\n")
+                                            html_lines.append("</ul>\n")
+                                            in_list3 = False
                                 else:
                                     html_lines.append("\t</li>\n")
                                     html_lines.append("</ul>\n")
