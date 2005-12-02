@@ -104,7 +104,6 @@ def wiki_to_html(wiki_lines):
                                             #elif line[:11] == "         * ":
                                             elif line[:11] == "           ":
                                                 html_lines.append(wiki_to_html_simple(line[11:]))
-                                                i += 1
                                             else:
                                                 html_lines.append("\t</li>\n")
                                                 html_lines.append("</ul>\n")
@@ -116,7 +115,6 @@ def wiki_to_html(wiki_lines):
                                             in_list3 = False
                                 elif line[:8] == "        ":
                                     html_lines.append(wiki_to_html_simple(line[8:]))
-                                    i += 1
                                 else:
                                     html_lines.append("\t</li>\n")
                                     html_lines.append("</ul>\n")
@@ -128,7 +126,6 @@ def wiki_to_html(wiki_lines):
                                 in_list2 = False
                     elif line[:5] == "     ":
                         html_lines.append(wiki_to_html_simple(line[5:]))
-                        i += 1
                     else:
                         html_lines.append("\t</li>\n")
                         html_lines.append("</ul>\n")
