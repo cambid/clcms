@@ -8,6 +8,8 @@ import time
 import re
 import sys
 
+version = "0.1"
+
 #
 # Wiki style parser
 #
@@ -523,6 +525,7 @@ def origcreate_menu(root_dir, base_dir, options):
 def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, cur_dir_depth):
     # Should this be here or in the calling function (create_pages())?
     page_lines = []
+    page_lines.append("<!-- Created by CLCMS Version " + version + " -->\n")
     last_modified = os.stat(in_dir)[stat.ST_MTIME]
 
     
