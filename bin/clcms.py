@@ -314,7 +314,7 @@ def get_option(options, option_name):
 	for o in options:
 		m = p.match(o)
 		if m:
-			return o[m.end():]
+			return o[m.end():].rstrip("\n\r\t ")
 	return ""
 	
 def get_options(options, option_name):
@@ -458,11 +458,34 @@ def create_menu_part(root_dir, dir_prefix, base_dir, cur_depth, cur_page_depth, 
     
     ignore_masks = get_options(options, "ignore_masks")
     ignore_masks.append('.*\.nm.*')
+    setup_p = re.compile(get_option(options, "setup_file_name"))
     
     dir_files = get_dir_files(".", ignore_masks)
     
     for d in dir_files:
-        if os.path.isdir(d):
+        setup_m = setup_p.match(d)
+        if setup_m:
+            print d + " matches " + get_option(options, "setup_file_name")
+            #options.extend(file_lines(d, ['^[^#].* *= *.+']))
+            new_options = file_lines(d, ['^[^#].* *= *.+'])
+            if get_option(new_options, "root_dir") != "" and \
+               get_option(new_options, "in_dir") != "":
+                root_dir = get_option(new_options, "root_dir")
+                if root_dir[:1] != "/":
+                    root_dir = os.getcwd() + "/" + root_dir
+                print "root dir now " +root_dir
+                in_dir = get_option(new_options, "in_dir")
+                if in_dir[:1] != "/":
+                    in_dir = os.getcwd() + "/" + in_dir
+                print "in dir now " +in_dir
+                return_dir = os.getcwd()
+                os.chdir(in_dir)
+#                for o in new_options:
+#                    options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
+                return create_menu_part(root_dir, dir_prefix + file_base_name(d) + "/", base_dir, cur_depth + 1, cur_page_depth, options)
+                os.chdir(return_dir)
+                return mp
+        elif os.path.isdir(d):
             pagefiles = get_dir_files(d, get_options(options, "page_file_name"), True)
             item_inc = get_option(options, "menu_item" + str(cur_depth) + "_start")
             if item_inc != '':
@@ -724,27 +747,22 @@ def create_pages(root_dir, in_dir, out_dir, default_options, cur_dir_depth):
         if setup_m:
             #options.extend(file_lines(df, ['^[^#].* *= *.+']))
             new_options = file_lines(df, ['^[^#].* *= *.+'])
-            print "Adding options from "+df
-            if get_option(new_options, "root_dir") != "":
+            if get_option(new_options, "root_dir") != "" and \
+               get_option(new_options, "in_dir") != "":
                 root_dir = get_option(options, "root_dir")
                 if root_dir[:1] != "/":
                     root_dir = os.getcwd() + "/" + root_dir
                 print "root dir now " +root_dir
-#            if get_option(new_options, "out_dir") != "":
-#                out_dir = get_option(options, "out_dir")
-#                if out_dir[:1] != "/":
-#                    out_dir = os.getcwd() + "/" + out_dir
-#                print "out dir now " +out_dir
-            if get_option(new_options, "in_dir") != "":
                 in_dir = get_option(options, "in_dir")
                 if in_dir[:1] != "/":
                     in_dir = os.getcwd() + "/" + in_dir
                 print "in dir now " +in_dir
+                return_dir = os.getcwd()
                 os.chdir(in_dir)
                 for o in new_options:
                     options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
                 create_pages(root_dir, in_dir, out_dir, options, 0)
-                os.chdir("..")
+                os.chdir(return_dir)
                 return
 
             for o in new_options:
