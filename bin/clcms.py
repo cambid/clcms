@@ -21,10 +21,62 @@ def escape_url(url):
     url = url.replace(' ', '_')
     return url
 
+def wiki_to_html_simple(line):
+    line = line.rstrip("\n\r\t ")
+    if line[:1] == '*' and line[-1:] == '*':
+        return "<b>" + line[1:-1] + "</b>\n"
+    if line[:1] == '_' and line[-1:] == '_':
+        return "<i>" + line[1:-1] + "</i>\n"
+    if line[:1] == '=' and line[-1:] == '=':
+        return "<pre>" + line[1:-1] + "</pre>\n"
+    return line + "\n"
+
 def wiki_to_html(wiki_lines):
+    html_lines = []
+    i = 0
+    while i < len(wiki_lines):
+        line = wiki_lines[i]
+        if line[:3] == "---":
+            j = 3
+            while line[j] == "+":
+                j += 1
+            if (j > 3):
+                html_lines.append("<h" + str(j-3) + ">" + wiki_to_html_simple(line[i:]) + "</h" + str(j-3) +  ">\n")
+            else:
+                html_lines.append(wiki_to_html_simple(line))
+        elif line[:5] == "   * ":
+            html_lines.append("<ul>\n")
+            html_lines.append("\t<li>\n")
+            html_lines.append(wiki_to_html_simple(line[5:]))
+            in_list1 = True
+            while in_list1:
+                i += 1
+                if i < len(wiki_lines):
+                    line = wiki_lines[i]
+                    if line[:5] == "   * ":
+                        html_lines.append("\t</li>\n")
+                        html_lines.append("\t<li>\n")
+                        html_lines.append(wiki_to_html_simple(line[5:]))
+                    #elif line[:8] == "      * ":
+                    else:
+                        html_lines.append("\t</li>\n")
+                        html_lines.append("</ul>\n")
+                        in_list1 = False
+                        i -= 1
+                else:
+                    html_lines.append("\t</li>\n")
+                    html_lines.append("</ul>\n")
+                    in_list1 = False
+        else:
+            html_lines.append(wiki_to_html_simple(line))
+        i += 1
+    return html_lines
+
+def oldwiki_to_html(wiki_lines):
     html_lines = []
     
     in_p = False
+    l_depth = 0
     cur_bullet_depth = 0;
     for line in wiki_lines:
         line = line.rstrip('\n\r\t ')
@@ -36,11 +88,17 @@ def wiki_to_html(wiki_lines):
             if not in_p:
                 html_lines.append("<p>\n")
                 in_p = True
+            if l_depth == 1:
+                html_lines.append("</li>\n")
+                l_depth = 0
         if line[:1] == "*" and line[-1:] == "*":
             if (in_p):
                 html_lines.append("</p>\n")
                 in_p = False
             while cur_bullet_depth > 0:
+                if l_depth == 1:
+                    html_lines.append("</li>\n")
+                    l_depth = 0
                 html_lines.append("</ul>\n")
                 cur_bullet_depth -= 1
             html_lines.append(" <b>" + line[1:-1] + "</b> \n")
@@ -49,6 +107,9 @@ def wiki_to_html(wiki_lines):
                 html_lines.append("</p>\n")
                 in_p = False
             while cur_bullet_depth > 0:
+                if in_l:
+                    html_lines.append("</li>\n")
+                    in_l = False
                 html_lines.append("</ul>\n")
                 cur_bullet_depth -= 1
             html_lines.append(" <i>" + line[1:-1] + "</i> \n")
@@ -57,6 +118,9 @@ def wiki_to_html(wiki_lines):
                 html_lines.append("</p>\n")
                 in_p = False
             while cur_bullet_depth > 0:
+                if in_l:
+                    html_lines.append("</li>\n")
+                    in_l = False
                 html_lines.append("</ul>\n")
                 cur_bullet_depth -= 1
             html_lines.append(" <pre>" + line[1:-1] + "</pre> \n")
@@ -67,12 +131,36 @@ def wiki_to_html(wiki_lines):
             while cur_bullet_depth < 1:
                 html_lines.append("<ul>\n")
                 cur_bullet_depth += 1
-            html_lines.append("<li>" + line[4:] + "</li>\n")
+            if in_l:
+                html_lines.append("</li>\n")
+            html_lines.append("<li>" + line[4:] + "\n")
+            in_l = True
+        elif line[:7] == "      *":
+            if (in_p):
+                html_lines.append("</p>\n")
+                in_p = False
+            while cur_bullet_depth < 2:
+                html_lines.append("<ul>\n")
+                cur_bullet_depth += 1
+            html_lines.append("<li>" + line[7:] + "\n")
+            in_l = True
+        elif line[:10] == "         *":
+            if (in_p):
+                html_lines.append("</p>\n")
+                in_p = False
+            while cur_bullet_depth < 3:
+                html_lines.append("<ul>\n")
+                cur_bullet_depth += 1
+            html_lines.append("<li>" + line[10:] + "\n")
+            in_l = True
         elif line[:3] == "---":
             if (in_p):
                 html_lines.append("</p>\n")
                 in_p = False
             while cur_bullet_depth > 0:
+                if in_l:
+                    html_lines.append("</li>\n")
+                    in_l = False
                 html_lines.append("</ul>\n")
                 cur_bullet_depth -= 1
             i = 3
@@ -86,6 +174,9 @@ def wiki_to_html(wiki_lines):
                     in_p = True
                 html_lines.append(line)
         else:
+            if in_l:
+                html_lines.append("</li>\n")
+                in_l = False
             if (in_p):
                 html_lines.append("</p>\n")
                 in_p = False
@@ -115,6 +206,9 @@ def wiki_to_html(wiki_lines):
         html_lines.append(line)
     
     while cur_bullet_depth > 0:
+        if in_l:
+            html_lines.append("</li>\n")
+            in_l = False
         html_lines.append("</ul>")
         cur_bullet_depth -= 1
 
@@ -171,8 +265,9 @@ options = add_option(options, "show_menu = yes")
 options = add_option(options, "show_submenu = yes")
 options = add_option(options, "menu_depth = 1")
 options = add_option(options, "menu_start_files = menu_start.inc")
-options = add_option(options, "menu_end_files = menu_start.inc")
-options = add_option(options, "menu_item1 = menu_item.inc")
+options = add_option(options, "menu_end_files = menu_end.inc")
+options = add_option(options, "menu_item1_start = menu_item_start.inc")
+options = add_option(options, "menu_item1_end = menu_item_end.inc")
 options = add_option(options, "setup_file_name = .*\\.setup")
 options = add_option(options, "wiki_parse = yes")
 options = add_option(options, "show_item_title = yes")
@@ -278,7 +373,7 @@ def get_dir_files(dir, ignore_masks, invert = False):
 # TODO: recursively descend paths, (don't forget ../ then)
 # TODO: only add if there are .page files?
 # what to do if it is an empty nonterminal?
-def create_menu_part(root_dir, base_dir, cur_depth, options):
+def create_menu_part(root_dir, dir_prefix, base_dir, cur_depth, cur_page_depth, options):
     menu_lines = []
     
     ignore_masks = get_options(options, "ignore_masks")
@@ -288,33 +383,53 @@ def create_menu_part(root_dir, base_dir, cur_depth, options):
     
     for d in dir_files:
         if os.path.isdir(d):
-            i = 0;
             pagefiles = get_dir_files(d, get_options(options, "page_file_name"), True)
+            item_inc = get_option(options, "menu_item" + str(cur_depth) + "_start")
+            if item_inc != '':
+                if item_inc[:1] != '/':
+                    item_inc = root_dir + "/" + item_inc
+                menu_lines.extend(file_lines(item_inc))
             if pagefiles != []:
-                print "LINK",
+                i = 0
+                back_prefix = ""
+                while i < cur_page_depth:
+                    back_prefix += "../"
+                    i += 1
+                menu_lines.append("\t<a href=\"" + escape_url(back_prefix + dir_prefix + file_base_name(d)) + "/index.html\">\n")
+            i = 0
             while i < cur_depth:
-                print "\t",
+                menu_lines.append("\t")
                 i += 1
-            print d
+            menu_lines.append(file_base_name(d) + "\n")
+            if pagefiles != []:
+                menu_lines.append("\t</a>\n")
                 
-            if cur_depth < get_option(options, "menu_depth"):
+            if cur_depth < int(get_option(options, "menu_depth")):
                 os.chdir(d)
-                create_menu_part(root_dir, base_dir, cur_depth + 1, options)
+                menu_lines.extend(create_menu_part(root_dir, dir_prefix + file_base_name(d) + "/", base_dir, cur_depth + 1, cur_page_depth, options))
                 os.chdir("..")
+            item_inc = get_option(options, "menu_item" + str(cur_depth) + "_end")
+            if item_inc != '':
+                if item_inc[:1] != '/':
+                    item_inc = root_dir + "/" + item_inc
+                menu_lines.extend(file_lines(item_inc))
                 
     return menu_lines
 
-def create_menu(root_dir, base_dir, options):
+def create_menu(root_dir, base_dir, options, cur_page_depth):
+    orig_dir = os.getcwd()
+    os.chdir(base_dir)
     menu_lines = []
     for hf in get_options(options, "menu_start_files"):
         if hf[:1] != '/':
             hf = root_dir + '/' + hf
         menu_lines.extend(file_lines(hf))
-    menu_lines.extend(create_menu_part(root_dir, base_dir, 0, options))
+    menu_lines.extend(create_menu_part(root_dir, "", base_dir, 1, cur_page_depth, options))
     for hf in get_options(options, "menu_end_files"):
         if hf[:1] != '/':
             hf = root_dir + '/' + hf
         menu_lines.extend(file_lines(hf))
+    os.chdir(orig_dir)
     return menu_lines
     
 
@@ -458,7 +573,7 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, cur_d
         l_m = l_p.search(l)
         if l_m:
             if get_option(options, "show_menu") == 'yes':
-                for ml in create_menu(root_dir, in_dir, options):
+                for ml in create_menu(root_dir, in_dir, options, cur_dir_depth):
                     lines2.append(ml)
             else:
                 lines2.append(l[:l_m.start()] + l[l_m.end():])
@@ -504,6 +619,9 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, cur_d
 
 def create_pages(root_dir, in_dir, out_dir, options, cur_dir_depth):
     out_dir = escape_url(out_dir)
+    if not os.path.isdir(out_dir):
+        os.mkdir(out_dir)
+    
     dir_files = get_dir_files(".", get_options(options, "ignore_masks"))
     # store every file that has not been handled yet in a temp list
     # (removing elements from a list you're iterating over is a bad idea

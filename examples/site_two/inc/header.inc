@@ -10,7 +10,7 @@
 
 	<body>
 
-	_MENU_
-
 	<div id="main">
+
+	_MENU_
 
