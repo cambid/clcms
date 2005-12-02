@@ -57,7 +57,29 @@ def wiki_to_html(wiki_lines):
                         html_lines.append("\t</li>\n")
                         html_lines.append("\t<li>\n")
                         html_lines.append(wiki_to_html_simple(line[5:]))
-                    #elif line[:8] == "      * ":
+                    elif line[:8] == "      * ":
+                        html_lines.append("<ul>\n")
+                        html_lines.append("\t<li>\n")
+                        html_lines.append(wiki_to_html_simple(line[8:]))
+                        in_list2 = True
+                        while in_list2:
+                            i += 1
+                            if i < len(wiki_lines):
+                                line = wiki_lines[i]
+                                if line[:8] == "   * ":
+                                    html_lines.append("\t</li>\n")
+                                    html_lines.append("\t<li>\n")
+                                    html_lines.append(wiki_to_html_simple(line[8:]))
+                                #elif line[:8] == "      * ":
+                                else:
+                                    html_lines.append("\t</li>\n")
+                                    html_lines.append("</ul>\n")
+                                    in_list2 = False
+                                    i -= 1
+                            else:
+                                html_lines.append("\t</li>\n")
+                                html_lines.append("</ul>\n")
+                                in_list2 = False
                     else:
                         html_lines.append("\t</li>\n")
                         html_lines.append("</ul>\n")
