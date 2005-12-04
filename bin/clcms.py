@@ -7,6 +7,7 @@ import shutil
 import time
 import re
 import sys
+import code
 
 version = "0.1"
 
@@ -25,6 +26,8 @@ def escape_url(url):
 
 def wiki_to_html_simple(line):
     line = line.rstrip("\n\r\t ")
+    line = line.replace("<", "&lt;")
+    line = line.replace(">", "&gt;")
     if line == "":
         return "<p></p>\n"
     if line[:1] == '*' and line[-1:] == '*':
@@ -151,149 +154,57 @@ def wiki_to_html(wiki_lines):
         i += 1
     return html_lines
 
-def oldwiki_to_html(wiki_lines):
-    html_lines = []
-    
-    in_p = False
-    l_depth = 0
-    cur_bullet_depth = 0;
-    for line in wiki_lines:
-        line = line.rstrip('\n\r\t ')
-        # bold
-        if line == "":
-            while cur_bullet_depth > 0:
-                html_lines.append("</ul>\n")
-                cur_bullet_depth -= 1
-            if not in_p:
-                html_lines.append("<p>\n")
-                in_p = True
-            if l_depth == 1:
-                html_lines.append("</li>\n")
-                l_depth = 0
-        if line[:1] == "*" and line[-1:] == "*":
-            if (in_p):
-                html_lines.append("</p>\n")
-                in_p = False
-            while cur_bullet_depth > 0:
-                if l_depth == 1:
-                    html_lines.append("</li>\n")
-                    l_depth = 0
-                html_lines.append("</ul>\n")
-                cur_bullet_depth -= 1
-            html_lines.append(" <b>" + line[1:-1] + "</b> \n")
-        elif line[:1] == "_" and line[-1:] == "_":
-            if (in_p):
-                html_lines.append("</p>\n")
-                in_p = False
-            while cur_bullet_depth > 0:
-                if in_l:
-                    html_lines.append("</li>\n")
-                    in_l = False
-                html_lines.append("</ul>\n")
-                cur_bullet_depth -= 1
-            html_lines.append(" <i>" + line[1:-1] + "</i> \n")
-        elif line[:1] == "=" and line[-1:] == "=":
-            if (in_p):
-                html_lines.append("</p>\n")
-                in_p = False
-            while cur_bullet_depth > 0:
-                if in_l:
-                    html_lines.append("</li>\n")
-                    in_l = False
-                html_lines.append("</ul>\n")
-                cur_bullet_depth -= 1
-            html_lines.append(" <pre>" + line[1:-1] + "</pre> \n")
-        elif line[:4] == "   *":
-            if (in_p):
-                html_lines.append("</p>\n")
-                in_p = False
-            while cur_bullet_depth < 1:
-                html_lines.append("<ul>\n")
-                cur_bullet_depth += 1
-            if in_l:
-                html_lines.append("</li>\n")
-            html_lines.append("<li>" + line[4:] + "\n")
-            in_l = True
-        elif line[:7] == "      *":
-            if (in_p):
-                html_lines.append("</p>\n")
-                in_p = False
-            while cur_bullet_depth < 2:
-                html_lines.append("<ul>\n")
-                cur_bullet_depth += 1
-            html_lines.append("<li>" + line[7:] + "\n")
-            in_l = True
-        elif line[:10] == "         *":
-            if (in_p):
-                html_lines.append("</p>\n")
-                in_p = False
-            while cur_bullet_depth < 3:
-                html_lines.append("<ul>\n")
-                cur_bullet_depth += 1
-            html_lines.append("<li>" + line[10:] + "\n")
-            in_l = True
-        elif line[:3] == "---":
-            if (in_p):
-                html_lines.append("</p>\n")
-                in_p = False
-            while cur_bullet_depth > 0:
-                if in_l:
-                    html_lines.append("</li>\n")
-                    in_l = False
-                html_lines.append("</ul>\n")
-                cur_bullet_depth -= 1
-            i = 3
-            while line[i] == "+":
-                i += 1
-            if (i > 3):
-                html_lines.append("<h" + str(i-3) + ">" + line[i:] + "</h" + str(i-3) +  ">\n")
-            else:
-                if not in_p:
-                    html_lines.append("<p>\n")
-                    in_p = True
-                html_lines.append(line)
+
+#
+# Macro handling
+#
+
+# The macro list is a list of lists of which the first object is the
+# macro name (for instance "MENU" for the macro _MENU_) and the 
+# second object is a source string that will be executed
+# a macro function is supposed to return a string
+macro_list = [
+  ["MENU", "for ml in create_menu(root_dir, in_dir, options, cur_dir_depth):\n\toutput += ml\n" ],
+  ["TITLE", "output = page_name\n" ],
+  ["STYLESHEET", 'i = 0\noutput = ""\nwhile i < cur_dir_depth:\n\toutput += "../"\n\ti += 1\noutput += get_option(options, "style_sheet")\n' ],
+  ["DATE", "output = time.strftime(\"%Y-%m-%d\")\n" ],
+  ["DATEFILE", "output = time.strftime(\"%Y-%m-%d\", time.gmtime(os.stat(in_dir)[stat.ST_MTIME]))\n" ]
+]
+
+#time.strftime("%Y-%m-%d", time.gmtime(last_modified))
+#time.strftime("%Y-%m-%d")
+def handle_macro(macro_name, macro_source, input_line, options, page_name, root_dir, in_dir, cur_dir_depth):
+    result_line = input_line
+    macro_p = re.compile("_"+macro_name+"_")
+    macro_m = macro_p.search(input_line)
+    if macro_m:
+        ip = code.InteractiveInterpreter()
+        output = "<badmacro>"
+#        print "Code:"
+#        print macro_source
+        # Hack to circumvent premature parser stoppage
+        macro_lines = macro_source.split("\n")
+        macro_source = "for zcxcvad in [\"vasdferqerqewr\"]:\n"
+        for ml in macro_lines:
+            macro_source += "\t" + ml + "\n"
+        
+        co = code.compile_command(macro_source)
+        if co != None:
+            exec co
+            result_line = input_line[:macro_m.start()] + output + input_line[macro_m.end():]
         else:
-            if in_l:
-                html_lines.append("</li>\n")
-                in_l = False
-            if (in_p):
-                html_lines.append("</p>\n")
-                in_p = False
-            while cur_bullet_depth > 0:
-                html_lines.append("</ul>\n")
-                cur_bullet_depth -= 1
-            html_lines.append(line + " ")
+            print "Warning: Bad macro: "+macro_name
+        return result_line
+    return result_line
     
-    lines = html_lines
-    html_lines = []
-    
-    # replace links and image refs
-    #simple_link_p = re.compile('[^\"]http://.*')
-    adv_link_p = re.compile('\[\[(.*)\]\[(.*)\]\]')
-    img_p = re.compile('\{\{(.*)\}\{(.*)\}\}')
-    for line in lines:
-        adv_m = adv_link_p.search(line)
-        #simple_m = simple_link_p.search(line)
-        if adv_m:
-            line = line[:adv_m.start()] + "<a href=\"" + escape_url(line[adv_m.start(1):adv_m.end(1)]) + "\">" + line[adv_m.start(2):adv_m.end(2)] + "</a>" + line[adv_m.end():]
-        #elif simple_m:
-        #    line = line[:simple_m.start()] + "<a href=\"" + line[simple_m.start():simple_m.end()] + "\">" + line[simple_m.start():simple_m.end()] + "</a>"
-
-        img_m = img_p.search(line)
-        if img_m:
-            line = line[:img_m.start()] + "<img src=\"" + escape_url(line[img_m.start(1):img_m.end(1)]) + "\" alt=\"" + line[img_m.start(2):img_m.end(2)] + "\" />" + line[img_m.end():]
-        html_lines.append(line)
-    
-    while cur_bullet_depth > 0:
-        if in_l:
-            html_lines.append("</li>\n")
-            in_l = False
-        html_lines.append("</ul>")
-        cur_bullet_depth -= 1
-
-
-    #print html_lines
-    return html_lines
+def handle_macros(macro_list, input_line, options, page_name, root_dir, in_dir, cur_dir_depth):
+    prev_input = input_line
+    new_input = ""
+    while new_input != prev_input:
+        for mo in macro_list:
+            new_input = handle_macro(mo[0], mo[1], prev_input, options, page_name, root_dir, in_dir, cur_dir_depth)
+            prev_input = new_input
+    return new_input
 
 #
 # Option handling
@@ -348,6 +259,7 @@ options = add_option(options, "menu_end_files = menu_end.inc")
 options = add_option(options, "menu_item1_start = menu_item_start.inc")
 options = add_option(options, "menu_item1_end = menu_item_end.inc")
 options = add_option(options, "setup_file_name = .*\\.setup")
+options = add_option(options, "macro_file_name = .*\\.macro")
 options = add_option(options, "wiki_parse = yes")
 options = add_option(options, "show_item_title = yes")
 options = add_option(options, "show_item_title_date = no")
@@ -457,7 +369,7 @@ def create_menu_part(root_dir, dir_prefix, base_dir, cur_depth, cur_page_depth, 
     menu_lines = []
     
     ignore_masks = get_options(options, "ignore_masks")
-    ignore_masks.append('.*\.nm.*')
+    ignore_masks.append('.*\.nomenu.*')
     setup_p = re.compile(get_option(options, "setup_file_name"))
     
     dir_files = get_dir_files(".", ignore_masks)
@@ -554,7 +466,7 @@ def origcreate_menu(root_dir, base_dir, options):
 
 
 
-def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, cur_dir_depth):
+def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, macro_list, cur_dir_depth):
     # Should this be here or in the calling function (create_pages())?
     page_lines = []
     page_lines.append("<!-- Created by CLCMS Version " + version + " -->\n")
@@ -581,7 +493,7 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, cur_d
         page_lines.append("<div id=\"submenu\">\n")
         first = True
         for pf in page_files:
-            if pf.find(".nosubmenu") < 0:
+            if pf.find(".nomenu") < 0:
                 if not first:
                     page_lines.append("<hr noshade=\"noshade\" size=\"1\" width=\"80%\" align=\"left\" />\n")
                 else:
@@ -634,9 +546,12 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, cur_d
                 if show_item_title:
                     pf_lines.append(pf)
                 pf_lines.append("</h3>\n")
-            pf_lines.extend(file_lines(pf_orig))
             if wiki_parse:
-                pf_lines = wiki_to_html(pf_lines)
+                pf_lines.extend(wiki_to_html(file_lines(pf_orig)))
+            else:
+                pf_lines.extend(file_lines(pf_orig))
+#            if wiki_parse:
+#                pf_lines = wiki_to_html(pf_lines)
             page_lines.append("<a name=\"" + escape_url(file_base_name(pf)) + "\"></a>\n")
             page_lines.extend(pf_lines)
             if os.stat(in_dir)[stat.ST_MTIME] > last_modified:
@@ -658,61 +573,69 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, cur_d
     # TODO: Macro
     lines = page_lines
     lines2 = []
+#    for l in lines:
+#        l_p = re.compile("_DATE_FILE_")
+#        l_m = l_p.search(l)
+#        if l_m:
+#            lines2.append(l[:l_m.start()] + time.strftime("%Y-%m-%d", time.gmtime(last_modified)) + l[l_m.end():])
+#        else:
+#            lines2.append(l)
+#    lines = lines2
+#    lines2 = []
+#    for l in lines:
+#        l_p = re.compile("_DATE_")
+#        l_m = l_p.search(l)
+#        if l_m:
+#            lines2.append(l[:l_m.start()] + time.strftime("%Y-%m-%d") + l[l_m.end():])
+#        else:
+#            lines2.append(l)
+#    lines = lines2
+#    lines2 = []
+#            lines2.append(l[:l_m.start()] + time.strftime("%Y-%m-%d", time.gmtime(last_modified)) + l[l_m.end():])
+#            lines2.append(l[:l_m.start()] + time.strftime("%Y-%m-%d") + l[l_m.end():])
+#    for l in lines:
+#        l_p = re.compile("_MENU_")
+#        l_m = l_p.search(l)
+#        if l_m:
+#            if get_option(options, "show_menu") == 'yes':
+#                for ml in create_menu(root_dir, in_dir, options, cur_dir_depth):
+#                    lines2.append(ml)
+#            else:
+#                lines2.append(l[:l_m.start()] + l[l_m.end():])
+#        else:
+#            lines2.append(l)
+#    lines = lines2
+#    lines2 = []
+
     for l in lines:
-        l_p = re.compile("_DATE_FILE_")
-        l_m = l_p.search(l)
-        if l_m:
-            lines2.append(l[:l_m.start()] + time.strftime("%Y-%m-%d", time.gmtime(last_modified)) + l[l_m.end():])
-        else:
-            lines2.append(l)
+        lines2.append(handle_macros(macro_list, l, options, page_name, root_dir, in_dir, cur_dir_depth))
+
     lines = lines2
     lines2 = []
-    for l in lines:
-        l_p = re.compile("_DATE_")
-        l_m = l_p.search(l)
-        if l_m:
-            lines2.append(l[:l_m.start()] + time.strftime("%Y-%m-%d") + l[l_m.end():])
-        else:
-            lines2.append(l)
-    lines = lines2
-    lines2 = []
-    for l in lines:
-        l_p = re.compile("_MENU_")
-        l_m = l_p.search(l)
-        if l_m:
-            if get_option(options, "show_menu") == 'yes':
-                for ml in create_menu(root_dir, in_dir, options, cur_dir_depth):
-                    lines2.append(ml)
-            else:
-                lines2.append(l[:l_m.start()] + l[l_m.end():])
-        else:
-            lines2.append(l)
-    lines = lines2
-    lines2 = []
-    for l in lines:
-        l_p = re.compile("_TITLE_")
-        l_m = l_p.search(l)
-        if l_m:
-            lines2.append(l[:l_m.start()] + page_name + l[l_m.end():])
-        else:
-            lines2.append(l)
-    lines = lines2
-    lines2 = []
-    for l in lines:
-        l_p = re.compile("_STYLE_SHEET_")
-        l_m = l_p.search(l)
-        if l_m:
-            i = 0
-            style_sheet_loc = ""
-            while i < cur_dir_depth:
-                style_sheet_loc += "../"
-                i += 1
-            style_sheet_loc += get_option(options, "style_sheet")
-            lines2.append(l[:l_m.start()] + style_sheet_loc + l[l_m.end():])
-        else:
-            lines2.append(l)
-    lines = lines2
-    lines2 = []
+#    for l in lines:
+#        l_p = re.compile("_TITLE_")
+#        l_m = l_p.search(l)
+#        if l_m:
+#            lines2.append(l[:l_m.start()] + page_name + l[l_m.end():])
+#        else:
+#            lines2.append(l)
+#    lines = lines2
+#    lines2 = []
+#    for l in lines:
+#        l_p = re.compile("_STYLE_SHEET_")
+#        l_m = l_p.search(l)
+#        if l_m:
+#            i = 0
+#            style_sheet_loc = ""
+#            while i < cur_dir_depth:
+#                style_sheet_loc += "../"
+#                i += 1
+#            style_sheet_loc += get_option(options, "style_sheet")
+#            lines2.append(l[:l_m.start()] + style_sheet_loc + l[l_m.end():])
+#        else:
+#            lines2.append(l)
+#    lines = lines2
+#    lines2 = []
 
     page_lines = lines
     #
@@ -725,13 +648,16 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, cur_d
     #print "[CLCMS] Created " + out_dir + "/index.html"
 
 
-def create_pages(root_dir, in_dir, out_dir, default_options, cur_dir_depth):
+def create_pages(root_dir, in_dir, out_dir, default_options, default_macro_list, cur_dir_depth):
     out_dir = escape_url(out_dir)
     if not os.path.isdir(out_dir):
         os.mkdir(out_dir)
     
     options = []
     options.extend(default_options)
+    macro_list = []
+    macro_list.extend(default_macro_list)
+    
     dir_files = get_dir_files(".", get_options(options, "ignore_masks"))
     # store every file that has not been handled yet in a temp list
     # (removing elements from a list you're iterating over is a bad idea
@@ -745,6 +671,7 @@ def create_pages(root_dir, in_dir, out_dir, default_options, cur_dir_depth):
         setup_m = setup_p.match(df)
         if setup_m:
             #options.extend(file_lines(df, ['^[^#].* *= *.+']))
+            # If root_dir and in_dir are changed, this is a subsite
             new_options = file_lines(df, ['^[^#].* *= *.+'])
             if get_option(new_options, "root_dir") != "" and \
                get_option(new_options, "in_dir") != "":
@@ -771,6 +698,26 @@ def create_pages(root_dir, in_dir, out_dir, default_options, cur_dir_depth):
     dir_files = dir_files2
     dir_files2 = []
 
+
+    #
+    # Read Macro files
+    # 
+    macro_p = re.compile(get_option(options, "macro_file_name"))
+    for df in dir_files:
+        macro_m = macro_p.search(df)
+        if macro_m:
+            macro_name = file_base_name(df)
+            macro_lines = file_lines(df, [])
+            moc = ""
+            for l in macro_lines:
+                moc += l
+            mo = [macro_name, moc]
+            macro_list.insert(0, mo)
+        else:
+            dir_files2.append(df)
+    dir_files = dir_files2
+    dir_files2 = []
+    
     
     #
     # Read page files
@@ -789,7 +736,7 @@ def create_pages(root_dir, in_dir, out_dir, default_options, cur_dir_depth):
     if page_files != []:
         # TODO: dotted page options here? (like in .page file names?)
         page_name = file_base_name(os.path.basename(out_dir))
-        create_page(root_dir, in_dir, out_dir, page_name, page_files, options, cur_dir_depth)
+        create_page(root_dir, in_dir, out_dir, page_name, page_files, options, macro_list, cur_dir_depth)
 
     # 
     # Read directories
@@ -797,7 +744,7 @@ def create_pages(root_dir, in_dir, out_dir, default_options, cur_dir_depth):
         if os.path.isdir(df):
             os.chdir(df)
             #print "Entering directory " + os.getcwd()
-            create_pages(root_dir, in_dir, out_dir + "/" + file_base_name(df), options, cur_dir_depth + 1)
+            create_pages(root_dir, in_dir, out_dir + "/" + file_base_name(df), options, macro_list, cur_dir_depth + 1)
             os.chdir("..")
         else:
             dir_files2.append(df)
@@ -851,6 +798,6 @@ if not os.path.isdir(in_dir):
 if not os.path.isdir(out_dir):
     os.mkdir(out_dir)
 os.chdir(in_dir)
-create_pages(root_dir, in_dir, out_dir, options, 0)
+create_pages(root_dir, in_dir, out_dir, options, macro_list, 0)
 os.chdir(root_dir)
 
