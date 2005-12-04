@@ -465,7 +465,6 @@ def create_menu_part(root_dir, dir_prefix, base_dir, cur_depth, cur_page_depth, 
     for d in dir_files:
         setup_m = setup_p.match(d)
         if setup_m:
-            print d + " matches " + get_option(options, "setup_file_name")
             #options.extend(file_lines(d, ['^[^#].* *= *.+']))
             new_options = file_lines(d, ['^[^#].* *= *.+'])
             if get_option(new_options, "root_dir") != "" and \
@@ -797,7 +796,7 @@ def create_pages(root_dir, in_dir, out_dir, default_options, cur_dir_depth):
     for df in dir_files:
         if os.path.isdir(df):
             os.chdir(df)
-            print "Entering directory " + os.getcwd()
+            #print "Entering directory " + os.getcwd()
             create_pages(root_dir, in_dir, out_dir + "/" + file_base_name(df), options, cur_dir_depth + 1)
             os.chdir("..")
         else:
@@ -845,12 +844,12 @@ if root_dir[:1] != "/":
 out_dir = get_option(options, "out_dir")
 if out_dir[:1] != "/":
     out_dir = os.getcwd() + "/" + out_dir
-if not os.path.isdir(out_dir):
-    os.mkdir(out_dir)
 
 if not os.path.isdir(in_dir):
 	print "No such directory: " + in_dir
 	sys.exit(1)
+if not os.path.isdir(out_dir):
+    os.mkdir(out_dir)
 os.chdir(in_dir)
 create_pages(root_dir, in_dir, out_dir, options, 0)
 os.chdir(root_dir)
