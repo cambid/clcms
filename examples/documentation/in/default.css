@@ -1,0 +1,56 @@
+#main {
+	position: absolute;
+	width: 90%;
+	height: 100%;
+	color: #000000;
+#	background-color: #ccccff;
+#	border: medium ridge #aaaaaa;
+}
+
+#menu {
+	position: fixed;
+	width: 20%;
+	left: 2%;
+	top: 1em;
+	color: #000000;
+	background-color: #9999dd;
+	border: medium ridge #666666;
+}
+
+#submenu {
+	position: fixed;
+	width: 20%;
+	left: 2%;
+	top: 10em;
+	color: #000000;
+	background-color: #9999dd;
+	border: medium ridge #666666;
+}
+
+
+#content {
+	position: absolute;
+	width: 70%;
+	right: 0%;
+	top: 1em;
+	padding: 1em;
+	color: #000000;
+	background-color: #aaaaff;
+	border: medium ridge #666666;
+}
+
+.menu_item1 {
+	position: relative;
+	left: 2%;
+}
+
+.menu_item2 {
+	position: relative;
+	left: 6%;
+}
+
+.menu_item1 {
+	position: relative;
+	left: 10%;
+}
+

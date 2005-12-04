@@ -1,0 +1,40 @@
+
+Let's take a quick look at the root directory (i.e. the directory where you
+run clcms from).
+
+{{root_dir.png}{root directory}}
+
+You see a few subdirectories and a file ending in .setup. The .setup file
+contains directives for clcms to follow.
+
+If clcms encounters a .setup file while walking through the directory tree,
+it will follow these new directives in it for the current directory and all
+subdirectories of the current directory. The rest of the tree is unaffected.
+This is the first way to override settings.
+
+In this case, the .setup file specifies that the content tree is in the
+directory in/, that the output should be sent to out/, and some header and
+footer files that will be handled by clcms are in inc/.
+
+documentation.setup:
+
+_NO_WIKI_
+<pre>
+
+footer_files = inc/footer.inc
+header_files = inc/header.inc
+
+menu_item1_start = inc/menu_item1.inc
+menu_item1_end = inc/menu_end.inc
+menu_item2_start = inc/menu_item2.inc
+menu_item2_end = inc/menu_end.inc
+menu_item3_start = inc/menu_item3.inc
+menu_item3_end = inc/menu_end.inc
+menu_end_files = inc/menu_end.inc
+menu_start_files = inc/menu_start.inc
+menu_depth = 3
+out_dir = out
+in_dir = in
+root_dir = .
+
+</pre>

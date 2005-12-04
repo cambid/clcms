@@ -1,0 +1,22 @@
+You can create your own macros by putting .macro files in your root or
+content directory. Like .setup files, .macro files you create are only used
+in the current directory and those beneath it. Creating a macro file called
+"MYMACRO.macro" will give you the macro "_MYMACRO_" in your pages.
+
+The macro will be replaced by the value you give to the string 'output' in
+your macro definition.
+
+Example:
+
+You create a file called "MYSITENAME.macro" that looks like this:
+
+=output = "Jabberwocky's Vorpal Blade Site"=
+
+In one of your .page files, you put the line:
+
+=Welcome to _MYSITENAME_!=
+
+This line will end up on your page as:
+
+Welcome to Jabberwocky's Vorpal Blade Site!
+

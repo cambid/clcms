@@ -1,0 +1,11 @@
+You can run clcms by simply running the clcms.py script.
+
+It will check in the current directory for a file ending in .setup. If it
+does not exist or does not contain a in_dir directive, the input directory
+will be in/ in the current one. The default output directory is out/.
+
+These options can be given on the command line:
+
+   * *-c*
+     Print default setup file configuration to stdout. This way, you can
+     easily create an overriding setup file for a page.
