@@ -1,6 +1,6 @@
 *this*
 one
-_should_
+.should.
 .
 
    * one
@@ -9,7 +9,7 @@ _should_
      dus
       * two
       * two
-         * _three italic_
+         * .three italic.
          * three
       * two
    * one
