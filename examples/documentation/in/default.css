@@ -2,9 +2,6 @@
 	position: absolute;
 	width: 90%;
 	height: 100%;
-	color: #000000;
-#	background-color: #ccccff;
-#	border: medium ridge #aaaaaa;
 }
 
 #menu {
@@ -13,7 +10,7 @@
 	left: 2%;
 	top: 1em;
 	color: #000000;
-	background-color: #9999dd;
+	background-color: #aaaaff;
 	border: medium ridge #666666;
 }
 
@@ -23,7 +20,7 @@
 	left: 2%;
 	top: 10em;
 	color: #000000;
-	background-color: #9999dd;
+	background-color: #bbbbff;
 	border: medium ridge #666666;
 }
 
@@ -35,7 +32,7 @@
 	top: 1em;
 	padding: 1em;
 	color: #000000;
-	background-color: #aaaaff;
+	background-color: #ddddff;
 	border: medium ridge #666666;
 }
 
@@ -52,5 +49,20 @@
 .menu_item1 {
 	position: relative;
 	left: 10%;
+}
+
+a:link {
+	text-decoration: none;
+	color: #0000dd;
+	font-weight: bold;
+}
+a:visited {
+	text-decoration: none;
+	color: #0000bb;
+	font-weight: bold;
+}
+
+a:hover {
+	text-decoration: underline;
 }
 

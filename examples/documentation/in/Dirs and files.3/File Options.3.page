@@ -6,22 +6,33 @@ The complete list of options is:
 
    * For all files:
       * *number*
+
         Sort order of this file. This one is only handled if this is the first option
    * For .page files:
       * *nosubmenu*
+
         This part will not be put in the submenu
+
       * *notitle*
+
         This part will not be preceded by its filename title
+
       * *title*
+
         This part
         .will.
         be preceded by its filename title
+
       * *nowiki*
+
         This part will not be put through the wiki engine
+
       * *wiki*
+
         This part
         .will.
         be put through the wiki engine
+
    * For directories:
       * *nomenu*
         This page will not be put in the main menu

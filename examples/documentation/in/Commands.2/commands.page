@@ -2,7 +2,8 @@ You can run clcms by simply running the clcms.py script.
 
 It will check in the current directory for a file ending in .setup. If it
 does not exist or does not contain a in_dir directive, the input directory
-will be in/ in the current one. The default output directory is out/.
+will be the directory called "in/" in the current directory. The default
+output directory is "out/".
 
 These options can be given on the command line:
 
@@ -10,10 +11,12 @@ These options can be given on the command line:
      or
      *--write-config*
      
-     Print default setup file configuration to stdout. This way, you can
+     Print setup file configuration to stdout. This way, you can
      easily create an overriding setup file for a page.
+
+     clcms will quit after printing and will not generate output.
    * *-m*
      or
      *--no-macros*
      
-     Do not use put the output through the macro engine
+     Do not put the output through the macro engine

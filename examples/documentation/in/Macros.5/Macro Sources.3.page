@@ -1,0 +1,35 @@
+A macro definition is just one or more lines of python code, that, after
+running, should have put the replacement string for the macro in the
+variable called "output".
+
+You have the following variables to read out from within your macro:
+
+   * *options*
+
+     The global variable containing .setup file options. You can read these out with
+      * *get_option(options, "option_name")*
+        for single options
+      * *get_options(options, "option_name")*
+        for plural options (ie. lists)
+      * *get_option_dir(options, "option_name")*
+        for options that contain files or directories. These will be made
+        absolute (for the system you run clcms on, not for the website) if
+        they do not start with a /
+
+   * *page_name*
+
+     Contains the title of the current page.
+
+   * *root_dir*
+
+     Contains the location of the root directory on the filesystem
+
+   * *in_dir*
+
+     Contains the location of the content input directory
+
+   * *cur_dir_depth*
+
+     The current page (directory) depth.
+
+
