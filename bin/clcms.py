@@ -11,6 +11,8 @@ import code
 
 version = "0.1"
 
+no_macros = False
+
 #
 # Wiki style parser
 #
@@ -57,6 +59,7 @@ def wiki_to_html(wiki_lines):
     html_lines = []
     i = 0
     no_wiki = False
+    whitespace_p = re.compile('^\s*\n$')
     while i < len(wiki_lines):
         line = wiki_lines[i]
         if no_wiki:
@@ -87,7 +90,7 @@ def wiki_to_html(wiki_lines):
                         if line[:5] == "   * ":
                             html_lines.append("\t</li>\n")
                             html_lines.append("\t<li>\n")
-                            html_lines.append(wiki_to_html_simple(line[5:]))
+			    html_lines.append(wiki_to_html_simple(line[5:]))
                         elif line[:8] == "      * ":
                             html_lines.append("<ul>\n")
                             html_lines.append("\t<li>\n")
@@ -116,8 +119,10 @@ def wiki_to_html(wiki_lines):
                                                     html_lines.append("\t<li>\n")
                                                     html_lines.append(wiki_to_html_simple(line[11:]))
                                                 #elif line[:11] == "         * ":
+ 					        elif whitespace_p.match(line):
+							html_lines.append("<br />\n")
                                                 elif line[:11] == "           ":
-                                                    html_lines.append(wiki_to_html_simple(line[11:]))
+							html_lines.append(wiki_to_html_simple(line[11:]))
                                                 else:
                                                     html_lines.append("\t</li>\n")
                                                     html_lines.append("</ul>\n")
@@ -127,8 +132,10 @@ def wiki_to_html(wiki_lines):
                                                 html_lines.append("\t</li>\n")
                                                 html_lines.append("</ul>\n")
                                                 in_list3 = False
+   				    elif whitespace_p.match(line):
+					html_lines.append("<br />\n")
                                     elif line[:8] == "        ":
-                                        html_lines.append(wiki_to_html_simple(line[8:]))
+					html_lines.append(wiki_to_html_simple(line[8:]))
                                     else:
                                         html_lines.append("\t</li>\n")
                                         html_lines.append("</ul>\n")
@@ -138,8 +145,10 @@ def wiki_to_html(wiki_lines):
                                     html_lines.append("\t</li>\n")
                                     html_lines.append("</ul>\n")
                                     in_list2 = False
+			elif whitespace_p.match(line):
+                            	html_lines.append("<br />\n")
                         elif line[:5] == "     ":
-                            html_lines.append(wiki_to_html_simple(line[5:]))
+                                html_lines.append(wiki_to_html_simple(line[5:]))
                         else:
                             html_lines.append("\t</li>\n")
                             html_lines.append("</ul>\n")
@@ -168,7 +177,8 @@ macro_list = [
   ["TITLE", "output = page_name\n" ],
   ["STYLESHEET", 'i = 0\noutput = ""\nwhile i < cur_dir_depth:\n\toutput += "../"\n\ti += 1\noutput += get_option(options, "style_sheet")\n' ],
   ["DATE", "output = time.strftime(\"%Y-%m-%d\")\n" ],
-  ["DATEFILE", "output = time.strftime(\"%Y-%m-%d\", time.gmtime(os.stat(in_dir)[stat.ST_MTIME]))\n" ]
+  ["DATEFILE", "output = time.strftime(\"%Y-%m-%d\", time.gmtime(os.stat(in_dir)[stat.ST_MTIME]))\n" ],
+  ["FAKE", "output = \"\"\n" ]
 ]
 
 #time.strftime("%Y-%m-%d", time.gmtime(last_modified))
@@ -239,6 +249,17 @@ def get_options(options, option_name):
                     else:
                         return []
 	return []
+
+def get_option_dir(options, option_name):
+	p = re.compile("^\\s*" + option_name + "\\s*=\\s*");
+	for o in options:
+		m = p.match(o)
+		if m:
+			d = o[m.end():].rstrip("\n\r\t ")
+			if d[:1] != os.sep:
+				return os.getcwd()+os.sep+d
+	return ""
+	
 
 # default options
 options = []
@@ -381,19 +402,19 @@ def create_menu_part(root_dir, dir_prefix, base_dir, cur_depth, cur_page_depth, 
             new_options = file_lines(d, ['^[^#].* *= *.+'])
             if get_option(new_options, "root_dir") != "" and \
                get_option(new_options, "in_dir") != "":
-                root_dir = get_option(new_options, "root_dir")
-                if root_dir[:1] != "/":
-                    root_dir = os.getcwd() + "/" + root_dir
+                root_dir = get_option_dir(new_options, "root_dir")
+                #if root_dir[:1] != "/":
+                #    root_dir = os.getcwd() + "/" + root_dir
                 print "root dir now " +root_dir
-                in_dir = get_option(new_options, "in_dir")
-                if in_dir[:1] != "/":
-                    in_dir = os.getcwd() + "/" + in_dir
+                in_dir = get_option_dir(new_options, "in_dir")
+                #if in_dir[:1] != "/":
+                #    in_dir = os.getcwd() + "/" + in_dir
                 print "in dir now " +in_dir
                 return_dir = os.getcwd()
                 os.chdir(in_dir)
 #                for o in new_options:
 #                    options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
-                return create_menu_part(root_dir, dir_prefix + file_base_name(d) + "/", base_dir, cur_depth + 1, cur_page_depth, options)
+                return create_menu_part(root_dir, dir_prefix + file_base_name(d) + os.sep, base_dir, cur_depth + 1, cur_page_depth, options)
                 os.chdir(return_dir)
                 return mp
         elif os.path.isdir(d):
@@ -401,7 +422,7 @@ def create_menu_part(root_dir, dir_prefix, base_dir, cur_depth, cur_page_depth, 
             item_inc = get_option(options, "menu_item" + str(cur_depth) + "_start")
             if item_inc != '':
                 if item_inc[:1] != '/':
-                    item_inc = root_dir + "/" + item_inc
+                    item_inc = root_dir + os.sep + item_inc
                 menu_lines.extend(file_lines(item_inc))
             if pagefiles != []:
                 i = 0
@@ -420,12 +441,12 @@ def create_menu_part(root_dir, dir_prefix, base_dir, cur_depth, cur_page_depth, 
                 
             if cur_depth < int(get_option(options, "menu_depth")):
                 os.chdir(d)
-                menu_lines.extend(create_menu_part(root_dir, dir_prefix + file_base_name(d) + "/", base_dir, cur_depth + 1, cur_page_depth, options))
-                os.chdir("..")
+                menu_lines.extend(create_menu_part(root_dir, dir_prefix + file_base_name(d) + os.sep, base_dir, cur_depth + 1, cur_page_depth, options))
+                os.chdir(os.pardir)
             item_inc = get_option(options, "menu_item" + str(cur_depth) + "_end")
             if item_inc != '':
                 if item_inc[:1] != '/':
-                    item_inc = root_dir + "/" + item_inc
+                    item_inc = root_dir + os.sep + item_inc
                 menu_lines.extend(file_lines(item_inc))
                 
     return menu_lines
@@ -485,7 +506,7 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, macro
 
     # header
     for hf in get_options(options, "header_files"):
-        page_lines.extend(file_lines(root_dir + "/" + hf))
+        page_lines.extend(file_lines(root_dir + os.sep + hf))
 
     # submenu
     # TODO: macro's etc.
@@ -562,7 +583,7 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, macro
 
     # footer
     for hf in get_options(options, "footer_files"):
-        page_lines.extend(file_lines(root_dir + "/" + hf))
+        page_lines.extend(file_lines(root_dir + os.sep + hf))
 
     # create dir and file
     if not os.path.isdir(out_dir):
@@ -606,12 +627,13 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, macro
 #            lines2.append(l)
 #    lines = lines2
 #    lines2 = []
+	
+    if not no_macros:
+        for l in lines:
+	    lines2.append(handle_macros(macro_list, l, options, page_name, root_dir, in_dir, cur_dir_depth))
 
-    for l in lines:
-        lines2.append(handle_macros(macro_list, l, options, page_name, root_dir, in_dir, cur_dir_depth))
-
-    lines = lines2
-    lines2 = []
+        lines = lines2
+        lines2 = []
 #    for l in lines:
 #        l_p = re.compile("_TITLE_")
 #        l_m = l_p.search(l)
@@ -675,13 +697,13 @@ def create_pages(root_dir, in_dir, out_dir, default_options, default_macro_list,
             new_options = file_lines(df, ['^[^#].* *= *.+'])
             if get_option(new_options, "root_dir") != "" and \
                get_option(new_options, "in_dir") != "":
-                root_dir = get_option(options, "root_dir")
-                if root_dir[:1] != "/":
-                    root_dir = os.getcwd() + "/" + root_dir
+                root_dir = get_option_dir(options, "root_dir")
+                #if root_dir[:1] != "/":
+                #    root_dir = os.getcwd() + "/" + root_dir
                 print "root dir now " +root_dir
-                in_dir = get_option(options, "in_dir")
-                if in_dir[:1] != "/":
-                    in_dir = os.getcwd() + "/" + in_dir
+                in_dir = get_option_dir(options, "in_dir")
+                #if in_dir[:1] != "/":
+                #    in_dir = os.getcwd() + "/" + in_dir
                 print "in dir now " +in_dir
                 return_dir = os.getcwd()
                 os.chdir(in_dir)
@@ -744,8 +766,8 @@ def create_pages(root_dir, in_dir, out_dir, default_options, default_macro_list,
         if os.path.isdir(df):
             os.chdir(df)
             #print "Entering directory " + os.getcwd()
-            create_pages(root_dir, in_dir, out_dir + "/" + file_base_name(df), options, macro_list, cur_dir_depth + 1)
-            os.chdir("..")
+            create_pages(root_dir, in_dir, out_dir + os.sep + file_base_name(df), options, macro_list, cur_dir_depth + 1)
+            os.chdir(os.pardir)
         else:
             dir_files2.append(df)
     dir_files = dir_files2
@@ -774,23 +796,25 @@ for df in os.listdir("."):
 # parse arguments
 if len(sys.argv) > 1:
     for arg in sys.argv[1:]:
-    	if arg == "-c" or arg == "--write-config":
+    	if arg == "-m" or arg == "--no-macros":
+    		no_macros = True
+    	elif arg == "-c" or arg == "--write-config":
     		for l in options:
     			print l
 		sys.exit(0)
-    else:
-    	print "Unknown argument: "+arg
-    	sys.exit(1)
+        else:
+        	print "Unknown argument: "+arg
+    	        sys.exit(1)
 
-in_dir = get_option(options, "in_dir")
-if in_dir[:1] != "/":
-    in_dir = os.getcwd() + "/" + in_dir
-root_dir = get_option(options, "root_dir")
-if root_dir[:1] != "/":
-    root_dir = os.getcwd() + "/" + root_dir
-out_dir = get_option(options, "out_dir")
-if out_dir[:1] != "/":
-    out_dir = os.getcwd() + "/" + out_dir
+in_dir = get_option_dir(options, "in_dir")
+#if in_dir[:1] != "/":
+#    in_dir = os.getcwd() + "/" + in_dir
+root_dir = get_option_dir(options, "root_dir")
+#if root_dir[:1] != "/":
+#    root_dir = os.getcwd() + "/" + root_dir
+out_dir = get_option_dir(options, "out_dir")
+#if out_dir[:1] != "/":
+#    out_dir = os.getcwd() + "/" + out_dir
 
 if not os.path.isdir(in_dir):
 	print "No such directory: " + in_dir

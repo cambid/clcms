@@ -7,5 +7,13 @@ will be in/ in the current one. The default output directory is out/.
 These options can be given on the command line:
 
    * *-c*
+     or
+     *--write-config*
+     
      Print default setup file configuration to stdout. This way, you can
      easily create an overriding setup file for a page.
+   * *-m*
+     or
+     *--no-macros*
+     
+     Do not use put the output through the macro engine

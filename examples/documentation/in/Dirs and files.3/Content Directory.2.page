@@ -1,4 +1,4 @@
-The content directory is where the important stuff is at. While it might
+The content directories are where the important stuff is at. While it might
 take you a while to get your settings and layout in order, once you have
 done that, you should only be working in the content directory for your
 daily website update needs.
@@ -8,8 +8,14 @@ daily website update needs.
 Every (sub)directory in the content directory that contains one or more
 files ending in .page will be transformed into a website page. The idea is
 that you can store everything that is relevant for a certain page in the
-same directory as the page itself. Of course you don't have to, but it's
-kind of what I had in mind designing this.
+same directory as the page itself (of course, you don't have to, but it's
+kind of what I had in mind designing this). You can group pages of the same
+topic by putting their directories in an encompassing higher directory, and
+optionally provide that directory with web page content. For instance, i
+have a page called Projects with some general information on my current
+projects, and in the page directory if have separate directories for all my
+projects. Which might have their own subdirectories if they are very big.
+Kind of like a top-down view of content separation. But i digress.
 
 clcms will first check if there is an overriding .setup file (see
 [[#root_directory][root directory]] for an explanation about .setup files).
