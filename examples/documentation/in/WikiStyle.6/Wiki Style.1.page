@@ -1,0 +1,51 @@
+By default, your .page files will be run through the wiki engine. This way
+you shouldn't have to write any html yourself for normal pages. If you find
+that you are using _NO_WIKI_ a lot, you might want to think about creating
+some macro's. Or mail me about feature requests. Patches help.
+
+The wiki engine will handle each line and transform some of the
+constructions to it's html counterpart:
+
+   * *paragraph*
+
+     An empty line will signify a new paragraph.
+
+   * *bold*
+
+     If a line starts and ends with a *, the line will be put in bold font.
+
+   * *italics*
+
+     If a line starts and ends with a ., the line will be put in italic font.
+
+   * *monospaced*
+
+     If a line starts and ends with a =, the line will be put in monospaced font.
+
+   * *links*
+
+     Links should be entered in the form [ _FAKE_ [<URL>][<name>]]
+
+   * *images*
+
+     Images should be entered in the form { _FAKE_ {<URL>}{<name>}}
+
+   * *bullet list*
+
+     You can create a bullet list by placing 3 spaces, one *, and another
+     space at the start of the line. The rest of the line will be handled as
+     a complete line (for bold font properties etc.).
+
+     If you are 'inside' a bullet list, empty lines will only signify a <br />
+     
+     You can nest bullet lists by using 6 or 9 spaced for level 2 or three
+     bullets.
+
+Parts between the lines containing "_NO_WIKI_" and "_NO_WIKI_END_" are not
+handled at all.
+
+
+
+
+
+
