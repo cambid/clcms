@@ -175,7 +175,7 @@ macro_list = [
 #time.strftime("%Y-%m-%d")
 def handle_macro(macro_name, macro_source, input_line, options, page_name, root_dir, in_dir, cur_dir_depth):
     result_line = input_line
-    macro_p = re.compile("_"+macro_name+"_")
+    macro_p = re.compile("[^_]_"+macro_name+"_[^_]")
     macro_m = macro_p.search(input_line)
     if macro_m:
         ip = code.InteractiveInterpreter()
