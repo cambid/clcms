@@ -778,7 +778,6 @@ in_dir = get_option_dir(options, "in_dir")
 root_dir = get_option_dir(options, "root_dir")
 out_dir = get_option_dir(options, "out_dir")
 
-print "Root dir: "+root_dir
 if not os.path.isdir(in_dir):
 	print "No such directory: " + in_dir
 	sys.exit(1)
