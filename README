@@ -4,18 +4,15 @@ Welcome to clcms, the command line content management system
 For now, i'll use a code first, try later type of setup, so
 the internals and names are almost certainly subject to a lot of change.
 
-See DESIGN for a quick brainstorm of my initial thoughts 
+All current documentation resides in the examples/documentation dir which is
+also an example of a very small site for clcms.
 
 The setup is based on my simple site: every page has a few items: menu,
 submenu and content
 
-
 Ow and i'm using this to learn Python too, so things might be done a little
 awkwardly, don't hesitate to let me know if things could be done in a better
 way :)
-
-See the example dir for an example of a site (based on my own, found at
-http://jelte.nlnetlabs.nl).
 
 You can create the site by going to the example dir and running 
 <thisdir>/bin/clcms.py 
@@ -23,36 +20,6 @@ You can create the site by going to the example dir and running
 
 If you want to include the word "_<macro>_" in your site, use __<macro>__.
 
-TODO:
-- implement all html thingamabobs as macro's
-- error handling (:p)
-- make separators (".", "_") configurable
-
-WIKI engine:
-Formatting help:
-
-    * bold put word/phrase in asterisks: *your phrase*
-    * bullet list 3 spaces, asterisk, 1 space:    * your text
-    * headings 3 dashes, 1 to 6 pluses, 1 space: ---++ Your Heading
-    * italic put word/phrase in underscores: _your words_
-    * links use topic name or URL: WebHome, http://yahoo.com, or
-[[http://yahoo.com/][link to Yahoo]]
-    * monospaced put word/phrase in equal signs: =your words=
-    * paragraphs separate with blank line
-
-images can be included like this:
-{{<url>}{alt_tag}}
-
-only 1 link or image can be used per line atm
-
-
-algo:
-	read setup files (default *.setup)
-	read page files (default *.page)
-	if one or more page files:
-		create page, copy
-	for every subdir:
-		repeat
-	copy every other file to out/cur/
-
+See http://jelte.nlnetlabs.nl/Projects/clcms/index.html for more info and 
+an online version of the documentation directory
 
