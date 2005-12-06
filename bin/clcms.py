@@ -239,12 +239,23 @@ def handle_macro(macro_name, macro_source, input_line, options, page_name, root_
 # Check the input line for all macros in the given list
 #
 def handle_macros(macro_list, input_line, options, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu):
+    orig_input_line = input_line
     cur_line = input_line
     orig_line = ""
+    i = 0
     while orig_line != cur_line:
         orig_line = cur_line
         for mo in macro_list:
             cur_line = handle_macro(mo[0], mo[1], cur_line, options, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu)
+            if cur_line != orig_line:
+                break
+        i += 1
+        if (i > 1000):
+            print "Error, loop detected in macro. I have done 1000 macro expansions on the line:"
+            print orig_input_line
+            print "And it is still not done. Aborting. Your output may be incomplete."
+            print "Last macro tried: "+mo[0]
+            sys.exit(1)
     return cur_line
 
 #
