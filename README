@@ -14,9 +14,11 @@ Ow and i'm using this to learn Python too, so things might be done a little
 awkwardly, don't hesitate to let me know if things could be done in a better
 way :)
 
-You can create the site by going to the example dir and running 
+You can create the documentation by going to the example/documentation dir
+and running
 <thisdir>/bin/clcms.py 
 
+After that, point your browser to examples/documentation/out/index.html
 
 If you want to include the word "_<macro>_" in your site, use __<macro>__.
 
