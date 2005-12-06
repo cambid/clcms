@@ -665,10 +665,13 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, macro
 
     page_lines = lines
 
-    out_file = open(out_dir + "/index.html", "w")
-    out_file.writelines(page_lines)
-    out_file.close()
-    #print "[CLCMS] Created " + out_dir + "/index.html"
+    # only write if last_modified is past output file
+    if not os.path.exists(out_dir + os.sep + "index.html") or \
+       os.stat(out_dir + os.sep + "index.html")[stat.ST_MTIME] < last_modified:
+        out_file = open(out_dir + os.sep + "index.html", "w")
+        out_file.writelines(page_lines)
+        out_file.close()
+        print "[CLCMS] Created " + out_dir + "/index.html"
 
 
 def create_pages(root_dir, in_dir, out_dir, default_options, default_macro_list, cur_dir_depth):
@@ -778,8 +781,11 @@ def create_pages(root_dir, in_dir, out_dir, default_options, default_macro_list,
     # Copy rest
     #
     for df in dir_files:
-        shutil.copy(df, out_dir)
-        #print "[CLCMS] Copied " + df + " to " + out_dir
+        # check if exists and if older
+        if not os.path.exists(out_dir + os.sep + df) or \
+            os.stat(out_dir + os.sep + df)[stat.ST_MTIME] < os.stat(df)[stat.ST_MTIME]:
+                shutil.copy(df, out_dir)
+                print "[CLCMS] Copied " + df + " to " + out_dir
     
 
 #
