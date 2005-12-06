@@ -194,16 +194,19 @@ def wiki_to_html(wiki_lines):
 # a macro function is supposed to return a string
 macro_list = [
   ["MENU", "output = \"\"\nfor ml in create_menu(root_dir, in_dir, options, cur_dir_depth):\n\toutput += ml\n" ],
+  ["SUBMENU", "output = \"\"\nfor ml in create_submenu(show_submenu, page_files, options):\n\toutput += ml\n" ],
   ["TITLE", "output = page_name\n" ],
   ["STYLESHEET", 'i = 0\noutput = ""\nwhile i < cur_dir_depth:\n\toutput += "../"\n\ti += 1\noutput += get_option(options, "style_sheet")\n' ],
   ["DATE", "output = time.strftime(\"%Y-%m-%d\")\n" ],
   ["DATEFILE", "output = time.strftime(\"%Y-%m-%d\", time.gmtime(os.stat(in_dir)[stat.ST_MTIME]))\n" ],
+  ["ITEM-SEPARATOR", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\" />\"" ],
+  ["SUBMENU-ITEM-SEPARATOR", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\" />\"" ],
   ["FAKE", "output = \"\"\n" ]
 ]
 
 #time.strftime("%Y-%m-%d", time.gmtime(last_modified))
 #time.strftime("%Y-%m-%d")
-def handle_macro(macro_name, macro_source, input_line, options, page_name, root_dir, in_dir, cur_dir_depth):
+def handle_macro(macro_name, macro_source, input_line, options, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu):
     result_line = input_line
     macro_p = re.compile("[^_]?(_"+macro_name+"_)[^_]?")
     macro_m = macro_p.search(input_line)
@@ -235,14 +238,14 @@ def handle_macro(macro_name, macro_source, input_line, options, page_name, root_
 #
 # Check the input line for all macros in the given list
 #
-def handle_macros(macro_list, input_line, options, page_name, root_dir, in_dir, cur_dir_depth):
-    prev_input = input_line
-    new_input = ""
-    while new_input != prev_input:
+def handle_macros(macro_list, input_line, options, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu):
+    cur_line = input_line
+    orig_line = ""
+    while orig_line != cur_line:
+        orig_line = cur_line
         for mo in macro_list:
-            new_input = handle_macro(mo[0], mo[1], prev_input, options, page_name, root_dir, in_dir, cur_dir_depth)
-            prev_input = new_input
-    return new_input
+            cur_line = handle_macro(mo[0], mo[1], cur_line, options, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu)
+    return cur_line
 
 #
 # Option handling (default options and those from .setup files)
@@ -498,6 +501,25 @@ def create_menu(root_dir, base_dir, options, cur_page_depth):
     return menu_lines
     
 
+def create_submenu(show_submenu, page_files, options):
+    submenu_lines = []
+    # submenu
+    if show_submenu and len(page_files) > 1:
+        submenu_lines.append("<div id=\"submenu\">\n")
+        first = True
+        for pf in page_files:
+            if pf.find(".nomenu") < 0:
+                if not first:
+                    submenu_lines.append("_SUBMENU-ITEM-SEPARATOR_\n")
+                #    submenu_lines.append("<hr noshade=\"noshade\" size=\"1\" width=\"80%\" align=\"left\" />\n")
+                else:
+                    first = False
+                submenu_lines.append("<div class=\"submenu_item\">\n")
+                submenu_lines.append("<a href=\"#" + escape_url(file_base_name(pf)) + "\">" + file_base_name(pf) + "</a>\n")
+                submenu_lines.append("</div>\n")
+        submenu_lines.append("</div>\n")
+    return submenu_lines
+
 def origcreate_menu(root_dir, base_dir, options):
     ignore_masks = get_options(options, "ignore_masks")
     ignore_masks.append('.*\.nm.*')
@@ -538,17 +560,17 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, macro
 
     # submenu
     # TODO: macro's etc.
-    if show_submenu and len(page_files) > 1:
-        page_lines.append("<div id=\"submenu\">\n")
-        first = True
-        for pf in page_files:
-            if pf.find(".nomenu") < 0:
-                if not first:
-                    page_lines.append("<hr noshade=\"noshade\" size=\"1\" width=\"80%\" align=\"left\" />\n")
-                else:
-                    first = False
-                page_lines.append("<a href=\"#" + escape_url(file_base_name(pf)) + "\">" + file_base_name(pf) + "</a>\n")
-        page_lines.append("</div>\n")
+#    if show_submenu and len(page_files) > 1:
+#        page_lines.append("<div id=\"submenu\">\n")
+#        first = True
+#        for pf in page_files:
+#            if pf.find(".nomenu") < 0:
+#                if not first:
+#                    page_lines.append("<hr noshade=\"noshade\" size=\"1\" width=\"80%\" align=\"left\" />\n")
+#                else:
+#                    first = False
+#                page_lines.append("<a href=\"#" + escape_url(file_base_name(pf)) + "\">" + file_base_name(pf) + "</a>\n")
+#        page_lines.append("</div>\n")
     
     page_lines.append("<div id=\"content\">\n")
 
@@ -584,7 +606,8 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, macro
         else:
             # TODO: Macro
             if item_index > 1:
-                page_lines.append("<hr noshade=\"noshade\" size=\"1\" width=\"60%\" align=\"left\" />\n")
+                page_lines.append("_ITEM-SEPARATOR_\n")
+                #page_lines.append("<hr noshade=\"noshade\" size=\"1\" width=\"60%\" align=\"left\" />\n")
             pf = pf[:extension_m.start(1)]
             pf_lines = []
             if show_item_title or show_item_title_date:
@@ -624,7 +647,7 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, macro
 	
     if not no_macros:
         for l in lines:
-	    lines2.append(handle_macros(macro_list, l, options, page_name, root_dir, in_dir, cur_dir_depth))
+	    lines2.append(handle_macros(macro_list, l, options, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu))
 
         lines = lines2
         lines2 = []
