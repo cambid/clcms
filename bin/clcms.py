@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # Copyright (C) 2005  Jelte Jansen
 #
@@ -29,7 +29,7 @@ import re
 import sys
 import code
 
-version = "0.1"
+version = "0.2"
 
 no_macros = False
 
@@ -299,8 +299,9 @@ def get_option_dir(options, option_name):
 		m = p.match(o)
 		if m:
 			d = o[m.end():].rstrip("\n\r\t ")
-        if d[:1] != os.sep:
-                d = os.getcwd()+os.sep+d
+                        if d[:1] != os.sep:
+                            d = os.getcwd()+os.sep+d
+                        return d
 	return d
 	
 
@@ -784,7 +785,14 @@ def create_pages(root_dir, in_dir, out_dir, default_options, default_macro_list,
         # check if exists and if older
         if not os.path.exists(out_dir + os.sep + df) or \
             os.stat(out_dir + os.sep + df)[stat.ST_MTIME] < os.stat(df)[stat.ST_MTIME]:
-                shutil.copy(df, out_dir)
+                try:
+                    shutil.copy(df, out_dir)
+                except IOError,msg:
+                    print "Error copying: "+df
+                    print "Current directory: "+os.getcwd()
+                    print "Error: "
+                    print msg
+                    sys.exit(1)
                 print "[CLCMS] Copied " + df + " to " + out_dir
     
 
@@ -798,6 +806,7 @@ for df in os.listdir("."):
     setup_m = setup_p.match(df)
     if setup_m:
         #options.extend(file_lines(df, ['^[^#].* *= *.+']))
+        print "Found .setup file in current directory: "+df
         for o in file_lines(df, ['^[^#].* *= *.+']):
             options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
 
@@ -818,6 +827,8 @@ in_dir = get_option_dir(options, "in_dir")
 root_dir = get_option_dir(options, "root_dir")
 out_dir = get_option_dir(options, "out_dir")
 
+print "Content directory: " + in_dir
+print "Output directory: " + out_dir
 if not os.path.isdir(in_dir):
 	print "No such directory: " + in_dir
 	sys.exit(1)
