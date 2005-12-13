@@ -193,7 +193,7 @@ def wiki_to_html(wiki_lines):
 # second object is a source string that will be executed
 # a macro function is supposed to return a string
 macro_list = [
-  ["MENU", "output = \"\"\nfor ml in create_menu(root_dir, in_dir, options, cur_dir_depth):\n\toutput += ml\n" ],
+  ["MENU", "output = \"\"\nfor ml in create_menu(root_dir, in_dir, options, arguments[0], cur_dir_depth):\n\toutput += ml\n" ],
   ["SUBMENU", "output = \"\"\nfor ml in create_submenu(show_submenu, page_files, options):\n\toutput += ml\n" ],
   ["TITLE", "output = page_name\n" ],
   ["STYLESHEET", 'i = 0\noutput = ""\nwhile i < cur_dir_depth:\n\toutput += os.pardir + os.sep\n\ti += 1\noutput += get_option(options, "style_sheet")\n' ],
@@ -208,13 +208,23 @@ macro_list = [
 #time.strftime("%Y-%m-%d")
 def handle_macro(macro_name, macro_source, input_line, options, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu):
     result_line = input_line
-    macro_p = re.compile("[^_]?(_"+macro_name+"_)[^_]?")
+    macro_p = re.compile("[^_]?(?:_"+macro_name+"_)(?:([a-zA-Z0-9_]+)_)?[^_]?")
     macro_m = macro_p.search(input_line)
     if macro_m:
         ip = code.InteractiveInterpreter()
         output = "<badmacro>"
 #        print "Code:"
 #        print macro_source
+#        print "Macro: "+macro_name
+        arg_string = macro_m.group(1)
+        if arg_string == None:
+            arguments = []
+        else:
+            arguments = macro_m.group(1).split('_')
+#        print "number of arguments: ",
+#        print len(arguments)
+#        print "arguments: ",
+#        print arguments
 
         # Hack to circumvent premature parser stoppage
         macro_lines = macro_source.split("\n")
@@ -224,12 +234,21 @@ def handle_macro(macro_name, macro_source, input_line, options, page_name, root_
         
         co = code.compile_command(macro_source)
         if co != None:
-            exec co
+            try:
+                exec co
+            except IndexError, msg:
+                print "Error parsing macro: "+macro_name
+                print "For page: "+page_name
+                print "In directory: "+in_dir
+                print "Line: "+input_line
+                print msg
+                print "Maybe the macro expects an argument?"
+                sys.exit(2)
             if output == "<badmacro>":
                 print "Warning: Bad macro: "+macro_name
                 print "In line: "+input_line
                 output = ""
-            result_line = input_line[:macro_m.start(1)] + output + input_line[macro_m.end(1):]
+            result_line = input_line[:macro_m.start()] + output + input_line[macro_m.end():]
         else:
             print "Warning: Bad macro: "+macro_name
         return result_line
@@ -447,8 +466,11 @@ def get_dir_files(options, dir, ignore_masks, invert = False):
 # returns a list of html lines
 # Makes a link when there are .page files in the directory
 # what to do if it is an empty nonterminal?
-def create_menu_part(root_dir, dir_prefix, base_dir, cur_depth, cur_page_depth, options):
+def create_menu_part(root_dir, dir_prefix, base_dir, depth, cur_depth, cur_page_depth, options):
     menu_lines = []
+
+    # TODO: where did cur_depth become a string?
+    cur_depth = int(cur_depth)
     
     ignore_masks = get_options(options, "ignore_masks")
     ignore_masks.append('.*\.nomenu.*')
@@ -468,7 +490,7 @@ def create_menu_part(root_dir, dir_prefix, base_dir, cur_depth, cur_page_depth, 
                 print "in dir now " +in_dir
                 return_dir = os.getcwd()
                 os.chdir(in_dir)
-                return create_menu_part(root_dir, dir_prefix + file_base_name(d) + os.sep, base_dir, cur_depth + 1, cur_page_depth, options)
+                return create_menu_part(root_dir, dir_prefix + file_base_name(d) + os.sep, base_dir, depth, cur_depth + 1, cur_page_depth, options)
                 #os.chdir(return_dir)
                 #return mp
         elif os.path.isdir(d):
@@ -495,9 +517,9 @@ def create_menu_part(root_dir, dir_prefix, base_dir, cur_depth, cur_page_depth, 
             if pagefiles != []:
                 menu_lines.append("\t</a>\n")
                 
-            if cur_depth < int(get_option(options, "menu_depth")):
+            if cur_depth < depth:
                 os.chdir(d)
-                menu_lines.extend(create_menu_part(root_dir, dir_prefix + file_base_name(d) + os.sep, base_dir, cur_depth + 1, cur_page_depth, options))
+                menu_lines.extend(create_menu_part(root_dir, dir_prefix + file_base_name(d) + os.sep, base_dir, depth, cur_depth + 1, cur_page_depth, options))
                 os.chdir(os.pardir)
             item_inc = get_option(options, "menu_item" + str(cur_depth) + "_end")
             if item_inc != '':
@@ -507,7 +529,7 @@ def create_menu_part(root_dir, dir_prefix, base_dir, cur_depth, cur_page_depth, 
                 
     return menu_lines
 
-def create_menu(root_dir, base_dir, options, cur_page_depth):
+def create_menu(root_dir, base_dir, options, depth, cur_page_depth):
     orig_dir = os.getcwd()
     os.chdir(base_dir)
     menu_lines = []
@@ -515,7 +537,7 @@ def create_menu(root_dir, base_dir, options, cur_page_depth):
         if hf[:1] != os.sep:
             hf = root_dir + os.sep + hf
         menu_lines.extend(file_lines(hf))
-    menu_lines.extend(create_menu_part(root_dir, "", base_dir, 1, cur_page_depth, options))
+    menu_lines.extend(create_menu_part(root_dir, "", base_dir, 1, depth, cur_page_depth, options))
     for hf in get_options(options, "menu_end_files"):
         if hf[:1] != os.sep:
             hf = root_dir + os.sep + hf
@@ -542,24 +564,6 @@ def create_submenu(show_submenu, page_files, options):
                 submenu_lines.append("</div>\n")
         submenu_lines.append("</div>\n")
     return submenu_lines
-
-def origcreate_menu(root_dir, base_dir, options):
-    ignore_masks = get_options(options, "ignore_masks")
-    ignore_masks.append('.*\.nm.*')
-    menu_lines = []
-    menu_lines.extend(file_lines(root_dir + "/menu_start.inc"))
-    first = True;
-    menu_depth = int(get_option(options, "menu_depth"))
-    for file in get_dir_files(options, base_dir, ignore_masks):
-        if not first:
-            menu_lines.extend(file_lines(root_dir + "/menu_item.inc"))
-        else:
-            first = False
-        menu_lines.append("<a href=\"" + os.pardir + os.sep + escape_url(file_base_name(file)) + "/index.html\">" + file_base_name(file) + "</a>")
-    menu_lines.extend(file_lines(root_dir + "/menu_end.inc"))
-    return menu_lines
-
-
 
 def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, macro_list, cur_dir_depth):
     page_lines = []
