@@ -620,13 +620,13 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, macro
                 if show_item_title_date:
                     pf_lines.append(time.strftime("%Y-%m-%d", time.gmtime(os.stat(pf)[stat.ST_MTIME])))
                 if show_item_title:
-                    pf_lines.append(pf[0])
+                    pf_lines.append(file_name_parts[0])
                 pf_lines.append("</h3>\n")
             if wiki_parse:
                 pf_lines.extend(wiki_to_html(file_lines(pf)))
             else:
                 pf_lines.extend(file_lines(pf))
-            page_lines.append("<a name=\"" + escape_url(pf[0]) + "\"></a>\n")
+            page_lines.append("<a name=\"" + escape_url(file_name_parts[0]) + "\"></a>\n")
             page_lines.extend(pf_lines)
             if os.stat(pf)[stat.ST_MTIME] > last_modified:
                 last_modified = os.stat(pf)[stat.ST_MTIME]
