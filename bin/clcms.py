@@ -494,8 +494,13 @@ def create_menu_part(root_dir, dir_prefix, base_dir, depth, cur_depth, cur_page_
                 #os.chdir(return_dir)
                 #return mp
         elif os.path.isdir(d):
-            pagefilematchlist = get_options(options, "page_file_name")
+            # TODO: the extension_separator might be a re operator...
+            # remove re list for get_dir_files, and replace with
+            # something like the split() function seen in create_page
+            pagefilematchlist = [".*"+get_option(options, "extension_separator")+get_option(options, "page_file_name")]
             pagefilematchlist.append("index.html")
+            print "PAGE FILE MATCH LIST FOR MENU"
+            print pagefilematchlist
             pagefiles = get_dir_files(options, d, pagefilematchlist, True)
             item_inc = get_option(options, "menu_item" + str(cur_depth) + "_start")
             if item_inc != '':
