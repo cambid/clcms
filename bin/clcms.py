@@ -329,7 +329,7 @@ options = add_option(options, "wiki_parse = yes")
 options = add_option(options, "show_item_title = yes")
 options = add_option(options, "show_item_title_date = no")
 options = add_option(options, "ignore_masks = \\.\\\\*,DEADJOE")
-options = add_option(options, "extension_separator = \\.")
+options = add_option(options, "extension_separator = .")
 
 #
 # Utility functions
@@ -744,6 +744,7 @@ def create_pages(root_dir, in_dir, out_dir, default_options, default_macro_list,
         if file_name_parts[-1] == get_option(options, "page_file_name"):
             page_files.append(df)
         else:
+            #print "FILEEXT: "+file_name_parts[-1]
             dir_files2.append(df)
     dir_files = dir_files2
     dir_files2 = []
