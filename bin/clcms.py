@@ -46,6 +46,10 @@ def escape_url(url):
     url = url.replace(' ', '_')
     return url
 
+def escape_html(line):
+    line = line.replace('"', '\\"')
+    return line.rstrip("\r\n\t")
+
 def wiki_to_html_simple(line):
     line = line.rstrip("\n\r\t ")
     line = line.replace("<", "&lt;")
@@ -225,14 +229,27 @@ def handle_macro(macro_name, macro_source, input_line, options, page_name, root_
 #        print len(arguments)
 #        print "arguments: ",
 #        print arguments
-
+        # keep for error message
+        orig_macro_source = macro_source
         # Hack to circumvent premature parser stoppage
         macro_lines = macro_source.split("\n")
         macro_source = "for zcxcvad in [\"vasdferqerqewr\"]:\n"
         for ml in macro_lines:
             macro_source += "\t" + ml + "\n"
         
-        co = code.compile_command(macro_source)
+        try:
+            co = code.compile_command(macro_source)
+        except SyntaxError, msg:
+            print "Syntax error in macro: " + macro_name
+            print "For page: "+page_name
+            print "In directory: "+in_dir
+            print "Input line: "+input_line,
+            print "Error: ",
+            print msg
+            print "Maybe the macro expects an argument?"
+            print "Macro code:"
+            print orig_macro_source
+            sys.exit(4)
         if co != None:
             try:
                 exec co
@@ -240,9 +257,12 @@ def handle_macro(macro_name, macro_source, input_line, options, page_name, root_
                 print "Error parsing macro: "+macro_name
                 print "For page: "+page_name
                 print "In directory: "+in_dir
-                print "Line: "+input_line
+                print "Input line: "+input_line,
+                print "Error: ",
                 print msg
                 print "Maybe the macro expects an argument?"
+                print "Macro code:"
+                print orig_macro_source
                 sys.exit(2)
             if output == "<badmacro>":
                 print "Warning: Bad macro: "+macro_name
@@ -291,13 +311,25 @@ def add_options(options, optionsa):
 		options = add_option(options, o)
 	return options
 
+def have_option(options, option_name):
+	p = re.compile("^\\s*" + option_name + "\\s*=\\s*");
+	for o in options:
+		m = p.match(o)
+		if m:
+			return True
+        return False
+
 def get_option(options, option_name):
 	p = re.compile("^\\s*" + option_name + "\\s*=\\s*");
 	for o in options:
 		m = p.match(o)
 		if m:
 			return o[m.end():].rstrip("\n\r\t ")
-	return ""
+	print "Error: get_option() called for unknown option: "+option_name
+	print "Current directory: " + os.getcwd()
+	print options
+	asdf
+	sys.exit(3)
 	
 def get_options(options, option_name):
 	p = re.compile("^\\s*" + option_name + "\\s*=\\s*");
@@ -309,7 +341,8 @@ def get_options(options, option_name):
                         return result
                     else:
                         return []
-	return []
+	print "Current directory: " + os.getcwd()
+	sys.exit(3)
 
 def get_option_dir(options, option_name):
 	p = re.compile("^\\s*" + option_name + "\\s*=\\s*");
@@ -322,7 +355,8 @@ def get_option_dir(options, option_name):
                             d = os.getcwd()+os.sep+d
                         return d
         print "Error: unknown option name: " + option_name
-        sys.exit(2)
+	print "Current directory: " + os.getcwd()
+	sys.exit(3)
 	
 
 # default options
@@ -344,11 +378,13 @@ options = add_option(options, "menu_item1_end = menu_item_end.inc")
 options = add_option(options, "page_file_name = page")
 options = add_option(options, "setup_file_name = setup")
 options = add_option(options, "macro_file_name = macro")
+options = add_option(options, "inc_file_name = inc")
 options = add_option(options, "wiki_parse = yes")
 options = add_option(options, "show_item_title = yes")
 options = add_option(options, "show_item_title_date = no")
 options = add_option(options, "ignore_masks = \\.\\\\*,DEADJOE")
 options = add_option(options, "extension_separator = .")
+options = add_option(options, "create_pages = yes")
 
 #
 # Utility functions
@@ -499,8 +535,6 @@ def create_menu_part(root_dir, dir_prefix, base_dir, depth, cur_depth, cur_page_
             # something like the split() function seen in create_page
             pagefilematchlist = [".*"+get_option(options, "extension_separator")+get_option(options, "page_file_name")]
             pagefilematchlist.append("index.html")
-            print "PAGE FILE MATCH LIST FOR MENU"
-            print pagefilematchlist
             pagefiles = get_dir_files(options, d, pagefilematchlist, True)
             item_inc = get_option(options, "menu_item" + str(cur_depth) + "_start")
             if item_inc != '':
@@ -699,8 +733,8 @@ def create_pages(root_dir, in_dir, out_dir, default_options, default_macro_list,
         if file_name_parts[-1] == get_option(options, "setup_file_name"):
             # If root_dir and in_dir are changed, this is a subsite
             new_options = file_lines(df, ['^[^#].* *= *.+'])
-            if get_option(new_options, "root_dir") != "" and \
-               get_option(new_options, "in_dir") != "":
+            if have_option(new_options, "root_dir") and \
+               have_option(new_options, "in_dir"):
                 root_dir = get_option_dir(options, "root_dir")
                 #if root_dir[:1] != "/":
                 #    root_dir = os.getcwd() + "/" + root_dir
@@ -743,33 +777,69 @@ def create_pages(root_dir, in_dir, out_dir, default_options, default_macro_list,
     dir_files = dir_files2
     dir_files2 = []
     
+    #
+    # Read inc files
+    #
+    # inc files are handles like macro's, but only contain string data,
+    # and will not be executed
+    #print "Checking for inc files in " + os.getcwd()
+    for df in dir_files:
+        file_name_parts = df.split(get_option(options, "extension_separator"));
+        if file_name_parts[-1] == get_option(options, "inc_file_name"):
+            macro_name = file_base_name(df)
+            macro_lines = file_lines(df, [])
+            moc = "output = \"\"\n"
+            for l in macro_lines:
+                moc += "output += \""+escape_html(l)+"\"\n"
+            mo = [macro_name, moc]
+            macro_list.insert(0, mo)
+            print "add from "+os.getcwd()+": " + macro_name
+#            print moc
+#            print "MACRO LIST NOW:"
+#            print macro_list
+#            sys.exit(0)
+        else:
+            dir_files2.append(df)
+    dir_files = dir_files2
+    dir_files2 = []
+    
+    
     
     #
     # Read page files
     #
-    page_files = []
-    for df in dir_files:
-        file_name_parts = df.split(get_option(options, "extension_separator"));
-        if file_name_parts[-1] == get_option(options, "page_file_name"):
-            page_files.append(df)
-        else:
-            #print "FILEEXT: "+file_name_parts[-1]
-            dir_files2.append(df)
-    dir_files = dir_files2
-    dir_files2 = []
+    if get_option(options, "create_pages") == "yes":
+        page_files = []
+        for df in dir_files:
+            file_name_parts = df.split(get_option(options, "extension_separator"));
+            if file_name_parts[-1] == get_option(options, "page_file_name"):
+                page_files.append(df)
+            else:
+                #print "FILEEXT: "+file_name_parts[-1]
+                dir_files2.append(df)
+        dir_files = dir_files2
+        dir_files2 = []
 
-    if page_files != []:
-        # TODO: dotted page options here? (like in .page file names?)
-        page_name = file_base_name(os.path.basename(out_dir))
-        create_page(root_dir, in_dir, out_dir, page_name, page_files, options, macro_list, cur_dir_depth)
+        if page_files != []:
+            # TODO: dotted page options here? (like in .page file names?)
+            page_name = file_base_name(os.path.basename(out_dir))
+            create_page(root_dir, in_dir, out_dir, page_name, page_files, options, macro_list, cur_dir_depth)
 
     # 
     # Read directories
     #
     for df in dir_files:
         if os.path.isdir(df):
+            # stoppage checkage action
+#            handle_dir = True
+#            file_name_parts = df.split(get_option(options, "extension_separator"))
+#            for fp in file_name_parts[1:]:
+#                if fp == "stop":
+#                    print "Stop at dir: "+df
+#                    handle_dir = False
+#            if handle_dir:
             os.chdir(df)
-            #print "Entering directory " + os.getcwd()
+                #print "Entering directory " + os.getcwd()
             create_pages(root_dir, in_dir, out_dir + os.sep + file_base_name(df), options, macro_list, cur_dir_depth + 1)
             os.chdir(os.pardir)
         else:
