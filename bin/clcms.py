@@ -207,7 +207,6 @@ macro_list = [
   ["DATEFILE", "output = time.strftime(\"%Y-%m-%d\", time.gmtime(os.stat(in_dir)[stat.ST_MTIME]))\n" ],
   ["ITEM-SEPARATOR", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\" />\"" ],
   ["SUBMENU-ITEM-SEPARATOR", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\" />\"" ],
-  ["DEBUG", "output = \"\"\nprint arguments[0]\n" ],
   ["header", "output = \"_MENU_1_\"\n" ],
   ["footer", "output = \"\"\n" ],
   ["menustart", "output = \"\"\n" ],
@@ -222,6 +221,8 @@ macro_list = [
   ["menuitem4end", "output = \"\"\n" ],
   ["menuitem5start", "output = \"\"\n" ],
   ["menuitem5end", "output = \"\"\n" ],
+  ["DEBUG", "output = \"\"\nprint arguments[0]\n" ],
+  ["DUMPMACROS", "for m in macro_list:\n\tprint m[0]\n\tprint m[1]\n\tprint \"\"\noutput=\"\"\n" ],
   ["FAKE", "output = \"\"\n" ]
 ]
 
@@ -428,13 +429,13 @@ def file_lines(file, filters = []):
         f_lines = open(file, "r")
         for l in f_lines:
             if filters == []:
-                    lines.append(l)
+                    lines.append(l + "\n")
             else:
                     for filter in filters:
                             p = re.compile(filter)
                             m = p.search(l)
                             if m:
-                                    lines.append(l)
+                                    lines.append(l + "\n")
     except IOError, msg:
         print "Error reading file: ",
         print msg
