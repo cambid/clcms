@@ -229,9 +229,16 @@ macro_list = [
 #time.strftime("%Y-%m-%d")
 def handle_macro(macro_name, macro_source, input_line, options, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu):
     result_line = input_line
-    macro_p = re.compile("[^_]?(?:_"+macro_name+"_)(?:([a-zA-Z0-9_]+)_)?[^_]?")
+    # TODO: surrounding characters disappear...
+    macro_p = re.compile("(?:_"+macro_name+"_)(?:([a-zA-Z0-9_]+)_)?")
     macro_m = macro_p.search(input_line)
     if macro_m:
+        # hmm can this be done in the original regexp?
+        if macro_m.start() > 1 and macro_m.end() < len(input_line) and \
+           input_line[macro_m.start() - 1] == '_' and \
+           input_line[macro_m.start() - 1] == '_':
+             return result_line
+        
         ip = code.InteractiveInterpreter()
         output = "<badmacro>"
 #        print "Code:"
@@ -258,6 +265,7 @@ def handle_macro(macro_name, macro_source, input_line, options, page_name, root_
             co = code.compile_command(macro_source)
         except SyntaxError, msg:
             print "Syntax error in macro: " + macro_name
+            print "(Matching on: '" + macro_m.group() + "')"
             print "For page: "+page_name
             print "In directory: "+in_dir
             print "Input line: "+input_line,
@@ -272,6 +280,7 @@ def handle_macro(macro_name, macro_source, input_line, options, page_name, root_
                 exec co
             except IndexError, msg:
                 print "Error parsing macro: "+macro_name
+                print "(Matching on: '" + macro_m.group() + "')"
                 print "For page: "+page_name
                 print "In directory: "+in_dir
                 print "Input line: "+input_line,
@@ -693,10 +702,8 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, macro
                      show_item_title = False
                      show_item_title_date = False
         else:
-            # TODO: Macro
             if item_index > 1:
                 page_lines.append("_ITEM-SEPARATOR_\n")
-                #page_lines.append("<hr noshade=\"noshade\" size=\"1\" width=\"60%\" align=\"left\" />\n")
             pf_lines = []
             if show_item_title or show_item_title_date:
                 pf_lines.append("<h3>")
