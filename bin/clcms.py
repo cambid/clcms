@@ -228,7 +228,7 @@ macro_list = [
 
 #time.strftime("%Y-%m-%d", time.gmtime(last_modified))
 #time.strftime("%Y-%m-%d")
-def handle_macro(macro_name, macro_source, input_line, options, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu):
+def handle_macro(macro_name, macro_source, input_line, options, macro_list, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu):
     result_line = input_line
     # TODO: surrounding characters disappear...
     macro_p = re.compile("(?:_"+macro_name+"_)(?:([a-zA-Z0-9_]+)_)?")
@@ -237,7 +237,7 @@ def handle_macro(macro_name, macro_source, input_line, options, page_name, root_
         # hmm can this be done in the original regexp?
         if macro_m.start() > 1 and macro_m.end() < len(input_line) and \
            input_line[macro_m.start() - 1] == '_' and \
-           input_line[macro_m.start() - 1] == '_':
+           input_line[macro_m.end()] == '_':
              return result_line
         
         ip = code.InteractiveInterpreter()
@@ -312,7 +312,7 @@ def handle_macros(macro_list, input_line, options, page_name, root_dir, in_dir, 
     while orig_line != cur_line:
         orig_line = cur_line
         for mo in macro_list:
-            cur_line = handle_macro(mo[0], mo[1], cur_line, options, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu)
+            cur_line = handle_macro(mo[0], mo[1], cur_line, options, macro_list, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu)
             if cur_line != orig_line:
                 break
         i += 1
@@ -804,7 +804,7 @@ def create_pages(root_dir, in_dir, out_dir, default_options, default_macro_list,
 			    macro_lines = file_lines(df2, [])
 			    moc = "output = \"\"\n"
 			    for l in macro_lines:
-				moc += "output += \""+escape_html(l)+"\"\n"
+				moc += "output += \""+escape_html(l)+"\\n\"\n"
 			    mo = [macro_name, moc]
 			    macro_list.insert(0, mo)
 			elif file_name_parts[-1] == get_option(options, "macro_file_name"):
@@ -836,6 +836,7 @@ def create_pages(root_dir, in_dir, out_dir, default_options, default_macro_list,
 			for o in new_options:
 			    options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
 			create_pages(root_dir, in_dir, out_dir, options, macro_list, 0)
+			print "Done, go back."
 			os.chdir(return_dir)
 			return
 
@@ -879,7 +880,7 @@ def create_pages(root_dir, in_dir, out_dir, default_options, default_macro_list,
                 moc += "output += \""+escape_html(l)+"\"\n"
             mo = [macro_name, moc]
             macro_list.insert(0, mo)
-#            print "add from "+os.getcwd()+": " + macro_name
+#            print "add from inc in "+os.getcwd()+": " + macro_name
 #            print moc
 #            print "MACRO LIST NOW:"
 #            print macro_list
