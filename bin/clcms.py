@@ -568,7 +568,8 @@ def create_menu_part(root_dir,
 			print "in dir now " +in_dir
 			return_dir = os.getcwd()
 			os.chdir(in_dir)
-			return create_menu_part(root_dir, dir_prefix + file_base_name(d) + os.sep, base_dir, depth, cur_depth + 1, cur_page_depth, options)
+			# this works, but fails to create in/ dir menu link
+			return create_menu_part(root_dir, dir_prefix, base_dir, depth, cur_depth + 1, cur_page_depth, options)
 			#os.chdir(return_dir)
 			#return mp
 		    # TODO: is this right?
@@ -576,7 +577,12 @@ def create_menu_part(root_dir,
 	    #else:
 	    #	print "SETUP DIR: "+d
         elif os.path.isdir(d):
+	    #print cur_depth * "\t",
 	    #print "DIR: "+d
+	    #print "back_prefix: "+back_prefix
+	    #print cur_depth * "\t",
+	    #print "dir_prefix: "+dir_prefix
+	    
 	    #print file_name_parts
 	    #print get_option(options, "setup_file_name")
             # TODO: the extension_separator might be a re operator...
