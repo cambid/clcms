@@ -88,12 +88,12 @@ def wiki_to_html(wiki_lines):
     while i < len(wiki_lines):
         line = wiki_lines[i]
         if no_wiki:
-            if line == "_NO_WIKI_END_\n":
+            if line[:14] == "_NO_WIKI_END_\n":
                 no_wiki = False
             else:
                 html_lines.append(line)
         else:
-            if line == "_NO_WIKI_\n":
+            if line[:10] == "_NO_WIKI_\n":
                 no_wiki = True
             elif line[:3] == "---":
                 j = 3
@@ -497,7 +497,7 @@ def sort_dir_files(a, b):
 # ie the number after the first . (or specified spearator)
 def file_sort_number(options, filename):
     file_name_parts = filename.split(get_option(options, "extension_separator"));
-    result = 0
+    result = 999
     if len(file_name_parts) > 1 and file_name_parts[1].isdigit():
         result = int(file_name_parts[1])
     return result
@@ -564,14 +564,14 @@ def create_menu_part(root_dir,
 		       have_option(new_options, "in_dir"):
 			root_dir = get_option_dir(new_options, "root_dir")
 			print "root dir now " +root_dir
-			in_dir = get_option_dir(new_options, "in_dir")
+			#in_dir = get_option_dir(new_options, "in_dir")
 			print "in dir now " +in_dir
 			return_dir = os.getcwd()
 			os.chdir(in_dir)
 			# this works, but fails to create in/ dir menu link
-			return create_menu_part(root_dir, dir_prefix, base_dir, depth, cur_depth + 1, cur_page_depth, options)
-			#os.chdir(return_dir)
-			#return mp
+			menu_lines = create_menu_part(root_dir, dir_prefix, base_dir, depth, cur_depth + 1, cur_page_depth, options)
+			os.chdir(return_dir)
+			return menu_lines
 		    # TODO: is this right?
 		    options.extend(new_options)
 	    #else:
@@ -628,6 +628,8 @@ def create_menu_part(root_dir,
 def create_menu(root_dir, base_dir, options, depth, cur_page_depth):
     orig_dir = os.getcwd()
     os.chdir(base_dir)
+#    print "CREATE MENU IN "+base_dir
+    
     menu_lines = []
 #    for hf in get_options(options, "menu_start_files"):
 #        if hf[:1] != os.sep:
