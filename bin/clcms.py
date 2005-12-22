@@ -204,7 +204,7 @@ macro_list = [
   ["TITLE", "output = page_name\n" ],
   ["STYLESHEET", 'i = 0\noutput = ""\nwhile i < cur_dir_depth:\n\toutput += os.pardir + os.sep\n\ti += 1\noutput += get_option(options, "style_sheet")\n' ],
   ["DATE", "output = time.strftime(\"%Y-%m-%d\")\n" ],
-  ["DATEFILE", "output = time.strftime(\"%Y-%m-%d\", time.gmtime(last_modified))\nprint\"datefile: \"+output\n" ],
+  ["DATEFILE", "output = time.strftime(\"%Y-%m-%d\", time.gmtime(last_modified))\n" ],
   ["ITEM-SEPARATOR", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\" />\"" ],
   ["SUBMENU-ITEM-SEPARATOR", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\" />\"" ],
   ["header", "output = \"_MENU_1_\"\n" ],
