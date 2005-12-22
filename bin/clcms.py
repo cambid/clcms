@@ -204,7 +204,7 @@ macro_list = [
   ["TITLE", "output = page_name\n" ],
   ["STYLESHEET", 'i = 0\noutput = ""\nwhile i < cur_dir_depth:\n\toutput += os.pardir + os.sep\n\ti += 1\noutput += get_option(options, "style_sheet")\n' ],
   ["DATE", "output = time.strftime(\"%Y-%m-%d\")\n" ],
-  ["DATEFILE", "output = time.strftime(\"%Y-%m-%d\", time.gmtime(os.stat(in_dir)[stat.ST_MTIME]))\n" ],
+  ["DATEFILE", "output = time.strftime(\"%Y-%m-%d\", time.gmtime(last_modified))\nprint\"datefile: \"+output\n" ],
   ["ITEM-SEPARATOR", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\" />\"" ],
   ["SUBMENU-ITEM-SEPARATOR", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\" />\"" ],
   ["header", "output = \"_MENU_1_\"\n" ],
@@ -228,7 +228,7 @@ macro_list = [
 
 #time.strftime("%Y-%m-%d", time.gmtime(last_modified))
 #time.strftime("%Y-%m-%d")
-def handle_macro(macro_name, macro_source, input_line, options, macro_list, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu):
+def handle_macro(macro_name, macro_source, input_line, options, macro_list, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu, last_modified):
     result_line = input_line
     # TODO: surrounding characters disappear...
     macro_p = re.compile("(?:_"+macro_name+"_)(?:([a-zA-Z0-9_]+)_)?")
@@ -304,7 +304,7 @@ def handle_macro(macro_name, macro_source, input_line, options, macro_list, page
 #
 # Check the input line for all macros in the given list
 #
-def handle_macros(macro_list, input_line, options, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu):
+def handle_macros(macro_list, input_line, options, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu, last_modified):
     orig_input_line = input_line
     cur_line = input_line
     orig_line = ""
@@ -312,7 +312,7 @@ def handle_macros(macro_list, input_line, options, page_name, root_dir, in_dir, 
     while orig_line != cur_line:
         orig_line = cur_line
         for mo in macro_list:
-            cur_line = handle_macro(mo[0], mo[1], cur_line, options, macro_list, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu)
+            cur_line = handle_macro(mo[0], mo[1], cur_line, options, macro_list, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu, last_modified)
             if cur_line != orig_line:
                 break
         i += 1
@@ -552,7 +552,9 @@ def create_menu_part(root_dir,
 #    setup_p = re.compile(get_option(options, "setup_file_name"))
     
     dir_files = get_dir_files(options, ".", ignore_masks)
-    
+#    print "DIR: "+os.getcwd()
+    #print "FILES: ",
+    #print dir_files
     for d in dir_files:
     	file_name_parts = d.split(get_option(options, "extension_separator"))
 #        setup_m = setup_p.match(d)
@@ -564,13 +566,14 @@ def create_menu_part(root_dir,
 		       have_option(new_options, "in_dir"):
 			root_dir = get_option_dir(new_options, "root_dir")
 			print "root dir now " +root_dir
-			#in_dir = get_option_dir(new_options, "in_dir")
+			in_dir = get_option_dir(new_options, "in_dir")
 			print "in dir now " +in_dir
 			return_dir = os.getcwd()
 			os.chdir(in_dir)
 			# this works, but fails to create in/ dir menu link
 			menu_lines = create_menu_part(root_dir, dir_prefix, base_dir, depth, cur_depth + 1, cur_page_depth, options)
 			os.chdir(return_dir)
+			#return []
 			return menu_lines
 		    # TODO: is this right?
 		    options.extend(new_options)
@@ -597,6 +600,7 @@ def create_menu_part(root_dir,
             #        item_inc = root_dir + os.sep + item_inc
             #    menu_lines.extend(file_lines(item_inc))
             menu_lines.append("_menuitem" + str(cur_depth) + "start_\n")
+            
             if pagefiles != []:
                 i = 0
                 back_prefix = ""
@@ -749,7 +753,7 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, macro
 	
     if not no_macros:
         for l in lines:
-	    lines2.append(handle_macros(macro_list, l, options, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu))
+	    lines2.append(handle_macros(macro_list, l, options, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu, last_modified))
 
         lines = lines2
         lines2 = []
