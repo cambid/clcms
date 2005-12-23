@@ -207,7 +207,7 @@ macro_list = [
   ["DATEFILE", "output = time.strftime(\"%Y-%m-%d\", time.gmtime(last_modified))\n" ],
   ["ITEM-SEPARATOR", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\" />\"" ],
   ["SUBMENU-ITEM-SEPARATOR", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\" />\"" ],
-  ["header", "output = \"_MENU_1_\"\n" ],
+  ["header", "output = \"<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n<html>\n\t<head>\n\t\t<META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=UTF-8\">\n\t\t<link REL=\"stylesheet\" TYPE=\"text/css\" href=\"../../default.css\">\n\t\t<title>\n\t\t\tTutorial\n\t\t</title>\n\t</head>\n\t<body>\n\t<div id=\"main\">\n\t_MENU_1_\n\t<div id=\"content\">\n\t_SUBMENU_\n\"\n" ],
   ["footer", "output = \"\"\n" ],
   ["menustart", "output = \"\"\n" ],
   ["menuend", "output = \"\"\n" ],
@@ -565,9 +565,9 @@ def create_menu_part(root_dir,
 		    if have_option(new_options, "root_dir") and \
 		       have_option(new_options, "in_dir"):
 			root_dir = get_option_dir(new_options, "root_dir")
-			print "root dir now " +root_dir
+			#print "root dir now " +root_dir
 			in_dir = get_option_dir(new_options, "in_dir")
-			print "in dir now " +in_dir
+			#print "in dir now " +in_dir
 			return_dir = os.getcwd()
 			os.chdir(in_dir)
 			# this works, but fails to create in/ dir menu link
@@ -838,17 +838,17 @@ def create_pages(root_dir, in_dir, out_dir, default_options, default_macro_list,
 			root_dir = get_option_dir(options, "root_dir")
 			#if root_dir[:1] != "/":
 			#    root_dir = os.getcwd() + "/" + root_dir
-			print "root dir now " +root_dir
+			#print "root dir now " +root_dir
 			in_dir = get_option_dir(options, "in_dir")
 			#if in_dir[:1] != "/":
 			#    in_dir = os.getcwd() + "/" + in_dir
-			print "in dir now " +in_dir
+			#print "in dir now " +in_dir
 			return_dir = os.getcwd()
 			os.chdir(in_dir)
 			for o in new_options:
 			    options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
 			create_pages(root_dir, in_dir, out_dir, options, macro_list, 0)
-			print "Done, go back."
+			#print "Done, go back."
 			os.chdir(return_dir)
 			return
 
