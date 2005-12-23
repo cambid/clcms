@@ -207,7 +207,7 @@ macro_list = [
   ["DATEFILE", "output = time.strftime(\"%Y-%m-%d\", time.gmtime(last_modified))\n" ],
   ["ITEM-SEPARATOR", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\" />\"" ],
   ["SUBMENU-ITEM-SEPARATOR", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\" />\"" ],
-  ["header", "output = \"<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n<html>\n\t<head>\n\t\t<META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=UTF-8\">\n\t\t<link REL=\"stylesheet\" TYPE=\"text/css\" href=\"../../default.css\">\n\t\t<title>\n\t\t\tTutorial\n\t\t</title>\n\t</head>\n\t<body>\n\t<div id=\"main\">\n\t_MENU_1_\n\t<div id=\"content\">\n\t_SUBMENU_\n\"\n" ],
+  ["header", "output = \"<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">"\noutput = "<html>"\noutput = "\t<head>"\noutput = "\t\t<META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=UTF-8\">"\noutput = "\t\t<link REL=\"stylesheet\" TYPE=\"text/css\" href=\"../../default.css\">"\noutput = "\t\t<title>"\noutput = "\t\t\tTutorial"\noutput = "\t\t</title>"\noutput = "\t</head>"\noutput = "\t<body>"\noutput = "\t<div id=\"main\">"\noutput = "\t_MENU_1_"\noutput = "\t<div id=\"content\">"\noutput = "\t_SUBMENU_"\noutput = "\""\noutput = ""],
   ["footer", "output = \"\"\n" ],
   ["menustart", "output = \"\"\n" ],
   ["menuend", "output = \"\"\n" ],
