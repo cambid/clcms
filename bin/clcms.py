@@ -219,7 +219,9 @@ output += \"                     Tutorial\\n\"\n\
 output += \"             </title>\\n\"\n\
 output += \"     </head>\\n\"\n\
 output += \"     <body>\\n\"\n\
+output += \"     _MENU_1_\\n\"\n\
 output += \"     <div id=\\\"main\\\">\\n\"\n\
+output += \"     _SUBMENU_\\n\"\n\
 " ],
   ["footer", "\
 output = \"\"\n\
