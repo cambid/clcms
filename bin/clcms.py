@@ -246,11 +246,8 @@ output += \"</html>\\n\"\n\
   ["FAKE", "output = \"\"\n" ]
 ]
 
-#time.strftime("%Y-%m-%d", time.gmtime(last_modified))
-#time.strftime("%Y-%m-%d")
 def handle_macro(macro_name, macro_source, input_line, options, macro_list, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu, last_modified):
     result_line = input_line
-    # TODO: surrounding characters disappear...
     macro_p = re.compile("(?:_"+macro_name+"_)(?:([a-zA-Z0-9_]+)_)?")
     macro_m = macro_p.search(input_line)
     if macro_m:
@@ -417,15 +414,9 @@ options = add_option(options, "root_dir = .")
 options = add_option(options, "in_dir = in")
 options = add_option(options, "out_dir = out")
 options = add_option(options, "style_sheet = " + "default.css")
-#options = add_option(options, "header_files = header.inc")
-#options = add_option(options, "footer_files = footer.inc")
 options = add_option(options, "resource_dir = .")
 options = add_option(options, "show_menu = yes")
 options = add_option(options, "show_submenu = yes")
-#options = add_option(options, "menu_start_files = menu_start.inc")
-#options = add_option(options, "menu_end_files = menu_end.inc")
-#options = add_option(options, "menu_item1_start = menu_item_start.inc")
-#options = add_option(options, "menu_item1_end = menu_item_end.inc")
 options = add_option(options, "page_file_name = page")
 options = add_option(options, "setup_file_name = setup")
 options = add_option(options, "macro_file_name = macro")
