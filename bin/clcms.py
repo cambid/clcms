@@ -30,7 +30,7 @@ import sys
 import code
 import traceback
 
-version = "0.2"
+version = "0.3"
 
 no_macros = False
 
@@ -199,14 +199,14 @@ def wiki_to_html(wiki_lines):
 # a macro function is supposed to return a string
 # TODO: make correct html with header macros etc
 macro_list = [
-  ["MENU", "output = \"\"\nfor ml in create_menu(root_dir, in_dir, options, arguments[0], cur_dir_depth):\n\toutput += ml\n" ],
-  ["SUBMENU", "output = \"\"\nfor ml in create_submenu(show_submenu, page_files, options):\n\toutput += ml\n" ],
-  ["TITLE", "output = page_name\n" ],
-  ["STYLESHEET", 'i = 0\noutput = ""\nwhile i < cur_dir_depth:\n\toutput += os.pardir + os.sep\n\ti += 1\noutput += get_option(options, "style_sheet")\n' ],
-  ["DATE", "output = time.strftime(\"%Y-%m-%d\")\n" ],
-  ["DATEFILE", "output = time.strftime(\"%Y-%m-%d\", time.gmtime(last_modified))\n" ],
-  ["ITEM-SEPARATOR", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\" />\"" ],
-  ["SUBMENU-ITEM-SEPARATOR", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\" />\"" ],
+  ["MENU", "output = \"\"\nfor ml in create_menu(root_dir, in_dir, options, arguments[0], cur_dir_depth):\n\toutput += ml\n", 0 ],
+  ["SUBMENU", "output = \"\"\nfor ml in create_submenu(show_submenu, page_files, options):\n\toutput += ml\n", 0 ],
+  ["TITLE", "output = page_name\n", 0 ],
+  ["STYLESHEET", 'i = 0\noutput = ""\nwhile i < cur_dir_depth:\n\toutput += os.pardir + os.sep\n\ti += 1\noutput += get_option(options, "style_sheet")\n', 0 ],
+  ["DATE", "output = time.strftime(\"%Y-%m-%d\")\n", 0 ],
+  ["DATEFILE", "output = time.strftime(\"%Y-%m-%d\", time.gmtime(last_modified))\n", 0 ],
+  ["ITEM-SEPARATOR", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\" />\"", 0 ],
+  ["SUBMENU-ITEM-SEPARATOR", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\" />\"", 0 ],
   ["header", "\
 output = \"\"\n\
 output += \"<!DOCTYPE html PUBLIC \\\"-//W3C//DTD HTML 4.01 Transitional//EN\\\" \\\"http://www.w3.org/TR/html4/loose.dtd\\\">\\n\"\n\
@@ -222,28 +222,28 @@ output += \"     <body>\\n\"\n\
 output += \"     _MENU_1_\\n\"\n\
 output += \"     <div id=\\\"main\\\">\\n\"\n\
 output += \"     _SUBMENU_\\n\"\n\
-" ],
+", 0 ],
   ["footer", "\
 output = \"\"\n\
 output += \"    </div>\\n\"\n\
 output += \"    </body>\\n\"\n\
 output += \"</html>\\n\"\n\
-" ],
-  ["menustart", "output = \"\"\n" ],
-  ["menuend", "output = \"\"\n" ],
-  ["menuitem1start", "output = \"\"\n" ],
-  ["menuitem1end", "output = \"\"\n" ],
-  ["menuitem2start", "output = \"\"\n" ],
-  ["menuitem2end", "output = \"\"\n" ],
-  ["menuitem3start", "output = \"\"\n" ],
-  ["menuitem3end", "output = \"\"\n" ],
-  ["menuitem4start", "output = \"\"\n" ],
-  ["menuitem4end", "output = \"\"\n" ],
-  ["menuitem5start", "output = \"\"\n" ],
-  ["menuitem5end", "output = \"\"\n" ],
-  ["DEBUG", "output = \"\"\nprint arguments[0]\n" ],
-  ["DUMPMACROS", "for m in macro_list:\n\tprint m[0]\n\tprint m[1]\n\tprint \"\"\noutput=\"\"\n" ],
-  ["FAKE", "output = \"\"\n" ]
+", 0 ],
+  ["menustart", "output = \"\"\n", 0 ],
+  ["menuend", "output = \"\"\n", 0 ],
+  ["menuitem1start", "output = \"\"\n", 0 ],
+  ["menuitem1end", "output = \"\"\n", 0 ],
+  ["menuitem2start", "output = \"\"\n", 0 ],
+  ["menuitem2end", "output = \"\"\n", 0 ],
+  ["menuitem3start", "output = \"\"\n", 0 ],
+  ["menuitem3end", "output = \"\"\n", 0 ],
+  ["menuitem4start", "output = \"\"\n", 0 ],
+  ["menuitem4end", "output = \"\"\n", 0 ],
+  ["menuitem5start", "output = \"\"\n", 0 ],
+  ["menuitem5end", "output = \"\"\n", 0 ],
+  ["DEBUG", "output = \"\"\nprint arguments[0]\n", 0 ],
+  ["DUMPMACROS", "for m in macro_list:\n\tprint m[0]\n\tprint m[1]\n\tprint m[2]\n\tprint \"\"\noutput=\"\"\n", 0 ],
+  ["FAKE", "output = \"\"\n", 0 ]
 ]
 
 def handle_macro(macro_name, macro_source, input_line, options, macro_list, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu, last_modified):
@@ -326,11 +326,21 @@ def handle_macros(macro_list, input_line, options, page_name, root_dir, in_dir, 
     cur_line = input_line
     orig_line = ""
     i = 0
+    macro_last_modified = 0
+    
     while orig_line != cur_line:
         orig_line = cur_line
         for mo in macro_list:
             cur_line = handle_macro(mo[0], mo[1], cur_line, options, macro_list, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu, last_modified)
             if cur_line != orig_line:
+            	#print "Handled: "+mo[0]
+            	#print "lastmod: ",
+            	#print last_modified
+            	#print "mo2:     ",
+            	#print mo[2]
+                if mo[2] > macro_last_modified:
+		    #print "MACRO CHANGED!"
+                    macro_last_modified = mo[2]
                 break
         i += 1
         if (i > 1000):
@@ -339,7 +349,7 @@ def handle_macros(macro_list, input_line, options, page_name, root_dir, in_dir, 
             print "And it is still not done. Aborting. Your output may be incomplete."
             print "Last macro tried: "+mo[0]
             sys.exit(1)
-    return cur_line
+    return cur_line, macro_last_modified
 
 #
 # Option handling (default options and those from .setup files)
@@ -762,18 +772,34 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, macro
     lines = page_lines
     lines2 = []
 	
+    # macro changed will be set to true if any of the macros that is referenced
+    # in the page has been changed on disk since the last_mod date of the page itself
+    macro_last_modified = 0
+    
     if not no_macros:
         for l in lines:
-	    lines2.append(handle_macros(macro_list, l, options, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu, last_modified))
+	    (macronewlines, this_macro_last_modified) = handle_macros(macro_list, l, options, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu, last_modified)
+	    lines2.append(macronewlines)
+	    if this_macro_last_modified > macro_last_modified:
+	    	macro_last_modified = this_macro_last_modified
 
         lines = lines2
         lines2 = []
 
     page_lines = lines
 
+#    print "Page: "+out_dir
+#    print "Last modified: ",
+#    print last_modified
+#    print "Macro last mo: ",
+#    print macro_last_modified
+#    print "index.html: ",
+#    if os.path.exists(out_dir+os.sep+"index.html"):
+#        print os.stat(out_dir + os.sep + "index.html")[stat.ST_MTIME]
     # only write if last_modified is past output file
     if not os.path.exists(out_dir + os.sep + "index.html") or \
-       os.stat(out_dir + os.sep + "index.html")[stat.ST_MTIME] < last_modified:
+       os.stat(out_dir + os.sep + "index.html")[stat.ST_MTIME] < last_modified or \
+       os.stat(out_dir + os.sep + "index.html")[stat.ST_MTIME] < macro_last_modified:
         out_file = open(out_dir + os.sep + "index.html", "w")
         out_file.writelines(page_lines)
         out_file.close()
@@ -828,7 +854,8 @@ def create_pages(root_dir, in_dir, out_dir, default_options, default_macro_list,
 			    moc = "output = \"\"\n"
 			    for l in macro_lines:
 				moc += "output += \""+escape_html(l)+"\\n\"\n"
-			    mo = [macro_name, moc]
+			    # TODO ADD MACRO FILE TIME
+			    mo = [macro_name, moc, os.stat(df2)[stat.ST_MTIME]]
 			    macro_list.insert(0, mo)
 			elif file_name_parts[-1] == get_option(options, "macro_file_name"):
 			    # TODO: this is same as below, refactor
@@ -837,7 +864,8 @@ def create_pages(root_dir, in_dir, out_dir, default_options, default_macro_list,
 			    moc = ""
 			    for l in macro_lines:
 				moc += l
-			    mo = [macro_name, moc]
+			    # TODO ADD MACRO FILE TIME
+			    mo = [macro_name, moc, os.stat(df2)[stat.ST_MTIME]]
 			    macro_list.insert(0, mo)
 			    
 	    	os.chdir(setup_orig_dir)
@@ -881,7 +909,8 @@ def create_pages(root_dir, in_dir, out_dir, default_options, default_macro_list,
             moc = ""
             for l in macro_lines:
                 moc += l
-            mo = [macro_name, moc]
+	    # TODO ADD MACRO FILE TIME
+	    mo = [macro_name, moc, os.stat(df2)[stat.ST_MTIME]]
             macro_list.insert(0, mo)
         else:
             dir_files2.append(df)
@@ -901,13 +930,9 @@ def create_pages(root_dir, in_dir, out_dir, default_options, default_macro_list,
             moc = "output = \"\"\n"
             for l in macro_lines:
                 moc += "output += \""+escape_html(l)+"\"\n"
-            mo = [macro_name, moc]
+	    # TODO ADD MACRO FILE TIME
+	    mo = [macro_name, moc, os.stat(df2)[stat.ST_MTIME]]
             macro_list.insert(0, mo)
-#            print "add from inc in "+os.getcwd()+": " + macro_name
-#            print moc
-#            print "MACRO LIST NOW:"
-#            print macro_list
-#            sys.exit(0)
         else:
             dir_files2.append(df)
     dir_files = dir_files2
@@ -941,17 +966,17 @@ def create_pages(root_dir, in_dir, out_dir, default_options, default_macro_list,
     for df in dir_files:
         if os.path.isdir(df):
             # stoppage checkage action
-#            handle_dir = True
-#            file_name_parts = df.split(get_option(options, "extension_separator"))
-#            for fp in file_name_parts[1:]:
-#                if fp == "stop":
-#                    print "Stop at dir: "+df
-#                    handle_dir = False
-#            if handle_dir:
-            os.chdir(df)
+            handle_dir = True
+            file_name_parts = df.split(get_option(options, "extension_separator"))
+            for fp in file_name_parts[1:]:
+                if fp == "stop":
+                    print "Stop at dir: "+df
+                    handle_dir = False
+            if handle_dir:
+	        os.chdir(df)
                 #print "Entering directory " + os.getcwd()
-            create_pages(root_dir, in_dir, out_dir + os.sep + file_base_name(df), options, macro_list, cur_dir_depth + 1)
-            os.chdir(os.pardir)
+                create_pages(root_dir, in_dir, out_dir + os.sep + file_base_name(df), options, macro_list, cur_dir_depth + 1)
+                os.chdir(os.pardir)
         else:
             dir_files2.append(df)
     dir_files = dir_files2
