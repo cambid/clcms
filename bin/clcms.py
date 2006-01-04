@@ -31,8 +31,11 @@ import code
 import traceback
 
 version = "0.3"
+verbosity = 1;
 
 no_macros = False
+force_output = False
+inhibit_output = False
 
 #
 # Wiki style parser
@@ -766,7 +769,7 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, macro
     #    page_lines.extend(file_lines(root_dir + os.sep + hf))
 
     # create dir and file
-    if not os.path.isdir(out_dir):
+    if not os.path.isdir(out_dir) and not inhibit_output:
         os.mkdir(out_dir)
     
     lines = page_lines
@@ -797,18 +800,21 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, macro
 #    if os.path.exists(out_dir+os.sep+"index.html"):
 #        print os.stat(out_dir + os.sep + "index.html")[stat.ST_MTIME]
     # only write if last_modified is past output file
-    if not os.path.exists(out_dir + os.sep + "index.html") or \
+    if not inhibit_output and \
+       force_output or \
+       (not os.path.exists(out_dir + os.sep + "index.html") or \
        os.stat(out_dir + os.sep + "index.html")[stat.ST_MTIME] < last_modified or \
-       os.stat(out_dir + os.sep + "index.html")[stat.ST_MTIME] < macro_last_modified:
+       os.stat(out_dir + os.sep + "index.html")[stat.ST_MTIME] < macro_last_modified):
         out_file = open(out_dir + os.sep + "index.html", "w")
         out_file.writelines(page_lines)
         out_file.close()
-        print "[CLCMS] Created " + out_dir + "/index.html"
+        if verbosity >= 1:
+        	print "[CLCMS] Created " + out_dir + "/index.html"
 
 
 def create_pages(root_dir, in_dir, out_dir, default_options, default_macro_list, cur_dir_depth):
     out_dir = escape_url(out_dir)
-    if not os.path.isdir(out_dir):
+    if not os.path.isdir(out_dir) and not inhibit_output:
         os.mkdir(out_dir)
     
     options = []
@@ -970,7 +976,8 @@ def create_pages(root_dir, in_dir, out_dir, default_options, default_macro_list,
             file_name_parts = df.split(get_option(options, "extension_separator"))
             for fp in file_name_parts[1:]:
                 if fp == "stop":
-                    print "Stop at dir: "+df
+                    if verbosity >= 2:
+	                    print "Stop at dir: "+df
                     handle_dir = False
             if handle_dir:
 	        os.chdir(df)
@@ -997,8 +1004,12 @@ def create_pages(root_dir, in_dir, out_dir, default_options, default_macro_list,
                     print "Error: "
                     print msg
                     sys.exit(1)
-                print "[CLCMS] Copied " + df + " to " + out_dir
+                if verbosity >= 1:
+                	print "[CLCMS] Copied " + df + " to " + out_dir
     
+
+def print_usage():
+	print "Usage: clcms.py [OPTIONS]"
 
 #
 #Initializer, argument parsing, and main loop call
@@ -1009,22 +1020,46 @@ for df in os.listdir("."):
     file_name_parts = df.split(get_option(options, "extension_separator"))
     if file_name_parts[-1] == get_option(options, "setup_file_name"):
         #options.extend(file_lines(df, ['^[^#].* *= *.+']))
-        print "Found .setup file in current directory: "+df
+        if verbosity >= 2:
+        	print "Found .setup file in current directory: "+df
         for o in file_lines(df, ['^[^#].* *= *.+']):
             options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
 
 # parse arguments
 if len(sys.argv) > 1:
-    for arg in sys.argv[1:]:
+    i = 1
+    while i < len(sys.argv):
+    #for arg in sys.argv[1:]:
+    	arg = sys.argv[i]
     	if arg == "-m" or arg == "--no-macros":
     		no_macros = True
+	if arg == "-v" or arg == "--verbosity":
+		if (i < len(sys.argv)):
+			i = i + 1
+			verbosity = int(sys.argv[i])
+		else:
+			print "-v requires argument"
+			sys.exit(1)
     	elif arg == "-c" or arg == "--write-config":
     		for l in options:
     			print l
 		sys.exit(0)
+	elif arg == "-h" or arg == "--help":
+		print_usage()
+		sys.exit(0)
+	elif arg == "-f" or arg == "--force-output":
+		force_output = True
+	elif arg == "-i" or arg == "--inhibit-output":
+		inhibit_output = True
         else:
         	print "Unknown argument: "+arg
     	        sys.exit(1)
+    	i = i + 1
+
+# sanity checks on arguments
+if inhibit_output and force_output:
+	print "inhibit-output and force-output cannot be used at the same time. Aborting."
+	sys.exit(1)
 
 in_dir = get_option_dir(options, "in_dir")
 root_dir = get_option_dir(options, "root_dir")
@@ -1033,9 +1068,14 @@ out_dir = get_option_dir(options, "out_dir")
 if not os.path.isdir(in_dir):
 	print "No such directory: " + in_dir
 	sys.exit(1)
-print "Content directory: " + in_dir
-print "Output directory: " + out_dir
-if not os.path.isdir(out_dir):
+if verbosity >= 1:
+	print "Content directory: " + in_dir
+	if inhibit_output:
+		print "Inhibiting output."
+	else:
+		print "Output directory: " + out_dir
+	
+if not os.path.isdir(out_dir) and not inhibit_output:
     os.mkdir(out_dir)
 os.chdir(in_dir)
 create_pages(root_dir, in_dir, out_dir, options, macro_list, 0)
