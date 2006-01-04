@@ -235,17 +235,29 @@ output += \"</html>\\n\"\n\
   ["menustart", "output = \"\"\n", 0 ],
   ["menuend", "output = \"\"\n", 0 ],
   ["menuitem1start", "output = \"\"\n", 0 ],
+  ["menuitem1start1", "output = \"_menuitem1start_\"\n", 0 ],
+  ["menuitem1start2", "output = \"\"\n", 0 ],
   ["menuitem1end", "output = \"\"\n", 0 ],
   ["menuitem2start", "output = \"\"\n", 0 ],
+  ["menuitem2start1", "output = \"_menuitem2start_\"\n", 0 ],
+  ["menuitem2start2", "output = \"\"\n", 0 ],
   ["menuitem2end", "output = \"\"\n", 0 ],
   ["menuitem3start", "output = \"\"\n", 0 ],
+  ["menuitem3start1", "output = \"_menuitem3start_\"\n", 0 ],
+  ["menuitem3start2", "output = \"\"\n", 0 ],
   ["menuitem3end", "output = \"\"\n", 0 ],
   ["menuitem4start", "output = \"\"\n", 0 ],
+  ["menuitem4start1", "output = \"_menuitem4start_\"\n", 0 ],
+  ["menuitem4start2", "output = \"\"\n", 0 ],
   ["menuitem4end", "output = \"\"\n", 0 ],
   ["menuitem5start", "output = \"\"\n", 0 ],
+  ["menuitem5start1", "output = \"_menuitem5start_\"\n", 0 ],
+  ["menuitem5start2", "output = \"\"\n", 0 ],
   ["menuitem5end", "output = \"\"\n", 0 ],
   ["DEBUG", "output = \"\"\nprint arguments[0]\n", 0 ],
   ["DUMPMACROS", "for m in macro_list:\n\tprint m[0]\n\tprint m[1]\n\tprint m[2]\n\tprint \"\"\noutput=\"\"\n", 0 ],
+  ["SUBMENUITEMSTART", "output = \"<div class=\\\"submenu_item\\\">\"\n", 0 ],
+  ["SUBMENUITEMEND", "output = \"</div>\"\n", 0 ],
   ["FAKE", "output = \"\"\n", 0 ]
 ]
 
@@ -623,7 +635,7 @@ def create_menu_part(root_dir,
             #    if item_inc[:1] != os.sep:
             #        item_inc = root_dir + os.sep + item_inc
             #    menu_lines.extend(file_lines(item_inc))
-            menu_lines.append("_menuitem" + str(cur_depth) + "start_\n")
+            menu_lines.append("_menuitem" + str(cur_depth) + "start1_\n")
             
             if pagefiles != []:
                 i = 0
@@ -640,6 +652,7 @@ def create_menu_part(root_dir,
             if pagefiles != []:
                 menu_lines.append("\t</a>\n")
                 
+            menu_lines.append("_menuitem" + str(cur_depth) + "start2_\n")
             if cur_depth < depth:
                 os.chdir(d)
                 menu_lines.extend(create_menu_part(root_dir, dir_prefix + file_base_name(d) + os.sep, base_dir, depth, cur_depth + 1, cur_page_depth, options))
@@ -687,9 +700,9 @@ def create_submenu(show_submenu, page_files, options):
                 #    submenu_lines.append("<hr noshade=\"noshade\" size=\"1\" width=\"80%\" align=\"left\" />\n")
                 else:
                     first = False
-                submenu_lines.append("<div class=\"submenu_item\">\n")
+                submenu_lines.append("_SUBMENUITEMSTART_");
                 submenu_lines.append("<a href=\"#" + escape_url(file_base_name(pf)) + "\">" + file_base_name(pf) + "</a>\n")
-                submenu_lines.append("</div>\n")
+                submenu_lines.append("_SUBMENUITEMEND_");
         submenu_lines.append("</div>\n")
     return submenu_lines
 
