@@ -635,6 +635,8 @@ def create_menu_part(root_dir,
             #    if item_inc[:1] != os.sep:
             #        item_inc = root_dir + os.sep + item_inc
             #    menu_lines.extend(file_lines(item_inc))
+            
+            # TODO: inserted line as argument to macro?
             menu_lines.append("_menuitem" + str(cur_depth) + "start1_\n")
             
             if pagefiles != []:
