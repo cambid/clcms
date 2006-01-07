@@ -235,25 +235,20 @@ output += \"</html>\\n\"\n\
   ["menustart", "output = \"\"\n", 0 ],
   ["menuend", "output = \"\"\n", 0 ],
   ["menuitem1start", "output = \"\"\n", 0 ],
-  ["menuitem1start1", "output = \"_menuitem1start_\"\n", 0 ],
-  ["menuitem1start2", "output = \"\"\n", 0 ],
   ["menuitem1end", "output = \"\"\n", 0 ],
   ["menuitem2start", "output = \"\"\n", 0 ],
-  ["menuitem2start1", "output = \"_menuitem2start_\"\n", 0 ],
-  ["menuitem2start2", "output = \"\"\n", 0 ],
   ["menuitem2end", "output = \"\"\n", 0 ],
   ["menuitem3start", "output = \"\"\n", 0 ],
-  ["menuitem3start1", "output = \"_menuitem3start_\"\n", 0 ],
-  ["menuitem3start2", "output = \"\"\n", 0 ],
   ["menuitem3end", "output = \"\"\n", 0 ],
   ["menuitem4start", "output = \"\"\n", 0 ],
-  ["menuitem4start1", "output = \"_menuitem4start_\"\n", 0 ],
-  ["menuitem4start2", "output = \"\"\n", 0 ],
   ["menuitem4end", "output = \"\"\n", 0 ],
   ["menuitem5start", "output = \"\"\n", 0 ],
-  ["menuitem5start1", "output = \"_menuitem5start_\"\n", 0 ],
-  ["menuitem5start2", "output = \"\"\n", 0 ],
   ["menuitem5end", "output = \"\"\n", 0 ],
+  ["menuitem1start-arg", "output = \"_menuitem1start_\"\nif arguments != []:\n\toutput = arguments[0]\n", 0], 
+  ["menuitem2start-arg", "output = \"_menuitem2start_\"\nif arguments != []:\n\toutput = arguments[0]\n", 0], 
+  ["menuitem3start-arg", "output = \"_menuitem3start_\"\nif arguments != []:\n\toutput = arguments[0]\n", 0], 
+  ["menuitem4start-arg", "output = \"_menuitem4start_\"\nif arguments != []:\n\toutput = arguments[0]\n", 0], 
+  ["menuitem5start-arg", "output = \"_menuitem5start_\"\nif arguments != []:\n\toutput = arguments[0]\n", 0], 
   ["DEBUG", "output = \"\"\nprint arguments[0]\n", 0 ],
   ["DUMPMACROS", "for m in macro_list:\n\tprint m[0]\n\tprint m[1]\n\tprint m[2]\n\tprint \"\"\noutput=\"\"\n", 0 ],
   ["SUBMENUITEMSTART", "output = \"<div class=\\\"submenu_item\\\">\"\n", 0 ],
@@ -261,9 +256,12 @@ output += \"</html>\\n\"\n\
   ["FAKE", "output = \"\"\n", 0 ]
 ]
 
+# TODO: always set output to "" when reading new macro definitions
+
 def handle_macro(macro_name, macro_source, input_line, options, macro_list, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu, last_modified):
     result_line = input_line
-    macro_p = re.compile("(?:_"+macro_name+"_)(?:([a-zA-Z0-9_]+)_)?")
+    #macro_p = re.compile("(?:_"+macro_name+"_)(?:([a-zA-Z0-9_]+)_)?")
+    macro_p = re.compile("(?:_"+macro_name+"_)(?:(.+)_)?")
     macro_m = macro_p.search(input_line)
     if macro_m:
         # hmm can this be done in the original regexp?
@@ -637,7 +635,8 @@ def create_menu_part(root_dir,
             #    menu_lines.extend(file_lines(item_inc))
             
             # TODO: inserted line as argument to macro?
-            menu_lines.append("_menuitem" + str(cur_depth) + "start1_\n")
+            #menu_lines.append("_menuitem" + str(cur_depth) + "start1_\n")
+            menulink = ""
             
             if pagefiles != []:
                 i = 0
@@ -645,16 +644,20 @@ def create_menu_part(root_dir,
                 while i < cur_page_depth:
                     back_prefix += os.pardir + os.sep
                     i += 1
-                menu_lines.append("\t<a href=\"" + escape_url(back_prefix + dir_prefix + file_base_name(d)) + "/index.html\">\n")
+                menulink += "<a href=\"" + escape_url(back_prefix + dir_prefix + file_base_name(d)) + "/index.html\">"
             i = 0
-            while i < cur_depth:
-                menu_lines.append("\t")
-                i += 1
-            menu_lines.append(file_base_name(d) + "\n")
+            #while i < cur_depth:
+            #    menu_lines.append("\t")
+            #    i += 1
+            menulink += file_base_name(d)
+            # + "\n"
             if pagefiles != []:
-                menu_lines.append("\t</a>\n")
+                menulink += "</a>"
                 
-            menu_lines.append("_menuitem" + str(cur_depth) + "start2_\n")
+            #print "MENULINK " + "IS " + menulink
+            menulink.replace("_", "jaja")
+            menu_lines.append("_menuitem" + str(cur_depth) + "start-arg_"+menulink+"_\n")
+            #menu_lines.append(menulink)
             if cur_depth < depth:
                 os.chdir(d)
                 menu_lines.extend(create_menu_part(root_dir, dir_prefix + file_base_name(d) + os.sep, base_dir, depth, cur_depth + 1, cur_page_depth, options))
@@ -878,10 +881,10 @@ def create_pages(root_dir, in_dir, out_dir, default_options, default_macro_list,
 			    # TODO ADD MACRO FILE TIME
 			    mo = [macro_name, moc, os.stat(df2)[stat.ST_MTIME]]
 			    macro_list.insert(0, mo)
-			elif file_name_parts[-1] == get_option(options, "macro_file_name"):
+			elif setup_file_name_parts2[-1] == get_option(options, "macro_file_name"):
 			    # TODO: this is same as below, refactor
-			    macro_name = file_base_name(df)
-			    macro_lines = file_lines(df, [])
+			    macro_name = file_base_name(df2)
+			    macro_lines = file_lines(df2, [])
 			    moc = ""
 			    for l in macro_lines:
 				moc += l
@@ -1048,7 +1051,7 @@ if len(sys.argv) > 1:
     	arg = sys.argv[i]
     	if arg == "-m" or arg == "--no-macros":
     		no_macros = True
-	if arg == "-v" or arg == "--verbosity":
+	elif arg == "-v" or arg == "--verbosity":
 		if (i < len(sys.argv)):
 			i = i + 1
 			verbosity = int(sys.argv[i])
