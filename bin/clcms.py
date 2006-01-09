@@ -274,6 +274,7 @@ def handle_macro(macro_name, macro_source, input_line, options, macro_list, page
         output = "<badmacro>"
 #        print "Code:"
 #        print macro_source
+#	print "Line: "+input_line
 #        print "Macro: "+macro_name
         arg_string = macro_m.group(1)
         if arg_string == None:
@@ -346,6 +347,12 @@ def handle_macros(macro_list, input_line, options, page_name, root_dir, in_dir, 
         for mo in macro_list:
             cur_line = handle_macro(mo[0], mo[1], cur_line, options, macro_list, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu, last_modified)
             if cur_line != orig_line:
+            	if verbosity >= 5:
+            		print "Macro substitution: "
+            		print "<<<<<<<<<<<<<<<<<<BEFORE<<<<<<<<<<<<<<<"
+            		print orig_line
+            		print ">>>>>>>>>>>>>>>>>>AFTER>>>>>>>>>>>>>>>>"
+            		print cur_line
             	#print "Handled: "+mo[0]
             	#print "lastmod: ",
             	#print last_modified
@@ -705,7 +712,7 @@ def create_submenu(show_submenu, page_files, options):
                 #    submenu_lines.append("<hr noshade=\"noshade\" size=\"1\" width=\"80%\" align=\"left\" />\n")
                 else:
                     first = False
-                submenu_lines.append("_SUBMENUITEMSTART_");
+                submenu_lines.append("_SUBMENUITEMSTART_ ");
                 submenu_lines.append("<a href=\"#" + escape_url(file_base_name(pf)) + "\">" + file_base_name(pf) + "</a>\n")
                 submenu_lines.append("_SUBMENUITEMEND_");
         submenu_lines.append("</div>\n")
@@ -891,6 +898,13 @@ def create_pages(root_dir, in_dir, out_dir, default_options, default_macro_list,
 			    # TODO ADD MACRO FILE TIME
 			    mo = [macro_name, moc, os.stat(df2)[stat.ST_MTIME]]
 			    macro_list.insert(0, mo)
+			    #for mmm in macro_list:
+			    #	print mmm
+			    #	print ""
+			    #	print ""
+			    #	print ""
+			else:
+				print "NOT SETUP INC OR MACRO: "+df2    	
 			    
 	    	os.chdir(setup_orig_dir)
 	    else:
