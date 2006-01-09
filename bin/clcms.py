@@ -712,9 +712,9 @@ def create_submenu(show_submenu, page_files, options):
                 #    submenu_lines.append("<hr noshade=\"noshade\" size=\"1\" width=\"80%\" align=\"left\" />\n")
                 else:
                     first = False
-                submenu_lines.append("_SUBMENUITEMSTART_ ");
+                submenu_lines.append("_SUBMENUITEMSTART_\n");
                 submenu_lines.append("<a href=\"#" + escape_url(file_base_name(pf)) + "\">" + file_base_name(pf) + "</a>\n")
-                submenu_lines.append("_SUBMENUITEMEND_");
+                submenu_lines.append("_SUBMENUITEMEND_\n");
         submenu_lines.append("</div>\n")
     return submenu_lines
 
