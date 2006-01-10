@@ -262,7 +262,7 @@ def handle_macro(macro_name, macro_source, input_line, options, macro_list, page
     result_line = input_line
     #macro_p = re.compile("(?:_"+macro_name+"_)(?:([a-zA-Z0-9_]+)_)?")
     #macro_p = re.compile("(?:_"+macro_name+"_)(?:(.+)_)*[^_]*")
-    macro_p = re.compile("(?:_"+macro_name+"_)(?:\((.*?)\)_)*")
+    macro_p = re.compile("(?:_"+macro_name+"_)(?:(?:\((.*?)\)|([a-zA-Z0-9]+))_)*")
     macro_m = macro_p.search(input_line)
     if macro_m:
         # hmm can this be done in the original regexp?
@@ -276,6 +276,16 @@ def handle_macro(macro_name, macro_source, input_line, options, macro_list, page
 #        print "Code:"
 #        print macro_source
         arguments = macro_m.groups()
+        #if len(arguments) == 1 and arguments[0] == None:
+        #    arguments = []
+        #    print "YOYOYOYO: ",
+        #    print arguments
+        # TODO: prolly an regexp oops, remove the None values
+        arguments2 = []
+        for a in arguments:
+            if a != None:
+                arguments2.append(a)
+        arguments = arguments2
 #        arg_string = macro_m.group(1)
 #        if arg_string == None:
 #            arguments = []
