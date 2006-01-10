@@ -261,26 +261,29 @@ output += \"</html>\\n\"\n\
 def handle_macro(macro_name, macro_source, input_line, options, macro_list, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu, last_modified):
     result_line = input_line
     #macro_p = re.compile("(?:_"+macro_name+"_)(?:([a-zA-Z0-9_]+)_)?")
-    macro_p = re.compile("(?:_"+macro_name+"_)(?:(.+?)_)?")
+    #macro_p = re.compile("(?:_"+macro_name+"_)(?:(.+)_)*[^_]*")
+    macro_p = re.compile("(?:_"+macro_name+"_)(?:\((.*?)\)_)*")
     macro_m = macro_p.search(input_line)
     if macro_m:
         # hmm can this be done in the original regexp?
-        if macro_m.start() > 1 and macro_m.end() < len(input_line) and \
-           input_line[macro_m.start() - 1] == '_' and \
-           input_line[macro_m.end()] == '_':
-             return result_line
+        #if macro_m.start() > 1 and macro_m.end() < len(input_line) and \
+        #   input_line[macro_m.start() - 1] == '_' and \
+        #   input_line[macro_m.end()] == '_':
+        #     return result_line
         
         ip = code.InteractiveInterpreter()
         output = "<badmacro>"
 #        print "Code:"
 #        print macro_source
-        arg_string = macro_m.group(1)
-        if arg_string == None:
-            arguments = []
-        else:
-            arguments = macro_m.group(1).split('_')
+        arguments = macro_m.groups()
+#        arg_string = macro_m.group(1)
+#        if arg_string == None:
+#            arguments = []
+#        else:
+#            arguments = macro_m.group(1).split('_')
         if (verbosity >= 4):
 		print "Line: "+input_line
+		print "Match: "+input_line[macro_m.start():macro_m.end()]
 	        print "Macro: "+macro_name
 	        print "number of arguments: ",
 	        print len(arguments)
@@ -665,7 +668,7 @@ def create_menu_part(root_dir,
                 
             #print "MENULINK " + "IS " + menulink
             menulink.replace("_", "jaja")
-            menu_lines.append("_menuitem" + str(cur_depth) + "start-arg_"+menulink+"_\n")
+            menu_lines.append("_menuitem" + str(cur_depth) + "start-arg_("+menulink+")_\n")
             #menu_lines.append(menulink)
             if cur_depth < depth:
                 os.chdir(d)
