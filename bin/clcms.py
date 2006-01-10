@@ -261,7 +261,7 @@ output += \"</html>\\n\"\n\
 def handle_macro(macro_name, macro_source, input_line, options, macro_list, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu, last_modified):
     result_line = input_line
     #macro_p = re.compile("(?:_"+macro_name+"_)(?:([a-zA-Z0-9_]+)_)?")
-    macro_p = re.compile("(?:_"+macro_name+"_)(?:(.+)_)?")
+    macro_p = re.compile("(?:_"+macro_name+"_)(?:(.+?)_)?")
     macro_m = macro_p.search(input_line)
     if macro_m:
         # hmm can this be done in the original regexp?
@@ -274,17 +274,19 @@ def handle_macro(macro_name, macro_source, input_line, options, macro_list, page
         output = "<badmacro>"
 #        print "Code:"
 #        print macro_source
-#	print "Line: "+input_line
-#        print "Macro: "+macro_name
         arg_string = macro_m.group(1)
         if arg_string == None:
             arguments = []
         else:
             arguments = macro_m.group(1).split('_')
-#        print "number of arguments: ",
-#        print len(arguments)
-#        print "arguments: ",
-#        print arguments
+        if (verbosity >= 4):
+		print "Line: "+input_line
+	        print "Macro: "+macro_name
+	        print "number of arguments: ",
+	        print len(arguments)
+		print "arguments: ",
+		print arguments
+
         # keep for error message
         orig_macro_source = macro_source
         # Hack to circumvent premature parser stoppage
@@ -890,6 +892,7 @@ def create_pages(root_dir, in_dir, out_dir, default_options, default_macro_list,
 			    macro_list.insert(0, mo)
 			elif setup_file_name_parts2[-1] == get_option(options, "macro_file_name"):
 			    # TODO: this is same as below, refactor
+			    #print df2;
 			    macro_name = file_base_name(df2)
 			    macro_lines = file_lines(df2, [])
 			    moc = ""
@@ -995,7 +998,7 @@ def create_pages(root_dir, in_dir, out_dir, default_options, default_macro_list,
 
         if page_files != []:
             # TODO: dotted page options here? (like in .page file names?)
-            page_name = file_base_name(os.path.basename(out_dir))
+            page_name = file_base_name(os.path.basename(os.getcwd()))
             create_page(root_dir, in_dir, out_dir, page_name, page_files, options, macro_list, cur_dir_depth)
 
     # 
