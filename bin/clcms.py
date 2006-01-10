@@ -249,6 +249,8 @@ output += \"</html>\\n\"\n\
   ["menuitem3start-arg", "output = \"_menuitem3start_\\n\"\nif arguments != []:\n\toutput += arguments[0]\n", 0], 
   ["menuitem4start-arg", "output = \"_menuitem4start_\\n\"\nif arguments != []:\n\toutput += arguments[0]\n", 0], 
   ["menuitem5start-arg", "output = \"_menuitem5start_\\n\"\nif arguments != []:\n\toutput += arguments[0]\n", 0], 
+  ["submenustart", "output = \"<div id = \\\"submenu\\\">\"\n", 0],
+  ["submenuend", "output = \"</div>\"\n", 0],
   ["DEBUG", "output = \"\"\nprint arguments[0]\n", 0 ],
   ["DUMPMACROS", "for m in macro_list:\n\tprint m[0]\n\tprint m[1]\n\tprint m[2]\n\tprint \"\"\noutput=\"\"\n", 0 ],
   ["SUBMENUITEMSTART", "output = \"<div class=\\\"submenu_item\\\">\"\n", 0 ],
@@ -718,7 +720,7 @@ def create_submenu(show_submenu, page_files, options):
     submenu_lines = []
     # submenu
     if show_submenu and len(page_files) > 1:
-        submenu_lines.append("<div id=\"submenu\">\n")
+        submenu_lines.append("_submenustart_\n")
         first = True
         for pf in page_files:
             if pf.find(".nomenu") < 0:
@@ -730,7 +732,7 @@ def create_submenu(show_submenu, page_files, options):
                 submenu_lines.append("_SUBMENUITEMSTART_\n");
                 submenu_lines.append("<a href=\"#" + escape_url(file_base_name(pf)) + "\">" + file_base_name(pf) + "</a>\n")
                 submenu_lines.append("_SUBMENUITEMEND_\n");
-        submenu_lines.append("</div>\n")
+        submenu_lines.append("_submenuend_\n")
     return submenu_lines
 
 def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, macro_list, cur_dir_depth):
