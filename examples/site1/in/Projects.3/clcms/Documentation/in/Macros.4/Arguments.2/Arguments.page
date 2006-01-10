@@ -1,6 +1,0 @@
-If you want to pass arguments to your macro, you can do that by calling it with
-_<name>_<arg1>_<arg2>_<etc>_
-
-In the .macro file, these arguments are passed as the list called arguments.
-The first argument can be retrieved with arguments[0] and so on. Be careful
-not to pass too few values, for it will result in an error and stack dump.
