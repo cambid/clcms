@@ -1,0 +1,10 @@
+The documentation is a sort of web site created by clcms itself. It is in
+the distribution under the directory examples/documentation/ and can be
+created by entering that directory and running clcms.py.
+
+An online version can be found [[Documentation/index.html][Here]].
+
+Please don't mind the layout. That stuff isn't really my cup of tea :p
+
+
+

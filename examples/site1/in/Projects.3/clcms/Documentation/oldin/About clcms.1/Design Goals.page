@@ -1,0 +1,8 @@
+   * Content is stored in a directory tree
+   * Adding pages (or items?) should be as easy as creating a new file
+     and typing some lines in it.
+   * For default pages/items no config necessary
+   * No HTML or anything alike for normal usage
+   * All pages have their binary content (images, download files) in
+     the directory of the page itself
+   * All output is static, no generating on the fly

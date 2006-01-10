@@ -1,0 +1,217 @@
+<!-- Created by clcms Version 0.1 -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--  © Jelte Jansen -->
+<html>
+	<head>
+		<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
+		<link REL="stylesheet" TYPE="text/css" href="../default.css">
+		<title>
+			Dirs_and_files
+		</title>
+	</head>
+
+	<body>
+
+	<div id="main">
+
+	<div id="menu">
+
+<div class="menu_item1">	<a href="../About_clcms/index.html">
+	About clcms
+	</a>
+</div>
+
+<div class="menu_item1">	<a href="../Commands/index.html">
+	Commands
+	</a>
+</div>
+
+<div class="menu_item1">	<a href="../Dirs_and_files/index.html">
+	Dirs and files
+	</a>
+</div>
+
+<div class="menu_item1">	<a href="../Options/index.html">
+	Options
+	</a>
+</div>
+
+<div class="menu_item1">	<a href="../Macros/index.html">
+	Macros
+	</a>
+</div>
+
+<div class="menu_item1">	<a href="../WikiStyle/index.html">
+	WikiStyle
+	</a>
+</div>
+
+</div>
+
+
+
+<div id="content">
+<a name="Root_Directory"></a>
+<h3>Root Directory</h3>
+<p></p>
+Let's take a quick look at the root directory (i.e. the directory where you
+run clcms from).
+<p></p>
+<img src="root_dir.png" alt="root directory" />
+<p></p>
+You see a few subdirectories and a file ending in .setup. The .setup file
+contains directives for clcms to follow.
+<p></p>
+If clcms encounters a .setup file while walking through the directory tree,
+it will follow these new directives in it for the current directory and all
+subdirectories of the current directory. The rest of the tree is unaffected.
+This is the first way to override settings.
+<p></p>
+In this case, the .setup file specifies that the content tree is in the
+directory in/, that the output should be sent to out/, and some header and
+footer files that will be handled by clcms are in inc/.
+<p></p>
+documentation.setup:
+<p></p>
+<pre>
+
+footer_files = inc/footer.inc
+header_files = inc/header.inc
+
+menu_item1_start = inc/menu_item1.inc
+menu_item1_end = inc/menu_end.inc
+menu_item2_start = inc/menu_item2.inc
+menu_item2_end = inc/menu_end.inc
+menu_item3_start = inc/menu_item3.inc
+menu_item3_end = inc/menu_end.inc
+menu_end_files = inc/menu_end.inc
+menu_start_files = inc/menu_start.inc
+menu_depth = 3
+out_dir = out
+in_dir = in
+root_dir = .
+
+</pre>
+<hr noshade="noshade" size="1" width="60%" align="left" />
+<a name="Content_Directory"></a>
+<h3>Content Directory</h3>
+The content directories are where the important stuff is at. While it might
+take you a while to get your settings and layout in order, once you have
+done that, you should only be working in the content directory for your
+daily website update needs.
+<p></p>
+<img src="content_dir.png" alt="Content directory" />
+<p></p>
+Every (sub)directory in the content directory that contains one or more
+files ending in .page will be transformed into a website page. The idea is
+that you can store everything that is relevant for a certain page in the
+same directory as the page itself (of course, you don't have to, but it's
+kind of what I had in mind designing this). You can group pages of the same
+topic by putting their directories in an encompassing higher directory, and
+optionally provide that directory with web page content. For instance, i
+have a page called Projects with some general information on my current
+projects, and in the page directory if have separate directories for all my
+projects. Which might have their own subdirectories if they are very big.
+Kind of like a top-down view of content separation. But i digress.
+<p></p>
+clcms will first check if there is an overriding .setup file (see
+<a href="#root_directory">root directory</a> for an explanation about .setup files).
+<p></p>
+After that, it will parse every .page file and turn it into an index.html.
+By default, if there is more than 1 .page file, it will prepend the html
+lines of each with a header containing the file name up to the first dot. If
+show_item_title_date is set to 'yes' (see <a href="../Options/index.html">Options</a>
+for a complete list of settings) it will also add the last modified date to
+the header.
+<p></p>
+The order in which clcms will handle these files is based on their Last
+modified time. It will place newer files (and files that have been changed)
+on before older ones. This way, when you have, say, a blog, you can just
+type your news to a new file, and it will be on the top of your page.
+<p></p>
+Every subdirectory will be handled as a separate page.
+<p></p>
+Every other file will simply be copied to the page output directory.
+<p></p>
+You can override the ordering of files by setting putting .&lt;number&gt; in the
+file name (for instance, importantNews.1.page). Only the first filename
+option will be seen as ordering information.
+<p></p>
+<hr noshade="noshade" size="1" width="60%" align="left" />
+<a name="File_Options"></a>
+<h3>File Options</h3>
+You can override some behaviour of clcms by putting .&lt;option&gt; in the file
+name. The ordering seen in <a href="#content_directory">content directory</a> is only
+one example of this.
+<p></p>
+The complete list of options is:
+<p></p>
+<ul>
+	<li>
+For all files:
+<ul>
+	<li>
+<b>number</b>
+<br />
+Sort order of this file. This one is only handled if this is the first option
+	</li>
+</ul>
+	</li>
+	<li>
+For .page files:
+<ul>
+	<li>
+<b>nosubmenu</b>
+<br />
+This part will not be put in the submenu
+<br />
+	</li>
+	<li>
+<b>notitle</b>
+<br />
+This part will not be preceded by its filename title
+<br />
+	</li>
+	<li>
+<b>title</b>
+<br />
+This part
+<i>will</i>
+be preceded by its filename title
+<br />
+	</li>
+	<li>
+<b>nowiki</b>
+<br />
+This part will not be put through the wiki engine
+<br />
+	</li>
+	<li>
+<b>wiki</b>
+<br />
+This part
+<i>will</i>
+be put through the wiki engine
+<br />
+	</li>
+</ul>
+	</li>
+	<li>
+For directories:
+<ul>
+	<li>
+<b>nomenu</b>
+This page will not be put in the main menu
+<br />
+<br />
+<br />
+<br />
+	</li>
+</ul>
+	</li>
+</ul>
+</div>
+	</div>
+
+	</body>
+</html>

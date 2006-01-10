@@ -1,0 +1,42 @@
+The todo list contains at least the following things. It is not really a
+versioned roadmap since this list resides mostly in my head and changes by
+the minute.
+
+The most important things are (in random order):
+
+   * *Error detection and feedback*
+
+     There's still a lot to improve on error handling i guess.
+
+   * *Code cleanup*
+
+     The everlasting todo.
+
+   * *Command line options*
+
+     Verbosity, 'check run', option overrides, etc.
+
+   * *Documentation*
+
+     The other everlasting todo.
+
+   * *File date checks*
+
+     clcms does check to see if pages need to be recreated, but only outputs
+     them if this is so, they are always internally built. Also, updates
+     from .inc and .macro files are not taken into account. I'll have to
+     think up some dependency system for this.
+
+   * *Page types*
+
+     I'd like to add some form of page types, i.e. 'blog style' or 'FAQ' or
+     something like that.
+
+   * *File modified date*
+
+     The file modified could maybe use some sort of memory, copying them
+     without keeping the original modified dates can often lead to an
+     unexpected page item order.
+
+
+

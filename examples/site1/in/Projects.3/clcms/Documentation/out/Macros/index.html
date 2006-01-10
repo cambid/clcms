@@ -1,0 +1,183 @@
+<!-- Created by clcms Version 0.1 -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--  © Jelte Jansen -->
+<html>
+	<head>
+		<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
+		<link REL="stylesheet" TYPE="text/css" href="../default.css">
+		<title>
+			Macros
+		</title>
+	</head>
+
+	<body>
+
+	<div id="main">
+
+	<div id="menu">
+
+<div class="menu_item1">	<a href="../About_clcms/index.html">
+	About clcms
+	</a>
+</div>
+
+<div class="menu_item1">	<a href="../Commands/index.html">
+	Commands
+	</a>
+</div>
+
+<div class="menu_item1">	<a href="../Dirs_and_files/index.html">
+	Dirs and files
+	</a>
+</div>
+
+<div class="menu_item1">	<a href="../Options/index.html">
+	Options
+	</a>
+</div>
+
+<div class="menu_item1">	<a href="../Macros/index.html">
+	Macros
+	</a>
+</div>
+
+<div class="menu_item1">	<a href="../WikiStyle/index.html">
+	WikiStyle
+	</a>
+</div>
+
+</div>
+
+
+
+<div id="content">
+<a name="Builtin_Macros"></a>
+<h3>Builtin Macros</h3>
+clcms provides you with the following default macros:
+<p></p>
+<ul>
+	<li>
+<b>MENU</b>
+This will be replaced by the menu div. Be careful, there should at most only one menu item on each page.
+	</li>
+	<li>
+<b>TITLE</b>
+This will be replaced by the current page title (ie. the base name of the directory the page content is in)
+	</li>
+	<li>
+<b>STYLESHEET</b>
+This will be replaced by the location of the style sheet, specified in your .setup (&lt;content_dir&gt;/default.css by default)
+	</li>
+	<li>
+<b>DATE</b>
+This will be replaced by the date you ran clcms.py on (format "YYYY-mm-dd").
+	</li>
+	<li>
+<b>DATEFILE</b>
+This will be replaced by the last-modified date of the current input file or directory (format "YYYY-mm-dd")
+<br />
+	</li>
+</ul>
+You can override any of these by placing a &lt;macro-name&gt;.macro file in the directory.
+<p></p>
+There are a few "macros" that cannot be overridden:
+<p></p>
+<ul>
+	<li>
+<b>NO_WIKI</b>
+This will tell the wiki engine that the next lines should be copied and not parsed
+	</li>
+	<li>
+<b>NO_WIKI_END</b>
+This will tell the wiki engine that the next lines should be parsed again
+<br />
+	</li>
+</ul>
+<hr noshade="noshade" size="1" width="60%" align="left" />
+<a name="Creating_Macros"></a>
+<h3>Creating Macros</h3>
+You can create your own macros by putting .macro files in your root or
+content directory. Like .setup files, .macro files you create are only used
+in the current directory and those beneath it. Creating a macro file called
+"MYMACRO.macro" will give you the macro "_MYMACRO_" in your pages.
+<p></p>
+The macro will be replaced by the value you give to the string 'output' in
+your macro definition.
+<p></p>
+Example:
+<p></p>
+You create a file called "MYSITENAME.macro" that looks like this:
+<p></p>
+<pre>output = "Jabberwocky's Vorpal Blade Site"</pre>
+<p></p>
+In one of your .page files, you put the line:
+<p></p>
+<pre>Welcome to _MYSITENAME_!</pre>
+<p></p>
+This line will end up on your page as:
+<p></p>
+Welcome to Jabberwocky's Vorpal Blade Site!
+<p></p>
+<hr noshade="noshade" size="1" width="60%" align="left" />
+<a name="Macro_Sources"></a>
+<h3>Macro Sources</h3>
+A macro definition is just one or more lines of python code, that, after
+running, should have put the replacement string for the macro in the
+variable called "output".
+<p></p>
+You have the following variables to read out from within your macro:
+<p></p>
+<ul>
+	<li>
+<b>options</b>
+<br />
+The global variable containing .setup file options. You can read these out with
+<ul>
+	<li>
+<b>get_option(options, "option_name")</b>
+for single options
+	</li>
+	<li>
+<b>get_options(options, "option_name")</b>
+for plural options (ie. lists)
+	</li>
+	<li>
+<b>get_option_dir(options, "option_name")</b>
+for options that contain files or directories. These will be made
+absolute (for the system you run clcms on, not for the website) if
+they do not start with a /
+<br />
+	</li>
+</ul>
+	</li>
+	<li>
+<b>page_name</b>
+<br />
+Contains the title of the current page.
+<br />
+	</li>
+	<li>
+<b>root_dir</b>
+<br />
+Contains the location of the root directory on the filesystem
+<br />
+	</li>
+	<li>
+<b>in_dir</b>
+<br />
+Contains the location of the content input directory
+<br />
+	</li>
+	<li>
+<b>cur_dir_depth</b>
+<br />
+The current page (directory) depth.
+<br />
+<br />
+	</li>
+</ul>
+</div>
+	</div>
+
+	</body>
+</html>

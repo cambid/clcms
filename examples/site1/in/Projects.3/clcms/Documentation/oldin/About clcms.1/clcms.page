@@ -1,0 +1,3 @@
+clcms (pronounced "Clickmas") stands for Command Line Content Management
+System. It is a tool that takes a directory tree containing content and
+creates a website from it. It is written in Python.

@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+
+<RDF:RDF xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+ xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+
+  <RDF:Description about="urn:mozilla:extension:{f03afac5-7e5c-44fb-9ddd-ff8477d9aa19}">
+    <em:updates> //Indicates the updates available
+      <RDF:Seq>
+        <RDF:li resource="urn:mozilla:extension:{f03afac5-7e5c-44fb-9ddd-ff8477d9aa19}:0.6"/>
+        <RDF:li resource="urn:mozilla:extension:{f03afac5-7e5c-44fb-9ddd-ff8477d9aa19}:0.7"/>
+        <RDF:li resource="urn:mozilla:extension:{f03afac5-7e5c-44fb-9ddd-ff8477d9aa19}:0.8"/>
+      </RDF:Seq>
+    </em:updates>
+    <em:version>0.8</em:version>//Used for compatibility with Firefox 0.9.x. 
+    <em:updateLink>http://jelte.nlnetlabs.nl/linktag-0.8.xpi</em:updateLink>
+  </RDF:Description>
+   
+  //The details on the mentiond update, note the need of min/max values. 
+  <RDF:Description about="urn:mozilla:extension:{f03afac5-7e5c-44fb-9ddd-ff8477d9aa19}:0.6">
+    <em:version>0.6</em:version>
+    <em:targetApplication>
+      <Description>
+        <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
+        <em:minVersion>0.9</em:minVersion>
+        <em:maxVersion>1.0.4</em:maxVersion>
+        <em:updateLink>http://jelte.nlnetlabs.nl/linktag-0.6.xpi</em:updateLink>
+      </Description>
+    </em:targetApplication>
+  </RDF:Description>
+
+  //The details on the mentiond update, note the need of min/max values. 
+  <RDF:Description about="urn:mozilla:extension:{f03afac5-7e5c-44fb-9ddd-ff8477d9aa19}:0.7">
+    <em:version>0.7</em:version>
+    <em:targetApplication>
+      <Description>
+        <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
+        <em:minVersion>0.9</em:minVersion>
+        <em:maxVersion>1.2</em:maxVersion>
+        <em:updateLink>http://jelte.nlnetlabs.nl/linktag-0.7.xpi</em:updateLink>
+      </Description>
+    </em:targetApplication>
+  </RDF:Description>
+
+  //The details on the mentiond update, note the need of min/max values. 
+  <RDF:Description about="urn:mozilla:extension:{f03afac5-7e5c-44fb-9ddd-ff8477d9aa19}:0.9">
+    <em:version>0.7</em:version>
+    <em:targetApplication>
+      <Description>
+        <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
+        <em:minVersion>0.9</em:minVersion>
+        <em:maxVersion>1.0+</em:maxVersion>
+        <em:updateLink>http://jelte.nlnetlabs.nl/linktag-0.8.xpi</em:updateLink>
+      </Description>
+    </em:targetApplication>
+  </RDF:Description>
+
+</RDF:RDF>
