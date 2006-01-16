@@ -1074,17 +1074,6 @@ def print_usage():
 #Initializer, argument parsing, and main loop call
 # 
 
-# read setup in current dir
-base_options = system_options
-for df in os.listdir("."):
-    file_name_parts = df.split(get_option(base_options, "extension_separator"))
-    if file_name_parts[-1] == get_option(base_options, "setup_file_name"):
-        #options.extend(file_lines(df, ['^[^#].* *= *.+']))
-        if verbosity >= 2:
-        	print "Found .setup file in current directory: "+df
-        for o in file_lines(df, ['^[^#].* *= *.+']):
-            base_options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
-
 # parse arguments
 if len(sys.argv) > 1:
     i = 1
@@ -1115,6 +1104,17 @@ if len(sys.argv) > 1:
         	print "Unknown argument: "+arg
     	        sys.exit(1)
     	i = i + 1
+
+# read setup in current dir
+base_options = system_options
+for df in os.listdir("."):
+    file_name_parts = df.split(get_option(base_options, "extension_separator"))
+    if file_name_parts[-1] == get_option(base_options, "setup_file_name"):
+        #options.extend(file_lines(df, ['^[^#].* *= *.+']))
+        if verbosity >= 2:
+        	print "Found .setup file in current directory: "+df
+        for o in file_lines(df, ['^[^#].* *= *.+']):
+            base_options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
 
 # sanity checks on arguments
 if inhibit_output and force_output:
