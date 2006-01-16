@@ -201,7 +201,7 @@ def wiki_to_html(wiki_lines):
 # second object is a source string that will be executed
 # a macro function is supposed to return a string
 # TODO: make correct html with header macros etc
-macro_list = [
+system_macro_list = [
   ["MENU", "output = \"\"\nfor ml in create_menu(root_dir, in_dir, options, arguments[0], cur_dir_depth):\n\toutput += ml\n", 0 ],
   ["SUBMENU", "output = \"\"\nfor ml in create_submenu(show_submenu, page_files, options):\n\toutput += ml\n", 0 ],
   ["TITLE", "output = page_name\n", 0 ],
@@ -257,6 +257,9 @@ output += \"</html>\\n\"\n\
   ["SUBMENUITEMEND", "output = \"</div>\"\n", 0 ],
   ["FAKE", "output = \"\"\n", 0 ]
 ]
+
+#macro_list = []
+#macro_list.extend(system_macro_list)
 
 # TODO: always set output to "" when reading new macro definitions
 
@@ -456,24 +459,26 @@ def get_option_dir(options, option_name):
 	
 
 # default options
-options = []
-options = add_option(options, "root_dir = .")
-options = add_option(options, "in_dir = in")
-options = add_option(options, "out_dir = out")
-options = add_option(options, "style_sheet = " + "default.css")
-options = add_option(options, "resource_dir = .")
-options = add_option(options, "show_menu = yes")
-options = add_option(options, "show_submenu = yes")
-options = add_option(options, "page_file_name = page")
-options = add_option(options, "setup_file_name = setup")
-options = add_option(options, "macro_file_name = macro")
-options = add_option(options, "inc_file_name = inc")
-options = add_option(options, "wiki_parse = yes")
-options = add_option(options, "show_item_title = yes")
-options = add_option(options, "show_item_title_date = no")
-options = add_option(options, "ignore_masks = \\.\\\\*,DEADJOE")
-options = add_option(options, "extension_separator = .")
-options = add_option(options, "create_pages = yes")
+system_options = []
+system_options = add_option(system_options, "root_dir = .")
+system_options = add_option(system_options, "in_dir = in")
+system_options = add_option(system_options, "out_dir = out")
+system_options = add_option(system_options, "style_sheet = " + "default.css")
+system_options = add_option(system_options, "resource_dir = .")
+system_options = add_option(system_options, "show_menu = yes")
+system_options = add_option(system_options, "show_submenu = yes")
+system_options = add_option(system_options, "page_file_name = page")
+system_options = add_option(system_options, "setup_file_name = setup")
+system_options = add_option(system_options, "macro_file_name = macro")
+system_options = add_option(system_options, "inc_file_name = inc")
+system_options = add_option(system_options, "wiki_parse = yes")
+system_options = add_option(system_options, "show_item_title = yes")
+system_options = add_option(system_options, "show_item_title_date = no")
+system_options = add_option(system_options, "ignore_masks = \\.\\\\*,DEADJOE")
+system_options = add_option(system_options, "extension_separator = .")
+system_options = add_option(system_options, "create_pages = yes")
+
+#options = default_options
 
 #
 # Utility functions
@@ -940,6 +945,10 @@ def create_pages(root_dir, in_dir, out_dir, default_options, default_macro_list,
 			#print "in dir now " +in_dir
 			return_dir = os.getcwd()
 			os.chdir(in_dir)
+			options = system_options
+			#macro_list = []
+			#macro_list.extend(system_macro_list)
+			macro_list = system_macro_list
 			for o in new_options:
 			    options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
 			create_pages(root_dir, in_dir, out_dir, options, macro_list, 0)
@@ -1066,14 +1075,15 @@ def print_usage():
 # 
 
 # read setup in current dir
+base_options = system_options
 for df in os.listdir("."):
-    file_name_parts = df.split(get_option(options, "extension_separator"))
-    if file_name_parts[-1] == get_option(options, "setup_file_name"):
+    file_name_parts = df.split(get_option(base_options, "extension_separator"))
+    if file_name_parts[-1] == get_option(base_options, "setup_file_name"):
         #options.extend(file_lines(df, ['^[^#].* *= *.+']))
         if verbosity >= 2:
         	print "Found .setup file in current directory: "+df
         for o in file_lines(df, ['^[^#].* *= *.+']):
-            options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
+            base_options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
 
 # parse arguments
 if len(sys.argv) > 1:
@@ -1111,9 +1121,9 @@ if inhibit_output and force_output:
 	print "inhibit-output and force-output cannot be used at the same time. Aborting."
 	sys.exit(1)
 
-in_dir = get_option_dir(options, "in_dir")
-root_dir = get_option_dir(options, "root_dir")
-out_dir = get_option_dir(options, "out_dir")
+in_dir = get_option_dir(base_options, "in_dir")
+root_dir = get_option_dir(base_options, "root_dir")
+out_dir = get_option_dir(base_options, "out_dir")
 
 if not os.path.isdir(in_dir):
 	print "No such directory: " + in_dir
@@ -1128,6 +1138,6 @@ if verbosity >= 1:
 if not os.path.isdir(out_dir) and not inhibit_output:
     os.mkdir(out_dir)
 os.chdir(in_dir)
-create_pages(root_dir, in_dir, out_dir, options, macro_list, 0)
+create_pages(root_dir, in_dir, out_dir, base_options, system_macro_list, 0)
 os.chdir(root_dir)
 
