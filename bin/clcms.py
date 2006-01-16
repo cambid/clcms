@@ -1113,8 +1113,9 @@ for df in os.listdir("."):
         #options.extend(file_lines(df, ['^[^#].* *= *.+']))
         if verbosity >= 2:
         	print "Found .setup file in current directory: "+df
-        for o in file_lines(df, ['^[^#].* *= *.+']):
-            base_options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
+        if not os.path.isdir(df):
+            for o in file_lines(df, ['^[^#].* *= *.+']):
+                base_options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
 
 # sanity checks on arguments
 if inhibit_output and force_output:
