@@ -1,9 +1,0 @@
-
-There are a few things that you should be aware of. I hope to be able to fix these in a future version:
-
-   * You can only specify one link and one image referral per line. You can
-     specify both (and make an imaged link) but putting for instance 2 links
-     on one line will produce undefined output. This should not be a
-     problem, just put a newline after the first link.
-
-   * A link or image should not have linebreaks in it.
