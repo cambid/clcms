@@ -3,7 +3,7 @@
 	
 	<div id="updated">
 		Last updated:<br />
-		_DATEFILE_
+		_datefile_
 	</div>
  	</body>
 </html>

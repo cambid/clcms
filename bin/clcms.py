@@ -202,14 +202,14 @@ def wiki_to_html(wiki_lines):
 # a macro function is supposed to return a string
 # TODO: make correct html with header macros etc
 system_macro_list = [
-  ["MENU", "output = \"\"\nfor ml in create_menu(root_dir, in_dir, options, arguments[0], cur_dir_depth):\n\toutput += ml\n", 0 ],
-  ["SUBMENU", "output = \"\"\nfor ml in create_submenu(show_submenu, page_files, options):\n\toutput += ml\n", 0 ],
-  ["TITLE", "output = page_name\n", 0 ],
-  ["STYLESHEET", 'i = 0\noutput = ""\nwhile i < cur_dir_depth:\n\toutput += os.pardir + os.sep\n\ti += 1\noutput += get_option(options, "style_sheet")\n', 0 ],
-  ["DATE", "output = time.strftime(\"%Y-%m-%d\")\n", 0 ],
-  ["DATEFILE", "output = time.strftime(\"%Y-%m-%d\", time.gmtime(last_modified))\n", 0 ],
-  ["ITEM-SEPARATOR", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\" />\"", 0 ],
-  ["SUBMENU-ITEM-SEPARATOR", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\" />\"", 0 ],
+  ["menu", "output = \"\"\nfor ml in create_menu(root_dir, in_dir, options, arguments[0], cur_dir_depth):\n\toutput += ml\n", 0 ],
+  ["submenu", "output = \"\"\nfor ml in create_submenu(show_submenu, page_files, options):\n\toutput += ml\n", 0 ],
+  ["title", "output = page_name\n", 0 ],
+  ["stylesheet", 'i = 0\noutput = ""\nwhile i < cur_dir_depth:\n\toutput += os.pardir + os.sep\n\ti += 1\noutput += get_option(options, "style_sheet")\n', 0 ],
+  ["date", "output = time.strftime(\"%Y-%m-%d\")\n", 0 ],
+  ["datefile", "output = time.strftime(\"%Y-%m-%d\", time.gmtime(last_modified))\n", 0 ],
+  ["itemseparator", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\" />\"", 0 ],
+  ["submenuitemseparator", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\" />\"", 0 ],
   ["header", "\
 output = \"\"\n\
 output += \"<!DOCTYPE html PUBLIC \\\"-//W3C//DTD HTML 4.01 Transitional//EN\\\" \\\"http://www.w3.org/TR/html4/loose.dtd\\\">\\n\"\n\
@@ -222,9 +222,9 @@ output += \"                     Tutorial\\n\"\n\
 output += \"             </title>\\n\"\n\
 output += \"     </head>\\n\"\n\
 output += \"     <body>\\n\"\n\
-output += \"     _MENU_1_\\n\"\n\
+output += \"     _menu_1_\\n\"\n\
 output += \"     <div id=\\\"main\\\">\\n\"\n\
-output += \"     _SUBMENU_\\n\"\n\
+output += \"     _submenu_\\n\"\n\
 ", 0 ],
   ["footer", "\
 output = \"\"\n\
@@ -251,11 +251,11 @@ output += \"</html>\\n\"\n\
   ["menuitem5start-arg", "output = \"_menuitem5start_\\n\"\nif arguments != []:\n\toutput += arguments[0]\n", 0], 
   ["submenustart", "output = \"<div id = \\\"submenu\\\">\"\n", 0],
   ["submenuend", "output = \"</div>\"\n", 0],
-  ["DEBUG", "output = \"\"\nprint arguments[0]\n", 0 ],
-  ["DUMPMACROS", "for m in macro_list:\n\tprint m[0]\n\tprint m[1]\n\tprint m[2]\n\tprint \"\"\noutput=\"\"\n", 0 ],
-  ["SUBMENUITEMSTART", "output = \"<div class=\\\"submenu_item\\\">\"\n", 0 ],
-  ["SUBMENUITEMEND", "output = \"</div>\"\n", 0 ],
-  ["FAKE", "output = \"\"\n", 0 ]
+  ["debug", "output = \"\"\nprint arguments[0]\n", 0 ],
+  ["dumpmacros", "for m in macro_list:\n\tprint m[0]\n\tprint m[1]\n\tprint m[2]\n\tprint \"\"\noutput=\"\"\n", 0 ],
+  ["submenuitemstart", "output = \"<div class=\\\"submenu_item\\\">\"\n", 0 ],
+  ["submenuitemend", "output = \"</div>\"\n", 0 ],
+  ["fake", "output = \"\"\n", 0 ]
 ]
 
 #macro_list = []
@@ -683,7 +683,7 @@ def create_menu_part(root_dir,
             if pagefiles != []:
                 menulink += "</a>"
                 
-            #print "MENULINK " + "IS " + menulink
+            #print "menuLINK " + "IS " + menulink
             menulink.replace("_", "jaja")
             menu_lines.append("_menuitem" + str(cur_depth) + "start-arg_("+menulink+")_\n")
             #menu_lines.append(menulink)
@@ -703,7 +703,6 @@ def create_menu_part(root_dir,
 def create_menu(root_dir, base_dir, options, depth, cur_page_depth):
     orig_dir = os.getcwd()
     os.chdir(base_dir)
-#    print "CREATE MENU IN "+base_dir
     
     menu_lines = []
 #    for hf in get_options(options, "menu_start_files"):
@@ -730,13 +729,13 @@ def create_submenu(show_submenu, page_files, options):
         for pf in page_files:
             if pf.find(".nomenu") < 0:
                 if not first:
-                    submenu_lines.append("_SUBMENU-ITEM-SEPARATOR_\n")
+                    submenu_lines.append("_submenuitemseparator_\n")
                 #    submenu_lines.append("<hr noshade=\"noshade\" size=\"1\" width=\"80%\" align=\"left\" />\n")
                 else:
                     first = False
-                submenu_lines.append("_SUBMENUITEMSTART_\n");
+                submenu_lines.append("_submenuitemstart_\n");
                 submenu_lines.append("<a href=\"#" + escape_url(file_base_name(pf)) + "\">" + file_base_name(pf) + "</a>\n")
-                submenu_lines.append("_SUBMENUITEMEND_\n");
+                submenu_lines.append("_submenuitemend_\n");
         submenu_lines.append("_submenuend_\n")
     return submenu_lines
 
@@ -787,7 +786,7 @@ def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, macro
                      show_item_title_date = False
         else:
             if item_index > 1:
-                page_lines.append("_ITEM-SEPARATOR_\n")
+                page_lines.append("_itemseparator_\n")
             pf_lines = []
             if show_item_title or show_item_title_date:
                 pf_lines.append("<h3>")
@@ -1069,6 +1068,16 @@ def create_pages(root_dir, in_dir, out_dir, default_options, default_macro_list,
 
 def print_usage():
 	print "Usage: clcms.py [OPTIONS]"
+	print "Options:"
+    	print "-c or --write-config:\t\tprint the default options to stdout"
+	print "-f or --force-output:\t\tforce creation of all pages even if their"
+	print "\t\t\t\tsources are not changed"
+	print "-h or --help:\t\t\tshow this help"
+	print "-i or --inhibit-output\t\tinhibit creation for all pages"
+	print "\t\t\t\t(ie. do a test run)"
+    	print "-m or --no-macros\t\tdo not evaluate macros"
+	print "-v <lvl> or --verbosity <lvl>\tset verbosity: 0 for no output, 5 for a lot"
+	
 
 #
 #Initializer, argument parsing, and main loop call
@@ -1080,7 +1089,18 @@ if len(sys.argv) > 1:
     while i < len(sys.argv):
     #for arg in sys.argv[1:]:
     	arg = sys.argv[i]
-    	if arg == "-m" or arg == "--no-macros":
+    	if arg == "-c" or arg == "--write-config":
+    		for l in options:
+    			print l
+		sys.exit(0)
+	elif arg == "-f" or arg == "--force-output":
+		force_output = True
+	elif arg == "-h" or arg == "--help":
+		print_usage()
+		sys.exit(0)
+	elif arg == "-i" or arg == "--inhibit-output":
+		inhibit_output = True
+    	elif arg == "-m" or arg == "--no-macros":
     		no_macros = True
 	elif arg == "-v" or arg == "--verbosity":
 		if (i < len(sys.argv)):
@@ -1089,17 +1109,6 @@ if len(sys.argv) > 1:
 		else:
 			print "-v requires argument"
 			sys.exit(1)
-    	elif arg == "-c" or arg == "--write-config":
-    		for l in options:
-    			print l
-		sys.exit(0)
-	elif arg == "-h" or arg == "--help":
-		print_usage()
-		sys.exit(0)
-	elif arg == "-f" or arg == "--force-output":
-		force_output = True
-	elif arg == "-i" or arg == "--inhibit-output":
-		inhibit_output = True
         else:
         	print "Unknown argument: "+arg
     	        sys.exit(1)

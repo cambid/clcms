@@ -2,9 +2,9 @@
 <html>
 	<head>
 		<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
-		<link REL="stylesheet" TYPE="text/css" href=" _STYLESHEET_ ">
+		<link REL="stylesheet" TYPE="text/css" href="_stylesheet_">
 		<title>
-			_TITLE_
+			_title_
 		</title>
 	</head>
 	
