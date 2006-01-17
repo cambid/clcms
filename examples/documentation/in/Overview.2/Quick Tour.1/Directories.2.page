@@ -1,0 +1,23 @@
+By default, clcms will read the directory in/ for the content tree, and
+store the results in the directory out/. This can be overridden with a
+.setup file in the directory you run it from, see
+[[../../Content_Tree/File_Types/index.html][File Types]] for more on this.
+
+A typical directory tree would look a little like this small example:
+
+   * in/
+      * my_site.setup
+      * header.inc
+      * footer.inc
+      * Welcome.1/
+         * welcome.page
+      * News.2/
+         * new\ site.page
+         * going\ to\ move.page
+         * added\ pages.page
+      * Contact.3/
+         * Address.page
+         * Info.page
+
+         
+         

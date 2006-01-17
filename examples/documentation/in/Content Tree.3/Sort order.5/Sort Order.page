@@ -1,0 +1,5 @@
+If the first extension option is an integer, it will be interpreted as the
+sorting order. This goes for all file and directory types. If files have no
+or equal sort orders, they are sorted by their last modified date (last
+modified = first in list). That way, new items in, for example, a news page
+will be added to the top of the page.
