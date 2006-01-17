@@ -1,0 +1,8 @@
+ignore_masks = \.\\*,DEADJOE,\\*\.inc
+show_item_title_date = no
+show_item_title = yes
+wiki_parse = yes
+show_submenu = no
+show_menu = yes
+favicon = ./favicon.ico
+style_sheet = ./st_gargoyles_total.css

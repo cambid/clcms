@@ -1,0 +1,12 @@
+output = ""
+output += "	<div class=\"vnav\">\n"
+if arguments != []:
+	output += "	<h3>" + "_".join(arguments) + "</h3>\n"
+else:
+	output += "	<h3>hmmkay</h3>\n"
+output += "	<ul>\n"
+#output += "		<li></li>\n"
+#print "OUTPUT: " + output
+#print "INPUT: " + macro_m.group()
+#print "INPUTFROMSTART: " + input_line[macro_m.start():]
+
