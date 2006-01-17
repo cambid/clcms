@@ -1,0 +1,45 @@
+Apart from specifying the file type with an optional extension, you can also
+pass some options through extensions. You can specify multiple extensions
+per file (separated by the '.' character, but this can be overridden. The
+last extension must be the file type, and if you specify a 
+[[Sort_order][sort order]], it
+must be the first. Otherwise, the order of the extensions is free.
+
+The complete list of options is:
+
+   * For .page files:
+      * *nomenu*
+
+        This part will not be put in the submenu (if you have a submenu on the page).
+
+      * *notitle*
+
+        This part will not be preceded by its filename title.
+
+      * *title*
+
+        This part
+        .will.
+        be preceded by its filename title.
+
+      * *nowiki*
+
+        This part will not be put through the wiki engine.
+
+      * *wiki*
+        This part
+        .will.
+        be put through the wiki engine.
+
+   * For directories:
+      * *nomenu*
+        This page will not be put in the main menu.
+
+      * *stop*
+        clcms will copy the directory, if it does not exists in the
+        deployment tree, but will stop after that, and not mess with any
+        data that is already present there.
+
+
+
+

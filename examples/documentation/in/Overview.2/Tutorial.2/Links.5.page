@@ -1,0 +1,21 @@
+Create some nice links in one or more .page files here, you can create a
+link by using
+[[
+<URL>
+][
+<name>
+]]
+
+Note that any line in your .page file can only contain 1 link, and a
+link must be on a complete line without line breaks.
+
+If you want to specify an external link, you can just use http:// in the url.
+
+If you want to link to something of this site, you can use the path relative
+to the current page directory. Note that in that case, you should replace
+spaces in names with '_', and the output file name will only consist of the
+part up to the first '.' in the input file name. So if you link to an
+internal page of which the source directory is called "Important Page.3" you
+should link to it as "Important_Page". If you want to test locally, it is
+wise to add /index.html to the URL.
+

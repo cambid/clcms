@@ -7,7 +7,7 @@
 #menu {
 	position: fixed;
 	width: 20%;
-	left: 2%;
+	/*left: 2%;*/
 	top: 1em;
 	color: #000000;
 	background-color: #aaaaff;
@@ -18,7 +18,7 @@
 	position: fixed;
 	width: 20%;
 	left: 2%;
-	top: 10em;
+	top: 20em;
 	color: #000000;
 	background-color: #bbbbff;
 	border: medium ridge #666666;
@@ -43,12 +43,14 @@
 
 .menu_item2 {
 	position: relative;
-	left: 6%;
+	left: 4%;
+	font-size: 90%;
 }
 
 .menu_item1 {
 	position: relative;
-	left: 10%;
+	left: 6%;
+	font-size: 90%
 }
 
 a:link {
