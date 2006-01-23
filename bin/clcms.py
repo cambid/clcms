@@ -30,12 +30,13 @@ import sys
 import code
 import traceback
 
-version = "0.3"
+version = "0.4"
 verbosity = 1;
 
 no_macros = False
 force_output = False
 inhibit_output = False
+show_macro_names = False
 
 #
 # Wiki style parser
@@ -327,7 +328,14 @@ def handle_macro(macro_name, macro_source, input_line, options, macro_list, page
                 print "Warning: Bad macro: "+macro_name
                 print "In line: "+input_line
                 output = ""
-            result_line = input_line[:macro_m.start()] + output + input_line[macro_m.end():]
+	    result_line = input_line[:macro_m.start()]
+	    if show_macro_names:
+	        result_line += "<!-- macro " + macro_name + " start -->"
+	        #result_line = input_line[:macro_m.start()] + output + input_line[macro_m.end():]
+	    result_line += output
+	    if show_macro_names:
+	        result_line += "<!-- macro " + macro_name + " end -->"
+	    result_line += input_line[macro_m.end():]
         else:
             print "Warning: Bad macro: "+macro_name
         return result_line
@@ -973,6 +981,7 @@ def print_usage():
 	print "-i or --inhibit-output\t\tinhibit creation for all pages"
 	print "\t\t\t\t(ie. do a test run)"
     	print "-m or --no-macros\t\tdo not evaluate macros"
+    	print "-n or --macro-names\t\tSurround macro expansions with the name names"
 	print "-v <lvl> or --verbosity <lvl>\tset verbosity: 0 for no output, 5 for a lot"
 	
 
@@ -999,6 +1008,8 @@ if len(sys.argv) > 1:
 		inhibit_output = True
     	elif arg == "-m" or arg == "--no-macros":
     		no_macros = True
+    	elif arg == "-n" or arg == "--macro-names":
+    		show_macro_names = True
 	elif arg == "-v" or arg == "--verbosity":
 		if (i < len(sys.argv)):
 			i = i + 1
