@@ -465,6 +465,46 @@ system_options = add_option(system_options, "create_pages = yes")
 #options = default_options
 
 #
+# Page overview handling
+#
+# list of lists:
+# for each page item:
+# dir, filename, original date, current date, changed, macro_list, options, cur_dir_depth
+#
+# dir is relative to the rootdir
+
+system_page_overview = []
+
+def get_page(filedir, filename):
+	for page in system_page_overview:
+		if page['filedir'] == filedir and page['filename'] == filename:
+			return page
+	return None
+
+#create_page(root_dir, in_dir, out_dir, page_name, page_files, options, macro_list, cur_dir_depth)
+def add_page(filedir, filename, date, macro_list, options, cur_dir_depth):
+	# is the check necessary?
+	# is this pass by reference?
+	oldpage = get_page(filedir, filename)
+	if oldpage == None:
+		system_page_overview.append({'filedir': filedir, 
+					     'filename': filename,
+					     'original_date': date, 
+					     'current_date': date,
+					     'changed': False,
+					     'macro_list': macro_list,
+					     'options': options,
+					     'cur_dir_depth': cur_dir_depth
+					    })
+
+def get_page_in_dirs():
+	pages = []
+	for page in system_page_overview:
+		if page['filedir'] not in pages:
+			pages.append(page['filename'])
+	return pages
+
+#
 # Utility functions
 #
 
@@ -501,6 +541,19 @@ def file_base_name(filename):
     except:
         result = filename
     return result
+
+#
+# Returns the output name
+# (i.e. for all dirs and the file remove everything after the .
+#  and replace ' ' by "_")
+def dir_out_name(in_dir, options):
+    root_dir_parts = root_dir.split(os.sep)
+    dir_parts = in_dir.split(os.sep)
+    new_dir = get_option(options, 'out_dir')
+    #new_dir = ""
+    for dp in dir_parts[1:]:
+        new_dir = os.path.join(new_dir, escape_url(file_base_name(dp)))
+    return new_dir
 
 # returns the filename extension (without the .)
 # optional value default is returned if there is no extension
@@ -648,7 +701,7 @@ def create_menu_part(root_dir,
 
 def create_menu(root_dir, base_dir, options, depth, cur_page_depth):
     orig_dir = os.getcwd()
-    os.chdir(base_dir)
+    os.chdir(get_option(options, "in_dir"))
     
     menu_lines = []
     menu_lines.append("_menustart_\n")
@@ -677,6 +730,115 @@ def create_submenu(show_submenu, page_files, options):
     return submenu_lines
 
 def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, macro_list, cur_dir_depth):
+    create_page_orig_dir = os.getcwd()
+    os.chdir(root_dir)
+    page_lines = []
+    page_lines.append("<!-- Created by clcms Version " + version + " -->\n")
+    last_modified = os.stat(in_dir)[stat.ST_MTIME]
+    os.chdir(in_dir)
+    
+    # specific page options are stored in the file name between the dots
+    show_menu = False
+    show_submenu = False
+    if get_option(options, "show_menu") == 'yes':
+        show_menu = True
+    if get_option(options, "show_submenu") == 'yes':
+        show_submenu = True
+
+    # header
+    page_lines.append("_header_\n");
+
+    page_lines.append("<div id=\"content\">\n")
+
+    # handle the .page items
+    item_index = 1
+    for pf in page_files:
+        # Separate the parts of the file
+        # First will contain name, last should be "page"
+        # Everything in between is option data
+        file_name_parts = pf.split(get_option(options, "extension_separator"))
+        
+        wiki_parse = get_option(options, "wiki_parse") == 'yes'
+        show_item_title = get_option(options, "show_item_title") == 'yes'
+        show_item_title_date = get_option(options, "show_item_title_date") == 'yes'
+
+        for option_name in file_name_parts[1:-1]:
+                if option_name == "nowiki":
+                    wiki_parse = False
+                elif option_name == "wiki":
+                    wiki_parse = True
+                elif option_name == "title":
+                    show_item_title = True
+                elif option_name == "notitle":
+                     show_item_title = False
+                     show_item_title_date = False
+        else:
+            if item_index > 1:
+                page_lines.append("_itemseparator_\n")
+            pf_lines = []
+            if show_item_title or show_item_title_date:
+                pf_lines.append("<h3>")
+                if show_item_title_date:
+                    pf_lines.append(time.strftime("%Y-%m-%d", time.gmtime(os.stat(pf)[stat.ST_MTIME])))
+                if show_item_title:
+                    pf_lines.append(file_name_parts[0])
+                pf_lines.append("</h3>\n")
+            if wiki_parse:
+                pf_lines.extend(wiki_to_html(file_lines(pf)))
+            else:
+                pf_lines.extend(file_lines(pf))
+            page_lines.append("<a name=\"" + escape_url(file_name_parts[0]) + "\"></a>\n")
+            page_lines.extend(pf_lines)
+            if os.stat(pf)[stat.ST_MTIME] > last_modified:
+                last_modified = os.stat(pf)[stat.ST_MTIME]
+                #print in_dir + ": ",
+                #print last_modified
+            item_index += 1
+            
+    page_lines.append("</div>\n")
+
+    # footer
+    page_lines.append("_footer_\n")
+
+    # create dir and file
+    os.chdir(create_page_orig_dir)
+    if not os.path.isdir(out_dir) and not inhibit_output:
+        os.mkdir(out_dir)
+    
+    lines = page_lines
+    lines2 = []
+	
+    # macro changed will be set to true if any of the macros that is referenced
+    # in the page has been changed on disk since the last_mod date of the page itself
+    macro_last_modified = 0
+    
+    if not no_macros:
+        for l in lines:
+	    (macronewlines, this_macro_last_modified) = handle_macros(macro_list, l, options, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu, last_modified)
+	    lines2.append(macronewlines)
+	    if this_macro_last_modified > macro_last_modified:
+	    	macro_last_modified = this_macro_last_modified
+
+        lines = lines2
+        lines2 = []
+
+    page_lines = lines
+
+    # only write if last_modified is past output file
+    if not inhibit_output and \
+       force_output or \
+       (not os.path.exists(out_dir + os.sep + "index.html") or \
+       os.stat(out_dir + os.sep + "index.html")[stat.ST_MTIME] < last_modified or \
+       os.stat(out_dir + os.sep + "index.html")[stat.ST_MTIME] < macro_last_modified):
+        out_file = open(out_dir + os.sep + "index.html", "w")
+        out_file.writelines(page_lines)
+        out_file.close()
+        if verbosity >= 1:
+        	print "[CLCMS] Created " + out_dir + "/index.html"
+
+
+
+def ORIG_create_page(root_dir, in_dir, out_dir, page_name, page_files, options, macro_list, cur_dir_depth):
     page_lines = []
     page_lines.append("<!-- Created by clcms Version " + version + " -->\n")
     last_modified = os.stat(in_dir)[stat.ST_MTIME]
@@ -917,6 +1079,7 @@ def create_pages(root_dir, in_dir, out_dir, default_options, default_macro_list,
         for df in dir_files:
             file_name_parts = df.split(get_option(options, "extension_separator"));
             if file_name_parts[-1] == get_option(options, "page_file_name"):
+            	add_page(os.getcwd()[len(root_dir)-1:], df, os.stat(df)[stat.ST_MTIME], macro_list, options, cur_dir_depth)
                 page_files.append(df)
             else:
                 #print "FILEEXT: "+file_name_parts[-1]
@@ -927,7 +1090,7 @@ def create_pages(root_dir, in_dir, out_dir, default_options, default_macro_list,
         if page_files != []:
             # TODO: dotted page options here? (like in .page file names?)
             page_name = file_base_name(os.path.basename(os.getcwd()))
-            create_page(root_dir, in_dir, out_dir, page_name, page_files, options, macro_list, cur_dir_depth)
+            #create_page(root_dir, in_dir, out_dir, page_name, page_files, options, macro_list, cur_dir_depth)
 
     # 
     # Read directories
@@ -1055,7 +1218,37 @@ if verbosity >= 1:
 	
 if not os.path.isdir(out_dir) and not inhibit_output:
     os.mkdir(out_dir)
-os.chdir(in_dir)
+#os.chdir(in_dir)
 create_pages(root_dir, in_dir, out_dir, base_options, system_macro_list, 0)
-os.chdir(root_dir)
+#os.chdir(root_dir)
+#for page in get_page_in_dirs():
+handled_page_dirs = []
+for page in system_page_overview:
+	if page['filedir'] not in handled_page_dirs:
+		page_page_files = []
+		page_changed = False
+		out_dir = dir_out_name(page['filedir'], page['options'])
+		for page2 in system_page_overview:
+			if page2['filedir'] == page['filedir']:
+				page_page_files.append(page2['filename'])
+				if page2['changed']:
+					page_changed = True
+		if page_changed or force_output:
+			print "Creating page from dir:", page['filedir']
+			create_page(root_dir, 
+				    page['filedir'],
+				    out_dir,
+				    file_base_name(os.path.basename(page['filedir'])),
+				    page_page_files, 
+				    page['options'], 
+				    page['macro_list'], 
+				    page['cur_dir_depth']
+				   )
+			print "Created ", page['filedir']
+		else:
+			print page['filedir'], "not changed"
+		handled_page_dirs.append(page['filedir'])
+	#print page
+
+
 
