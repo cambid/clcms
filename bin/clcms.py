@@ -266,18 +266,26 @@ output += \"</html>\\n\"\n\
 
 def handle_macro(macro_name, macro_source, input_line, options, macro_list, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu, last_modified):
     result_line = input_line
-    macro_p = re.compile("(?:_"+macro_name+"_)(?:(?:\((.*?)\)|([a-zA-Z0-9]+))_)*")
+    macro_p = re.compile("(?:_"+macro_name+")((?:_[a-zA-Z0-9]+|_\(.*\))*)_")
+
+    #macro_p = re.compile("_"+macro_name+"_");
     macro_m = macro_p.search(input_line)
     if macro_m:
-        
         ip = code.InteractiveInterpreter()
         output = "<badmacro>"
-        arguments = macro_m.groups()
-        arguments2 = []
-        for a in arguments:
-            if a != None:
-                arguments2.append(a)
-        arguments = arguments2
+
+        arguments = []
+        if macro_m.lastindex != None:
+        	macro_arg_str = macro_m.group(1)
+        	macro_arg_p = re.compile("_(\(.*\)|[a-zA-Z0-9]+)")
+        	macro_arg_m = macro_arg_p.search(macro_arg_str)
+        	while macro_arg_m:
+        		macro_arg_val = macro_arg_str[macro_arg_m.start() + 1:macro_arg_m.end()]
+        		if len(macro_arg_val) > 1 and macro_arg_val[0] == '(' and macro_arg_val[-1] == ')':
+        			macro_arg_val = macro_arg_val[1:-1]
+        		macro_arg_str = macro_arg_str[macro_arg_m.end():]
+        		macro_arg_m = macro_arg_p.search(macro_arg_str)
+        		arguments.append(macro_arg_val)
         if (verbosity >= 4):
 		print "Line: "+input_line
 		print "Match: "+input_line[macro_m.start():macro_m.end()]
