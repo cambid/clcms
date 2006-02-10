@@ -31,9 +31,6 @@ import code
 import traceback
 import copy
 
-import pychecker.checker
-
-
 version = "0.4"
 verbosity = 1;
 
