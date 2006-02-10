@@ -29,6 +29,10 @@ import re
 import sys
 import code
 import traceback
+import copy
+
+import pychecker.checker
+
 
 version = "0.4"
 verbosity = 1;
@@ -37,6 +41,13 @@ no_macros = False
 force_output = False
 inhibit_output = False
 show_macro_names = False
+
+# is there a built-in function for this?
+def copy_list(l):
+	result = []
+	for li in l:
+		result.append(li)
+	return result
 
 #
 # Wiki style parser
@@ -202,13 +213,18 @@ def wiki_to_html(wiki_lines):
 # second object is a source string that will be executed
 # a macro function is supposed to return a string
 # TODO: make correct html with header macros etc
+#  ["menu", "output = \"\"\nfor ml in create_menu(root_dir, in_dir, options, arguments[0], cur_dir_depth):\n\toutput += ml\n", 0 ],
+#  ["submenu", "output = \"\"\nfor ml in create_submenu(show_submenu, page_files, options):\n\toutput += ml\n", 0 ],
+#  ["datefile", "output = time.strftime(\"%Y-%m-%d\", time.gmtime(last_modified))\n", 0 ],
+#  ["stylesheet", 'i = 0\noutput = ""\nwhile i < page.getPageDepth():\n\toutput += os.pardir + os.sep\n\ti += 1\noutput += get_option(page.options, "style_sheet")\n', 0 ],
+#  ["stylesheet", "output = ((os.pardir + os.sep)*page.getPageDepth()) + get_options(page.options, 'stylesheet')\n", 0 ],
 system_macro_list = [
-  ["menu", "output = \"\"\nfor ml in create_menu(root_dir, in_dir, options, arguments[0], cur_dir_depth):\n\toutput += ml\n", 0 ],
-  ["submenu", "output = \"\"\nfor ml in create_submenu(show_submenu, page_files, options):\n\toutput += ml\n", 0 ],
-  ["title", "output = page_name\n", 0 ],
-  ["stylesheet", 'i = 0\noutput = ""\nwhile i < cur_dir_depth:\n\toutput += os.pardir + os.sep\n\ti += 1\noutput += get_option(options, "style_sheet")\n', 0 ],
+  ["menu", "menu_depth = 1\nmenu_start_depth = 0\nif len(arguments) > 0:\n\tmenu_depth = int(arguments[0])\nif len(arguments) > 1:\n\tmenu_start_depth = int(arguments[1])\nml = page.getRootPage().createMenu(page, menu_depth, menu_start_depth)\noutput = \"_menustart_\\n\"\nfor l in ml:\n\toutput += l\noutput += \"_menuend_\\n\"\n", 0],
+  ["submenu", "output = \"\"\nsml = page.createAnchorMenu()\nfor l in sml:\n\toutput += l", 0],
+  ["stylesheet", "output = (os.pardir + os.sep)*(page.getPageDepth())+get_option(page.options, 'stylesheet')\n", 0 ],
+  ["title", "output = page.name\n", 0 ],
   ["date", "output = time.strftime(\"%Y-%m-%d\")\n", 0 ],
-  ["datefile", "output = time.strftime(\"%Y-%m-%d\", time.gmtime(last_modified))\n", 0 ],
+  ["datefile", "output = time.strftime(\"%Y-%m-%d\", page.findPageDate())\n", 0],
   ["itemseparator", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\" />\"", 0 ],
   ["submenuitemseparator", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\" />\"", 0 ],
   ["header", "\
@@ -237,14 +253,19 @@ output += \"</html>\\n\"\n\
   ["menuend", "output = \"\"\n", 0 ],
   ["menuitem1start", "output = \"\"\n", 0 ],
   ["menuitem1end", "output = \"\"\n", 0 ],
+  ["menuitem1selected", "output = \"\"\n", 0 ],
   ["menuitem2start", "output = \"\"\n", 0 ],
   ["menuitem2end", "output = \"\"\n", 0 ],
+  ["menuitem2selected", "output = \"\"\n", 0 ],
   ["menuitem3start", "output = \"\"\n", 0 ],
   ["menuitem3end", "output = \"\"\n", 0 ],
+  ["menuitem3selected", "output = \"\"\n", 0 ],
   ["menuitem4start", "output = \"\"\n", 0 ],
   ["menuitem4end", "output = \"\"\n", 0 ],
+  ["menuitem4selected", "output = \"\"\n", 0 ],
   ["menuitem5start", "output = \"\"\n", 0 ],
   ["menuitem5end", "output = \"\"\n", 0 ],
+  ["menuitem5selected", "output = \"\"\n", 0 ],
   ["menuitem1start-arg", "output = \"_menuitem1start_\\n\"\nif arguments != []:\n\toutput += arguments[0]\n", 0], 
   ["menuitem2start-arg", "output = \"_menuitem2start_\\n\"\nif arguments != []:\n\toutput += arguments[0]\n", 0], 
   ["menuitem3start-arg", "output = \"_menuitem3start_\\n\"\nif arguments != []:\n\toutput += arguments[0]\n", 0], 
@@ -256,6 +277,7 @@ output += \"</html>\\n\"\n\
   ["dumpmacros", "for m in macro_list:\n\tprint m[0]\n\tprint m[1]\n\tprint m[2]\n\tprint \"\"\noutput=\"\"\n", 0 ],
   ["submenuitemstart", "output = \"<div class=\\\"submenu_item\\\">\"\n", 0 ],
   ["submenuitemend", "output = \"</div>\"\n", 0 ],
+  ["backdir", "output = page.getBackDir()\n", 0 ],
   ["fake", "output = \"\"\n", 0 ]
 ]
 
@@ -264,7 +286,7 @@ output += \"</html>\\n\"\n\
 
 # TODO: always set output to "" when reading new macro definitions
 
-def handle_macro(macro_name, macro_source, input_line, options, macro_list, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu, last_modified):
+def handle_macro(macro_name, macro_source, input_line, page):
     result_line = input_line
     macro_p = re.compile("(?:_"+macro_name+")((?:_[a-zA-Z0-9]+|_\(.*\))*)_")
 
@@ -308,7 +330,7 @@ def handle_macro(macro_name, macro_source, input_line, options, macro_list, page
         except SyntaxError, msg:
             print "Syntax error in macro: " + macro_name
             print "(Matching on: '" + macro_m.group() + "')"
-            print "For page: "+page_name
+            print "For page: "+page.name
             print "In directory: "+in_dir
             print "Input line: "+input_line,
             print "Error: ",
@@ -349,20 +371,16 @@ def handle_macro(macro_name, macro_source, input_line, options, macro_list, page
         return result_line
     return result_line
     
-#
-# Check the input line for all macros in the given list
-#
-def handle_macros(macro_list, input_line, options, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu, last_modified):
+def handle_macros(page, input_line):
     orig_input_line = input_line
     cur_line = input_line
     orig_line = ""
     i = 0
-    macro_last_modified = 0
     
     while orig_line != cur_line:
         orig_line = cur_line
-        for mo in macro_list:
-            cur_line = handle_macro(mo[0], mo[1], cur_line, options, macro_list, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu, last_modified)
+        for mo in page.macros:
+            cur_line = handle_macro(mo[0], mo[1], cur_line, page)
             if cur_line != orig_line:
             	if verbosity >= 5:
             		print "Macro substitution: "
@@ -370,9 +388,9 @@ def handle_macros(macro_list, input_line, options, page_name, root_dir, in_dir, 
             		print orig_line
             		print ">>>>>>>>>>>>>>>>>>AFTER>>>>>>>>>>>>>>>>"
             		print cur_line
-                if mo[2] > macro_last_modified:
+                #if mo[2] > macro_last_modified:
 		    #print "MACRO CHANGED!"
-                    macro_last_modified = mo[2]
+                #    macro_last_modified = mo[2]
                 break
         i += 1
         if (i > 1000):
@@ -381,7 +399,7 @@ def handle_macros(macro_list, input_line, options, page_name, root_dir, in_dir, 
             print "And it is still not done. Aborting. Your output may be incomplete."
             print "Last macro tried: "+mo[0]
             sys.exit(1)
-    return cur_line, macro_last_modified
+    return cur_line
 
 #
 # Option handling (default options and those from .setup files)
@@ -413,6 +431,7 @@ def get_option(options, option_name):
 			return o[m.end():].rstrip("\n\r\t ")
 	print "Error: get_option() called for unknown option: "+option_name
 	print "Current directory: " + os.getcwd()
+	print options
 	(a,b,c) = sys.exc_info()
 	raise NameError, "get_option() called for unknown option: " + option_name
 	return ""
@@ -455,7 +474,7 @@ system_options = []
 system_options = add_option(system_options, "root_dir = .")
 system_options = add_option(system_options, "in_dir = in")
 system_options = add_option(system_options, "out_dir = out")
-system_options = add_option(system_options, "style_sheet = " + "default.css")
+system_options = add_option(system_options, "stylesheet = " + "default.css")
 system_options = add_option(system_options, "resource_dir = .")
 system_options = add_option(system_options, "show_menu = yes")
 system_options = add_option(system_options, "show_submenu = yes")
@@ -584,88 +603,6 @@ def get_dir_files(options, dir, ignore_masks, invert = False):
         os.chdir(orig_path)
     return dirfiles
 
-# generate the menu with the given directory as its base
-# returns a list of html lines
-# Makes a link when there are .page files in the directory
-# what to do if it is an empty nonterminal?
-def create_menu_part(root_dir, 
-                     dir_prefix, 
-                     base_dir, 
-                     depth, 
-                     cur_depth, 
-                     cur_page_depth, 
-                     options):
-    menu_lines = []
-
-    # TODO: where did cur_depth become a string?
-    cur_depth = int(cur_depth)
-    depth = int(depth)
-    
-    ignore_masks = get_options(options, "ignore_masks")
-    ignore_masks.append('.*\.nomenu.*')
-    
-    dir_files = get_dir_files(options, ".", ignore_masks)
-    for d in dir_files:
-    	file_name_parts = d.split(get_option(options, "extension_separator"))
-        if file_name_parts[-1] == get_option(options, "setup_file_name"):
-	    if not os.path.isdir(d):
-		    new_options = file_lines(d, ['^[^#].* *= *.+'])
-		    if have_option(new_options, "root_dir") and \
-		       have_option(new_options, "in_dir"):
-			root_dir = get_option_dir(new_options, "root_dir")
-			in_dir = get_option_dir(new_options, "in_dir")
-			return_dir = os.getcwd()
-			os.chdir(in_dir)
-			# this works, but fails to create in/ dir menu link
-			menu_lines = create_menu_part(root_dir, dir_prefix, base_dir, depth, cur_depth + 1, cur_page_depth, options)
-			os.chdir(return_dir)
-			#return []
-			return menu_lines
-		    options.extend(new_options)
-        elif os.path.isdir(d):
-            # TODO: the extension_separator might be a re operator...
-            # remove re list for get_dir_files, and replace with
-            # something like the split() function seen in create_page
-            pagefilematchlist = [".*"+get_option(options, "extension_separator")+get_option(options, "page_file_name")]
-            pagefilematchlist.append("index.html")
-            pagefiles = get_dir_files(options, d, pagefilematchlist, True)
-            
-            menulink = ""
-            
-            if pagefiles != []:
-                i = 0
-                back_prefix = ""
-                while i < cur_page_depth:
-                    back_prefix += os.pardir + os.sep
-                    i += 1
-                menulink += "<a href=\"" + escape_url(back_prefix + dir_prefix + file_base_name(d)) + "/index.html\">"
-            i = 0
-            menulink += file_base_name(d)
-            if pagefiles != []:
-                menulink += "</a>"
-                
-            menulink.replace("_", "jaja")
-            menu_lines.append("_menuitem" + str(cur_depth) + "start-arg_("+menulink+")_\n")
-            if cur_depth < depth:
-                os.chdir(d)
-                menu_lines.extend(create_menu_part(root_dir, dir_prefix + file_base_name(d) + os.sep, base_dir, depth, cur_depth + 1, cur_page_depth, options))
-                os.chdir(os.pardir)
-            menu_lines.append("_menuitem" + str(cur_depth) + "end_\n")
-                
-    return menu_lines
-
-def create_menu(root_dir, base_dir, options, depth, cur_page_depth):
-    orig_dir = os.getcwd()
-    os.chdir(base_dir)
-    
-    menu_lines = []
-    menu_lines.append("_menustart_\n")
-    menu_lines.extend(create_menu_part(root_dir, "", base_dir, depth, 1, cur_page_depth, options))
-    menu_lines.append("_menuend_\n")
-    os.chdir(orig_dir)
-    return menu_lines
-    
-
 def create_submenu(show_submenu, page_files, options):
     submenu_lines = []
     # submenu
@@ -684,300 +621,551 @@ def create_submenu(show_submenu, page_files, options):
         submenu_lines.append("_submenuend_\n")
     return submenu_lines
 
-def create_page(root_dir, in_dir, out_dir, page_name, page_files, options, macro_list, cur_dir_depth):
-    page_lines = []
-    page_lines.append("<!-- Created by clcms Version " + version + " -->\n")
-    last_modified = os.stat(in_dir)[stat.ST_MTIME]
-
+def print_indentation(depth):
+	print "  "*depth,
     
-    # specific page options are stored in the file name between the dots
-    show_menu = False
-    show_submenu = False
-    if get_option(options, "show_menu") == 'yes':
-        show_menu = True
-    if get_option(options, "show_submenu") == 'yes':
-        show_submenu = True
+################## NEW STUFF CLASS PUT IN OTHER .py? ##########
+class Page:
+	"A page object"
 
-    # header
-    page_lines.append("_header_\n");
+	def __init__(self, name, basedir, pagedir, parent = None):
+		#print "Add page", dir
+		self.input_dir = basedir
+		self.page_dir = pagedir
+		self.parent = parent
+		
+		self.name = name
 
-    page_lines.append("<div id=\"content\">\n")
+		# By default, the id is the input directory
+		self.id = basedir + os.sep + pagedir
+		self.sort_order = 0
 
-    # handle the .page items
-    item_index = 1
-    for pf in page_files:
-        # Separate the parts of the file
-        # First will contain name, last should be "page"
-        # Everything in between is option data
-        file_name_parts = pf.split(get_option(options, "extension_separator"))
-        
+		self.contents = []
+		self.files = []
+		self.children = []
+		
+		self.macros = []
+		self.options = []
+		
+		self.show_menu_item = True
+		self.show_submenu = True
+		self.is_subsite = False
+
+	def addContent(self, content):
+		#print "Adding",content.name, "to page", self.name
+		self.contents.append(content)
+	
+	def addFile(self, file):
+		self.files.append(file)
+	
+	def addChild(self, child):
+		self.children.append(child)
+
+	def getPageDepth(self):
+		if self.parent == None:
+			return 0
+		else:
+			return 1 + self.parent.getPageDepth()
+	
+	def isParent(self, page):
+		if page.parent == None:
+			return False
+		elif page.parent == self:
+			return True
+		else:
+			return self.isParent(page.parent)
+	
+	def getRootPage(self):
+		if self.parent == None:
+			return self
+		else:
+			return self.parent.getRootPage()
+
+	def printOverview(self, depth = 0):
+		print_indentation(depth)
+		print self.name
+		print_indentation(depth+1)
+		print "Contents:"
+		for c in self.contents:
+			c.printOverview(depth+2)
+		print_indentation(depth+1)
+		print "Files:"
+		for f in self.files:
+			f.printOverview(depth+2)
+		print_indentation(depth+1)
+		print len(self.children), "Children:"
+		for c in self.children:
+			c.printOverview(depth+2)
+	
+	def printAll(self):
+		print "-----------PAGE-------------"
+		print "Name:", self.name
+		print "id:", self.id
+		print "input dir:", self.input_dir
+		print "sort order: ",self.sort_order
+		print "contents:"
+		for c in self.contents:
+			c.printAll()
+		print "files:"
+		for f in self.files:
+			f.printAll()
+		# print macros?
+		# print options?
+		for c in self.children:
+			c.printAll()
+	
+	def getOutputDir(self):
+		dir_parts = self.page_dir.split(get_option(self.options, "extension_separator"))
+		return escape_url(dir_parts[0])
+	
+	def getTotalOutputDir(self):
+		if self.parent == None:
+#			if self.is_subsite:
+#				return os.sep + self.name
+#				return ""
+#			else:
+			if not self.is_subsite and self.name != "":
+				return self.name + os.sep
+			else:
+				return ""
+		else:
+			return self.parent.getTotalOutputDir() + self.getOutputDir() + os.sep
+		
+	def toHTML(self):
+		page_lines = []
+		page_lines.append("_header_\n");
+		page_lines.append("<div id=\"content\">\n")
+		i = 1
+		for c in self.contents:
+			page_lines.extend(c.toHTML())
+			if i < len(self.contents):
+				page_lines.append("_itemseparator_")
+		page_lines.append("</div>\n");
+		page_lines.append("_footer_");
+
+		macro_new_lines = []
+		for l in page_lines:
+			macro_new_lines.append(handle_macros(self, l))
+		page_lines = macro_new_lines
+		return page_lines
+	
+	def getBackDir(self):
+		return (os.pardir + os.sep)*(self.getPageDepth())
+		
+	def createMenu(self, calling_page, depth, start_depth = 0):
+		cur_depth = self.getPageDepth()
+		menu_lines = []
+		#menu_lines.append("menu for level "+ str(self.getPageDepth()) + " ("+self.name+") has " + str(len(self.children)) + "children\n")
+		back_dir = ""
+		if calling_page.getPageDepth() > 0:
+			back_dir =  calling_page.getBackDir()
+		for c in self.children:
+			if self.show_menu_item:
+				link = ""
+				if len(c.contents) > 0:
+					#link = "<a href=\""+(os.pardir + os.sep)*(calling_page.getPageDepth()) + os.pardir + c.getTotalOutputDir() + os.sep + "index.html\""
+					link = "<a href=\""+ back_dir + c.getTotalOutputDir() + "index.html\""
+					if c == calling_page or c.isParent(calling_page):
+						link += " _menuitem"+str(self.getPageDepth()+1)+"selected_"
+					link += ">"
+					#menu_lines.append(link)
+				link += c.name
+				if len(c.contents) > 0:
+					link += "</a>"
+				if cur_depth >= start_depth:
+					menu_lines.append("_menuitem"+str(cur_depth+1)+"start-arg_("+link+")_\n")
+				if depth > 1:
+					if c.is_subsite:
+						cc = copy.deepcopy(c)
+						cc.parent = self
+						menu_lines.extend(cc.createMenu(calling_page, depth - 1))
+					else:
+						menu_lines.extend(c.createMenu(calling_page, depth - 1))
+				if cur_depth >= start_depth:
+						menu_lines.append("_menuitem"+str(cur_depth+1)+"end_\n")
+		return menu_lines
+	
+	def createAnchorMenu(self):
+		anchor_menu_lines = []
+		if get_option(self.options, "show_submenu") == 'yes' and len(self.contents) > 1:
+			anchor_menu_lines += "_submenustart_"
+			i = 1
+			for c in self.contents:
+				anchor_menu_lines += "_submenuitemstart_"
+				anchor_menu_lines += "<a href=\"#" + c.getAnchorName() + "\">"
+				anchor_menu_lines += c.name
+				anchor_menu_lines += "</a>\n"
+				if i < len(self.contents):
+					anchor_menu_lines += "_submenuitemseparator_"
+				i += 1
+				anchor_menu_lines += "_submenuitemend_"
+			anchor_menu_lines += "_submenuend_"		
+		return anchor_menu_lines
+	
+	def copyFiles(self, output_directory):
+		# copies to output_directory argument, does NOT append its own subdir itself
+		#print "COPY"
+		#print "CURDIR: ",os.getcwd()
+		#print "COPIN: ",self.input_dir + os.sep + df
+		for f in self.files:
+			shutil.copy(f.input_file, output_directory)
+	
+	def createPage(self, output_directory, recursive):
+		#print "CREATE PAGE:", self.name
+		#print "from dir: ", self.input_dir
+		#print "with options:"
+		#print self.options
+		out_dir = output_directory + os.sep + self.getOutputDir()
+		#print "out_dir: "+out_dir
+		if  not os.path.isdir(out_dir):
+		        os.mkdir(out_dir)
+		out_file = open(out_dir + os.sep + "index.html", "w")
+		out_file.writelines(self.toHTML())
+		out_file.close()
+		self.copyFiles(out_dir)
+		if recursive:
+			for c in self.children:
+				c.createPage(out_dir, recursive)
+	
+	def prepare(self):
+		# todo: add update checks here too?
+		# how about file/page dates?
+		# walk through the tree, and update times and sort orders
+		self.children.sort(compare_pages)
+		self.contents.sort(compare_contents)
+		for c in self.children:
+			c.prepare()
+
+	def findPageDate(self):
+		# searches this page and its contents for the last modified date
+		# todo: add macro changes? (need seperate class?)
+		# todo: store it so we can reuse it ;)
+		last_date = time.gmtime(os.stat(self.input_dir)[stat.ST_MTIME])
+		for c in self.contents:
+			cld = time.gmtime(os.stat(c.input_file)[stat.ST_MTIME])
+			if cld > last_date:
+				last_date = cld
+		return last_date
+
+class Content:
+	"A page content object"
+	def __init__(self, page, file):
+		self.input_file = page.input_dir + os.sep + file
+
+		name_parts = file.split(get_option(page.options, "extension_separator"))
+		
+		self.name = name_parts[0]
+		# By default, the id is the input file
+		self.id = file
+		self.sort_order = 0
+		self.parse_wiki = True
+		self.show_item_title = True
+		self.show_item_title_date = False
+
+		# parent page
+		self.page = page
+	
+	def printOverview(self, depth = 0):
+		print_indentation(depth)
+		print self.name
+	
+	def getAnchorName(self):
+		return escape_url(self.name)
+	
+	def printAll(self):
+		print "name:", self.name
+		print "id:", os.getcwd() + os.sep + self.id
+		print "sort order:", self.sort_order
+		print "input file: ", self.input_file
+
+	def toHTML(self):
+		page_lines = []
+		page_lines.append("<a name=\"" + self.getAnchorName() + "\"></a>\n")
+		if self.show_item_title or self.show_item_title_date:
+			title_line = "<h3>"
+			if self.show_item_title_date:
+				title_line += time.strftime("%Y-%m-%d", time.gmtime(os.stat(self.input_file)[stat.ST_MTIME]))
+			if self.show_item_title:
+				title_line += self.name
+			title_line += "</h3>\n"
+			page_lines.append(title_line)
+		if self.parse_wiki:
+			page_lines.extend(wiki_to_html(file_lines(self.input_file)))
+		else:
+			page_lines.extend(file_lines(self.input_file))
+		return page_lines
+
+class File:
+	"A file object"
+	def __init__(self, file):
+		self.input_file = os.getcwd() + os.sep + file
+		# By default, the id is the input file
+		self.id = os.getcwd() + os.sep + file
+	
+	def printOverview(self, depth = 0):
+		print_indentation(depth)
+		print self.input_file
+	
+	def printAll(self):
+		print "id:", self.id
+		print "file:", self.input_file
+
+
+# 'compares' pages based on their sort order, then on the creation date of their input directories
+def compare_pages(a, b):
+	if a.sort_order > b.sort_order:
+		return 1
+	elif a.sort_order < b.sort_order:
+		return -1
+	else:
+		if os.stat(a.input_dir)[stat.ST_MTIME] > os.stat(b.input_dir)[stat.ST_MTIME]:
+			return 1
+		elif os.stat(a.input_dir)[stat.ST_MTIME] < os.stat(b.input_dir)[stat.ST_MTIME]:
+			return -1
+		else:
+			return 0
+
+def compare_contents(a, b):
+	if a.sort_order > b.sort_order:
+		return 1
+	elif a.sort_order < b.sort_order:
+		return -1
+	else:
+		if os.stat(a.input_file)[stat.ST_MTIME] > os.stat(b.input_file)[stat.ST_MTIME]:
+			return 1
+		elif os.stat(a.input_file)[stat.ST_MTIME] < os.stat(b.input_file)[stat.ST_MTIME]:
+			return -1
+		else:
+			return 0
+
+		
+
+
+def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur_depth):
+	page = None
+	page_dir_parts = page_dir.split(get_option(default_options, "extension_separator"))
+	page = Page(page_dir_parts[0], os.getcwd(), page_dir)
+	#print "NEW PAGE!!!!!!!!!!!!!!!!"
+	#page.printOverview()
+	#print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+	
+	options = []
+	options.extend(default_options)
+	macro_list = []
+	macro_list.extend(default_macro_list)
+
+	dir_files = get_dir_files(options, ".", get_options(options, "ignore_masks"))
+	# store every file that has not been handled yet in a temp list
+	# (removing elements from a list you're iterating over is a bad idea
+	dir_files2 = []
+
+	#
+	# I use seperate loops for this, because the results of each
+	# could have influence on the processing of others
+	#
+
+	#
+	# Read setup files
+	# TODO: recursive function?
+	for df in dir_files:
+		file_name_parts = df.split(get_option(options, "extension_separator"))
+		if file_name_parts[-1] == get_option(options, "setup_file_name"):
+			# if it is a directory, read the .setup, .inc and .macro
+			# files in it as if they were in this directory
+			# no subirectories are handled and no root_dir change is recognized
+			if verbosity >= 3:
+				print "Found setup dir: " + os.getcwd() + os.sep + df
+			if os.path.isdir(df):
+				setup_orig_dir = os.getcwd()
+				os.chdir(df)
+				setup_dir_files = get_dir_files(options, ".", get_options(options, "ignore_masks"))
+				for df2 in setup_dir_files:
+					setup_file_name_parts2 = df2.split(get_option(options, "extension_separator"));
+					if setup_file_name_parts2[-1] == get_option(options, "setup_file_name"):
+						new_options = file_lines(df, ['^[^#].* *= *.+'])
+						for o in new_options:
+							options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
+					elif setup_file_name_parts2[-1] == get_option(options, "inc_file_name"):
+						macro_name = file_base_name(df2)
+						macro_lines = file_lines(df2, [])
+						moc = "output = \"\"\n"
+						for l in macro_lines:
+							if l == macro_lines[-1]:
+								moc += "output += \""+escape_html(l.rstrip())+"\"\n"
+							else:
+								moc += "output += \""+escape_html(l.rstrip())+"\\n\"\n"
+						# TODO ADD MACRO FILE TIME
+						mo = [macro_name, moc, os.stat(df2)[stat.ST_MTIME]]
+						macro_list.insert(0, mo)
+					elif setup_file_name_parts2[-1] == get_option(options, "macro_file_name"):
+						# TODO: this is same as below, refactor
+						macro_name = file_base_name(df2)
+						macro_lines = file_lines(df2, [])
+						moc = ""
+						for l in macro_lines:
+							moc += l
+						# TODO ADD MACRO FILE TIME
+						mo = [macro_name, moc, os.stat(df2)[stat.ST_MTIME]]
+						macro_list.insert(0, mo)
+					else:
+						print "NOT SETUP INC OR MACRO: "+df2	
+					
+				os.chdir(setup_orig_dir)
+			else:
+				# If root_dir and in_dir are changed, this is a subsite
+				new_options = file_lines(df, ['^[^#].* *= *.+'])
+				if have_option(new_options, "root_dir") and \
+				   have_option(new_options, "in_dir"):
+					if verbosity >= 2:
+						print "Found subsite in " + os.getcwd() + os.sep + df
+					root_dir = get_option_dir(options, "root_dir")
+					in_dir = get_option_dir(options, "in_dir")
+					return_dir = os.getcwd()
+					os.chdir(in_dir)
+					s_options = copy.deepcopy(system_options)
+					s_macro_list = copy.deepcopy(system_macro_list)
+					for o in new_options:
+						s_options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
+						#create_pages(root_dir, in_dir, out_dir, options, macro_list, 0)
+					subsite_page = build_page_tree(in_dir, page_dir, s_options, s_macro_list, 0)
+					os.chdir(return_dir)
+					#page.addChild(subsite_page)
+					subsite_page.is_subsite = True
+					return subsite_page
+				else:
+					for o in new_options:
+						options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
+		else:
+			dir_files2.append(df)
+	dir_files = dir_files2
+	dir_files2 = []
+
+	page.options = options
+	#
+	# Read Macro files
+	# 
+	for df in dir_files:
+		file_name_parts = df.split(get_option(options, "extension_separator"));
+		if file_name_parts[-1] == get_option(options, "macro_file_name"):
+			macro_name = file_base_name(df)
+			macro_lines = file_lines(df, [])
+			moc = ""
+			for l in macro_lines:
+				moc += l
+				# TODO ADD MACRO FILE TIME
+				mo = [macro_name, moc, os.stat(df2)[stat.ST_MTIME]]
+			macro_list.insert(0, mo)
+		else:
+			dir_files2.append(df)
+	dir_files = dir_files2
+	dir_files2 = []
+
+
+	#
+	# Read inc files
+	#
+	# inc files are handles like macro's, but only contain string data,
+	# and will not be executed
+	for df in dir_files:
+		file_name_parts = df.split(get_option(options, "extension_separator"));
+		if file_name_parts[-1] == get_option(options, "inc_file_name"):
+			macro_name = file_base_name(df)
+			macro_lines = file_lines(df, [])
+			moc = "output = \"\"\n"
+			for l in macro_lines:
+				moc += "output += \""+escape_html(l)+"\"\n"
+				#moc += "output += \""+l+"\"\n"
+				# TODO ADD MACRO FILE TIME
+			mo = [macro_name, moc, os.stat(df)[stat.ST_MTIME]]
+			macro_list.insert(0, mo)
+		else:
+			dir_files2.append(df)
+	dir_files = dir_files2
+	dir_files2 = []
+
+	page.macros = macro_list
+	
+	#
+	# add .page content
+	#
+	# check options for here
         wiki_parse = get_option(options, "wiki_parse") == 'yes'
         show_item_title = get_option(options, "show_item_title") == 'yes'
         show_item_title_date = get_option(options, "show_item_title_date") == 'yes'
 
-        for option_name in file_name_parts[1:-1]:
-                if option_name == "nowiki":
-                    wiki_parse = False
-                elif option_name == "wiki":
-                    wiki_parse = True
-                elif option_name == "title":
-                    show_item_title = True
-                elif option_name == "notitle":
-                     show_item_title = False
-                     show_item_title_date = False
-        else:
-            if item_index > 1:
-                page_lines.append("_itemseparator_\n")
-            pf_lines = []
-            if show_item_title or show_item_title_date:
-                pf_lines.append("<h3>")
-                if show_item_title_date:
-                    pf_lines.append(time.strftime("%Y-%m-%d", time.gmtime(os.stat(pf)[stat.ST_MTIME])))
-                if show_item_title:
-                    pf_lines.append(file_name_parts[0])
-                pf_lines.append("</h3>\n")
-            if wiki_parse:
-                pf_lines.extend(wiki_to_html(file_lines(pf)))
-            else:
-                pf_lines.extend(file_lines(pf))
-            page_lines.append("<a name=\"" + escape_url(file_name_parts[0]) + "\"></a>\n")
-            page_lines.extend(pf_lines)
-            if os.stat(pf)[stat.ST_MTIME] > last_modified:
-                last_modified = os.stat(pf)[stat.ST_MTIME]
-                #print in_dir + ": ",
-                #print last_modified
-            item_index += 1
-            
-    page_lines.append("</div>\n")
+	for df in dir_files:
+		file_name_parts = df.split(get_option(options, "extension_separator"));
+		if file_name_parts[-1] == get_option(options, "page_file_name"):
+                        # add to current page
+                        content = Content(page, df)
 
-    # footer
-    page_lines.append("_footer_\n")
+			# check extension options
+			for option_name in file_name_parts[1:-1]:
+		                if option_name == "nowiki":
+				    wiki_parse = False
+				elif option_name == "wiki":
+				    wiki_parse = True
+				elif option_name == "title":
+				    show_item_title = True
+				elif option_name == "notitle":
+				     show_item_title = False
+				elif option_name.isdigit():
+					content.sort_order = int(option_name)
 
-    # create dir and file
-    if not os.path.isdir(out_dir) and not inhibit_output:
-        os.mkdir(out_dir)
-    
-    lines = page_lines
-    lines2 = []
-	
-    # macro changed will be set to true if any of the macros that is referenced
-    # in the page has been changed on disk since the last_mod date of the page itself
-    macro_last_modified = 0
-    
-    if not no_macros:
-        for l in lines:
-	    (macronewlines, this_macro_last_modified) = handle_macros(macro_list, l, options, page_name, root_dir, in_dir, cur_dir_depth, page_files, show_submenu, last_modified)
-	    lines2.append(macronewlines)
-	    if this_macro_last_modified > macro_last_modified:
-	    	macro_last_modified = this_macro_last_modified
-
-        lines = lines2
-        lines2 = []
-
-    page_lines = lines
-
-    # only write if last_modified is past output file
-    if not inhibit_output and \
-       force_output or \
-       (not os.path.exists(out_dir + os.sep + "index.html") or \
-       os.stat(out_dir + os.sep + "index.html")[stat.ST_MTIME] < last_modified or \
-       os.stat(out_dir + os.sep + "index.html")[stat.ST_MTIME] < macro_last_modified):
-        out_file = open(out_dir + os.sep + "index.html", "w")
-        out_file.writelines(page_lines)
-        out_file.close()
-        if verbosity >= 1:
-        	print "[CLCMS] Created " + out_dir + "/index.html"
-
-
-def create_pages(root_dir, in_dir, out_dir, default_options, default_macro_list, cur_dir_depth):
-    out_dir = escape_url(out_dir)
-    if not os.path.isdir(out_dir) and not inhibit_output:
-        os.mkdir(out_dir)
-    
-    options = []
-    options.extend(default_options)
-    macro_list = []
-    macro_list.extend(default_macro_list)
-
-    dir_files = get_dir_files(options, ".", get_options(options, "ignore_masks"))
-    # store every file that has not been handled yet in a temp list
-    # (removing elements from a list you're iterating over is a bad idea
-    dir_files2 = []
-
-    #
-    # I use seperate loops for this, because the results of each
-    # could have influence on the processing of others
-    #
-
-    #
-    # Read setup files
-    # TODO: recursive function?
-    for df in dir_files:
-        file_name_parts = df.split(get_option(options, "extension_separator"));
-        if file_name_parts[-1] == get_option(options, "setup_file_name"):
-	    # if it is a directory, read the .setup, .inc and .macro
-	    # files in it as if they were in this directory
-	    # no subirectories are handled and no root_dir change is recognized
-	    if os.path.isdir(df):
-	    	setup_orig_dir = os.getcwd()
-	    	os.chdir(df)
-	    	setup_dir_files = get_dir_files(options, ".", get_options(options, "ignore_masks"))
-	    	for df2 in setup_dir_files:
-			setup_file_name_parts2 = df2.split(get_option(options, "extension_separator"));
-			if setup_file_name_parts2[-1] == get_option(options, "setup_file_name"):
-			    new_options = file_lines(df, ['^[^#].* *= *.+'])
-			    for o in new_options:
-				options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
-			elif setup_file_name_parts2[-1] == get_option(options, "inc_file_name"):
-			    macro_name = file_base_name(df2)
-			    macro_lines = file_lines(df2, [])
-			    moc = "output = \"\"\n"
-			    for l in macro_lines:
-				moc += "output += \""+escape_html(l)+"\\n\"\n"
-			    # TODO ADD MACRO FILE TIME
-			    mo = [macro_name, moc, os.stat(df2)[stat.ST_MTIME]]
-			    macro_list.insert(0, mo)
-			elif setup_file_name_parts2[-1] == get_option(options, "macro_file_name"):
-			    # TODO: this is same as below, refactor
-			    macro_name = file_base_name(df2)
-			    macro_lines = file_lines(df2, [])
-			    moc = ""
-			    for l in macro_lines:
-				moc += l
-			    # TODO ADD MACRO FILE TIME
-			    mo = [macro_name, moc, os.stat(df2)[stat.ST_MTIME]]
-			    macro_list.insert(0, mo)
-			else:
-				print "NOT SETUP INC OR MACRO: "+df2    	
-			    
-	    	os.chdir(setup_orig_dir)
-	    else:
-		    # If root_dir and in_dir are changed, this is a subsite
-		    new_options = file_lines(df, ['^[^#].* *= *.+'])
-		    if have_option(new_options, "root_dir") and \
-		       have_option(new_options, "in_dir"):
-			root_dir = get_option_dir(options, "root_dir")
-			in_dir = get_option_dir(options, "in_dir")
-			return_dir = os.getcwd()
-			os.chdir(in_dir)
-			options = system_options
-			macro_list = system_macro_list
-			for o in new_options:
-			    options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
-			create_pages(root_dir, in_dir, out_dir, options, macro_list, 0)
-			os.chdir(return_dir)
-			return
-
-		    for o in new_options:
-			options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
-        else:
-            dir_files2.append(df)
-    dir_files = dir_files2
-    dir_files2 = []
-
-    #
-    # Read Macro files
-    # 
-    for df in dir_files:
-        file_name_parts = df.split(get_option(options, "extension_separator"));
-        if file_name_parts[-1] == get_option(options, "macro_file_name"):
-            macro_name = file_base_name(df)
-            macro_lines = file_lines(df, [])
-            moc = ""
-            for l in macro_lines:
-                moc += l
-	    # TODO ADD MACRO FILE TIME
-	    mo = [macro_name, moc, os.stat(df2)[stat.ST_MTIME]]
-            macro_list.insert(0, mo)
-        else:
-            dir_files2.append(df)
-    dir_files = dir_files2
-    dir_files2 = []
-    
-    #
-    # Read inc files
-    #
-    # inc files are handles like macro's, but only contain string data,
-    # and will not be executed
-    for df in dir_files:
-        file_name_parts = df.split(get_option(options, "extension_separator"));
-        if file_name_parts[-1] == get_option(options, "inc_file_name"):
-            macro_name = file_base_name(df)
-            macro_lines = file_lines(df, [])
-            moc = "output = \"\"\n"
-            for l in macro_lines:
-                moc += "output += \""+escape_html(l)+"\"\n"
-	    # TODO ADD MACRO FILE TIME
-	    mo = [macro_name, moc, os.stat(df2)[stat.ST_MTIME]]
-            macro_list.insert(0, mo)
-        else:
-            dir_files2.append(df)
-    dir_files = dir_files2
-    dir_files2 = []
-    
-    
-    
-    #
-    # Read page files
-    #
-    if get_option(options, "create_pages") == "yes":
-        page_files = []
-        for df in dir_files:
-            file_name_parts = df.split(get_option(options, "extension_separator"));
-            if file_name_parts[-1] == get_option(options, "page_file_name"):
-                page_files.append(df)
-            else:
-                #print "FILEEXT: "+file_name_parts[-1]
-                dir_files2.append(df)
+			content.parse_wiki = wiki_parse
+			content.show_item_title = show_item_title
+			content.show_item_title_date = show_item_title_date
+                        page.addContent(content)
+                else:
+                        #print "FILEEXT: "+file_name_parts[-1]
+                        dir_files2.append(df)
         dir_files = dir_files2
         dir_files2 = []
 
-        if page_files != []:
-            # TODO: dotted page options here? (like in .page file names?)
-            page_name = file_base_name(os.path.basename(os.getcwd()))
-            create_page(root_dir, in_dir, out_dir, page_name, page_files, options, macro_list, cur_dir_depth)
 
-    # 
-    # Read directories
-    #
-    for df in dir_files:
-        if os.path.isdir(df):
-            # stoppage checkage action
-            handle_dir = True
-            file_name_parts = df.split(get_option(options, "extension_separator"))
-            for fp in file_name_parts[1:]:
-                if fp == "stop":
-                    if verbosity >= 2:
-	                    print "Stop at dir: "+df
-                    handle_dir = False
-            if handle_dir:
-	        os.chdir(df)
-                #print "Entering directory " + os.getcwd()
-                create_pages(root_dir, in_dir, out_dir + os.sep + file_base_name(df), options, macro_list, cur_dir_depth + 1)
-                os.chdir(os.pardir)
-        else:
-            dir_files2.append(df)
-    dir_files = dir_files2
-    dir_files2 = []
+	# 
+	# Read directories
+	#
+	for df in dir_files:
+		if os.path.isdir(df):
+			if verbosity >= 3:
+				print "Reading page from directory: " + os.getcwd() + os.sep + df
+			# stoppage checkage action
+			handle_dir = True
+			file_name_parts = df.split(get_option(options, "extension_separator"))
+			sort_order = 0
+			for fp in file_name_parts[1:]:
+				if fp == "stop":
+					if verbosity >= 2:
+						print "Stop at dir: "+df
+					handle_dir = False
+				elif fp.isdigit():
+					sort_order = int(fp)
+			if handle_dir:
+				sub_page_orig_dir = os.getcwd()
+				os.chdir(df)
+				#print "Entering directory " + os.getcwd()
+				child_page = build_page_tree(root_dir, df, options, macro_list, cur_depth+1)
+				if child_page.is_subsite == False:
+					child_page.parent = page
+				child_page.sort_order = sort_order
+				page.addChild(child_page)
+					#create_pages(root_dir, in_dir, out_dir + os.sep + file_base_name(df), options, macro_list, cur_dir_depth + 1)
+					#os.chdir(os.pardir)
+				os.chdir(sub_page_orig_dir)
+		else:
+			dir_files2.append(df)
+	dir_files = dir_files2
+	dir_files2 = []
 
-    #
-    # Copy rest
-    #
-    for df in dir_files:
-        # check if exists and if older
-        if not os.path.exists(out_dir + os.sep + df) or \
-            os.stat(out_dir + os.sep + df)[stat.ST_MTIME] < os.stat(df)[stat.ST_MTIME]:
-                try:
-                    shutil.copy(df, out_dir)
-                except IOError,msg:
-                    print "Error copying: "+df
-                    print "Current directory: "+os.getcwd()
-                    print "Error: "
-                    print msg
-                    sys.exit(1)
-                if verbosity >= 1:
-                	print "[CLCMS] Copied " + df + " to " + out_dir
-    
+	#
+	# Copy rest
+	#
+	for df in dir_files:
+		file = File(df)
+		page.addFile(file)
+
+	return page
 
 def print_usage():
 	print "Usage: clcms.py [OPTIONS]"
@@ -1031,7 +1219,8 @@ if len(sys.argv) > 1:
     	i = i + 1
 
 # read setup in current dir
-base_options = system_options
+base_options = copy.deepcopy(system_options)
+
 for df in os.listdir("."):
     file_name_parts = df.split(get_option(base_options, "extension_separator"))
     if file_name_parts[-1] == get_option(base_options, "setup_file_name"):
@@ -1060,10 +1249,17 @@ if verbosity >= 1:
 		print "Inhibiting output."
 	else:
 		print "Output directory: " + out_dir
+os.chdir(in_dir)
+
+site = build_page_tree(root_dir, "", base_options, system_macro_list, 0)
+#site.printAll()
+
+#create_pages(root_dir, in_dir, out_dir, base_options, system_macro_list, 0)
+os.chdir(root_dir)
 	
 if not os.path.isdir(out_dir) and not inhibit_output:
     os.mkdir(out_dir)
-os.chdir(in_dir)
-create_pages(root_dir, in_dir, out_dir, base_options, system_macro_list, 0)
-os.chdir(root_dir)
 
+site.createPage(out_dir, True)
+
+#site.printOverview()

@@ -5,4 +5,4 @@ wiki_parse = yes
 show_submenu = no
 show_menu = yes
 favicon = ./favicon.ico
-style_sheet = ./st_gargoyles_total.css
+stylesheet = ./st_gargoyles_total.css

@@ -1,0 +1,34 @@
+The site object contains a representation of the complete website
+(with references to the actual files that are used)
+
+Generation goes like this:
+- build site tree from dir tree
+- transform tree to output dir tree
+
+page represents a page object
+page:
+	- name
+	- id
+	- sort_order
+	- <current macro list>
+	- <current options list>
+	- output directory name
+
+	these must be added with page.add<name>(object)
+	- <child page list>
+	- <contents list>
+	- <file list>
+
+content represents 1 .page file
+content:
+	- input .page file
+	- name
+	- sort order
+	- id
+	- output file name
+
+file:
+	- input file name
+	?- type
+
+		
