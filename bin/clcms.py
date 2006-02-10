@@ -63,7 +63,7 @@ def escape_html(line):
     line = line.replace('"', '\\"')
     return line.rstrip("\r\n\t")
 
-def wiki_to_html_simple(line):
+def wiki_to_html_simple(line, page):
     line = line.rstrip("\n\r\t ")
     line = line.replace("<", "&lt;")
     line = line.replace(">", "&gt;")
@@ -82,7 +82,19 @@ def wiki_to_html_simple(line):
     adv_m = adv_link_p.search(line)
     #simple_m = simple_link_p.search(line)
     if adv_m:
-        line = line[:adv_m.start()] + "<a href=\"" + escape_url(line[adv_m.start(1):adv_m.end(1)]) + "\">" + line[adv_m.start(2):adv_m.end(2)] + "</a>" + line[adv_m.end():]
+        name = line[adv_m.start(2):adv_m.end(2)]
+        href = escape_url(line[adv_m.start(1):adv_m.end(1)])
+        if href[0] == ':':
+        	targetPage = None
+        	if page:
+        		targetPage = page.getRootPage().findPageByID(href[1:])
+		if not targetPage:
+			print "Page with ID '"+href[1:]+"' not found. Quitting."
+			sys.exit(1)
+		if name == "":
+			name = targetPage.name
+		href = page.getBackDir() + targetPage.getTotalOutputDir() + "index.html"
+        line = line[:adv_m.start()] + "<a href=\"" + href + "\">" + name + "</a>" + line[adv_m.end():]
     #elif simple_m:
     #    line = line[:simple_m.start()] + "<a href=\"" + line[simple_m.start():simple_m.end()] + "\">" + line[simple_m.start():simple_m.end()] + "</a>"
 
@@ -92,7 +104,7 @@ def wiki_to_html_simple(line):
     
     return line + "\n"
 
-def wiki_to_html(wiki_lines):
+def wiki_to_html(wiki_lines, page = None):
     html_lines = []
     i = 0
     no_wiki = False
@@ -112,13 +124,13 @@ def wiki_to_html(wiki_lines):
                 while line[j] == "+":
                     j += 1
                 if (j > 3):
-                    html_lines.append("<h" + str(j-3) + ">" + wiki_to_html_simple(line[j:]) + "</h" + str(j-3) +  ">\n")
+                    html_lines.append("<h" + str(j-3) + ">" + wiki_to_html_simple(line[j:], page) + "</h" + str(j-3) +  ">\n")
                 else:
-                    html_lines.append(wiki_to_html_simple(line))
+                    html_lines.append(wiki_to_html_simple(line, page))
             elif line[:5] == "   * ":
                 html_lines.append("<ul>\n")
                 html_lines.append("\t<li>\n")
-                html_lines.append(wiki_to_html_simple(line[5:]))
+                html_lines.append(wiki_to_html_simple(line[5:], page))
                 in_list1 = True
                 while in_list1:
                     i += 1
@@ -127,11 +139,11 @@ def wiki_to_html(wiki_lines):
                         if line[:5] == "   * ":
                             html_lines.append("\t</li>\n")
                             html_lines.append("\t<li>\n")
-			    html_lines.append(wiki_to_html_simple(line[5:]))
+			    html_lines.append(wiki_to_html_simple(line[5:], page))
                         elif line[:8] == "      * ":
                             html_lines.append("<ul>\n")
                             html_lines.append("\t<li>\n")
-                            html_lines.append(wiki_to_html_simple(line[8:]))
+                            html_lines.append(wiki_to_html_simple(line[8:], page))
                             in_list2 = True
                             while in_list2:
                                 i += 1
@@ -140,12 +152,12 @@ def wiki_to_html(wiki_lines):
                                     if line[:8] == "      * ":
                                         html_lines.append("\t</li>\n")
                                         html_lines.append("\t<li>\n")
-                                        html_lines.append(wiki_to_html_simple(line[8:]))
+                                        html_lines.append(wiki_to_html_simple(line[8:], page))
                                     #elif line[:8] == "      * ":
                                     elif line[:11] == "         * ":
                                         html_lines.append("<ul>\n")
                                         html_lines.append("\t<li>\n")
-                                        html_lines.append(wiki_to_html_simple(line[11:]))
+                                        html_lines.append(wiki_to_html_simple(line[11:], page))
                                         in_list3 = True
                                         while in_list3:
                                             i += 1
@@ -154,12 +166,12 @@ def wiki_to_html(wiki_lines):
                                                 if line[:11] == "         * ":
                                                     html_lines.append("\t</li>\n")
                                                     html_lines.append("\t<li>\n")
-                                                    html_lines.append(wiki_to_html_simple(line[11:]))
+                                                    html_lines.append(wiki_to_html_simple(line[11:], page))
                                                 #elif line[:11] == "         * ":
  					        elif whitespace_p.match(line):
 							html_lines.append("<br />\n")
                                                 elif line[:11] == "           ":
-							html_lines.append(wiki_to_html_simple(line[11:]))
+							html_lines.append(wiki_to_html_simple(line[11:], page))
                                                 else:
                                                     html_lines.append("\t</li>\n")
                                                     html_lines.append("</ul>\n")
@@ -172,7 +184,7 @@ def wiki_to_html(wiki_lines):
    				    elif whitespace_p.match(line):
 					html_lines.append("<br />\n")
                                     elif line[:8] == "        ":
-					html_lines.append(wiki_to_html_simple(line[8:]))
+					html_lines.append(wiki_to_html_simple(line[8:], page))
                                     else:
                                         html_lines.append("\t</li>\n")
                                         html_lines.append("</ul>\n")
@@ -185,7 +197,7 @@ def wiki_to_html(wiki_lines):
 			elif whitespace_p.match(line):
                             	html_lines.append("<br />\n")
                         elif line[:5] == "     ":
-                                html_lines.append(wiki_to_html_simple(line[5:]))
+                                html_lines.append(wiki_to_html_simple(line[5:], page))
                         else:
                             html_lines.append("\t</li>\n")
                             html_lines.append("</ul>\n")
@@ -196,7 +208,7 @@ def wiki_to_html(wiki_lines):
                         html_lines.append("</ul>\n")
                         in_list1 = False
             else:
-                html_lines.append(wiki_to_html_simple(line))
+                html_lines.append(wiki_to_html_simple(line, page))
         i += 1
     return html_lines
 
@@ -843,6 +855,18 @@ class Page:
 			if cld > last_date:
 				last_date = cld
 		return last_date
+	
+	def findPageByID(self, id):
+		if not self:
+			return None
+		if self.id == id:
+			return self
+		else:
+			for c in self.children:
+				p = c.findPageByID(id)
+				if p:
+					return p
+			return None
 
 class Content:
 	"A page content object"
@@ -887,7 +911,7 @@ class Content:
 			title_line += "</h3>\n"
 			page_lines.append(title_line)
 		if self.parse_wiki:
-			page_lines.extend(wiki_to_html(file_lines(self.input_file)))
+			page_lines.extend(wiki_to_html(file_lines(self.input_file), self.page))
 		else:
 			page_lines.extend(file_lines(self.input_file))
 		return page_lines
@@ -1038,6 +1062,18 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
 	dir_files2 = []
 
 	page.options = options
+
+	for df in dir_files:
+		# TODO: option
+		if df == "page.meta":
+			for l in file_lines(df):
+				if l[:4] == "id: ":
+					page.id = l[4:].rstrip()
+		else:
+			dir_files2.append(df)
+	dir_files = dir_files2
+	dir_files2 = []
+
 	#
 	# Read Macro files
 	# 
