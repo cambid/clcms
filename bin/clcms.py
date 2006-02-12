@@ -289,6 +289,9 @@ output += \"</html>\\n\"\n\
   ["submenuitemstart", "output = \"<div class=\\\"submenu_item\\\">\"\n", 0 ],
   ["submenuitemend", "output = \"</div>\"\n", 0 ],
   ["backdir", "output = page.getBackDir()\n", 0 ],
+  ["nextpage", "output = \"\"\nnp = page.getNextPage()\nif np:\n\toutput = \"<a href=\\\"\"+page.getBackDir()+np.getTotalOutputDir()+\"index.html\\\">\"+np.name+\"</a>\"\n", 0],
+  ["prevpage", "output = \"\"\npp = page.getPreviousPage()\nif pp:\n\toutput = \"<a href=\\\"\"+page.getBackDir()+pp.getTotalOutputDir()+\"index.html\\\">\"+pp.name+\"</a>\"\n", 0],
+  ["uppage", "output = \"\"\nup = page.parent\nif up:\n\toutput = \"<a href=\\\"\"+page.getBackDir()+up.getTotalOutputDir()+\"index.html\\\">\"+up.name+\"</a>\"\n", 0],  
   ["fake", "output = \"\"\n", 0 ]
 ]
 
@@ -859,6 +862,49 @@ class Page:
 					return p
 			return None
 
+	# Returns the first page after this one that has content
+	# if return_children is true (default) then the first child
+	# (if any) is returned, otherwise it's first sibling
+	# Returns None if this is the last page
+	def getNextPage(self, return_children = True):
+		next_page = None
+		if return_children and len(self.children) > 0:
+			next_page = self.children[0]
+		elif self.parent:
+			lp = None
+			for p in self.parent.children:
+				if lp == self:
+					next_page = p
+				lp = p
+			if not next_page:
+				next_page = self.parent.getNextPage(False)
+		if next_page and len(next_page.contents) == 0:
+			return next_page.getNextPage(return_children)
+		else:
+			return next_page
+			
+	# Returns the last page before this one that has content
+	# if return_children is true (default) then the last child
+	# (if any) is returned, otherwise it's last sibling
+	# Returns None if this is the first page
+	def getPreviousPage(self, return_children = True):
+		prev_page = None
+		if self.parent:
+			lp = None
+			for p in self.parent.children:
+				if p == self:
+					prev_page = lp
+				lp = p
+		if not prev_page:
+			prev_page = self.parent
+		else:
+			while return_children and len(prev_page.children) > 0:
+				prev_page = prev_page.children[-1]
+		if prev_page and len(prev_page.contents) == 0:
+			return prev_page.getPreviousPage(return_children)
+		else:
+			return prev_page
+
 class Content:
 	"A page content object"
 	def __init__(self, page, file):
@@ -1085,7 +1131,7 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
 			for l in macro_lines:
 				moc += l
 				# TODO ADD MACRO FILE TIME
-				mo = [macro_name, moc, os.stat(df2)[stat.ST_MTIME]]
+				mo = [macro_name, moc, os.stat(df)[stat.ST_MTIME]]
 			macro_list.insert(0, mo)
 		else:
 			dir_files2.append(df)
