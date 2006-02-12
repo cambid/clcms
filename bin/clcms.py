@@ -78,8 +78,6 @@ def wiki_to_html_simple(line, page):
     # replace links and image refs
     adv_link_p = re.compile('\[\[(.*?)\]\[(.*?)\](?:\[(.*?)\])?\]')
     img_p = re.compile('\{\{(.*?)\}\{(.*?)\}(?:\{(.*?)\})?\}')
-#    adv_link_p = re.compile('\[\[(.*)\]\[(.*)\]\]')
-#    img_p = re.compile('\{\{(.*)\}\{(.*)\}(?:\{(.*)\})?\}')
     adv_m = adv_link_p.search(line)
     if adv_m:
         name = line[adv_m.start(2):adv_m.end(2)]
@@ -98,9 +96,6 @@ def wiki_to_html_simple(line, page):
 			name = targetPage.name
 		href = page.getBackDir() + targetPage.getTotalOutputDir() + "index.html"
         line = line[:adv_m.start()] + "<a href=\"" + href + extra + "\">" + name + "</a>" + line[adv_m.end():]
-#        line = line[:adv_m.start()] + "<a href=\"" + href + "\">" + name + "</a>" + line[adv_m.end():]
-    #elif simple_m:
-    #    line = line[:simple_m.start()] + "<a href=\"" + line[simple_m.start():simple_m.end()] + "\">" + line[simple_m.start():simple_m.end()] + "</a>"
 
     img_m = img_p.search(line)
     if img_m:
@@ -108,7 +103,6 @@ def wiki_to_html_simple(line, page):
         if img_m.group(2):
         	extra = " " + line[img_m.start(3):img_m.end(3)]
         line = line[:img_m.start()] + "<img src=\"" + escape_url(line[img_m.start(1):img_m.end(1)]) + "\" alt=\"" + line[img_m.start(2):img_m.end(2)] + "\"" + extra + "/>" + line[img_m.end():]
-#        line = line[:img_m.start()] + "<img src=\"" + escape_url(line[img_m.start(1):img_m.end(1)]) + "\" alt=\"" + line[img_m.start(2):img_m.end(2)] + "\" />" + line[img_m.end():]
    
     return line + "\n"
 
@@ -297,9 +291,6 @@ output += \"</html>\\n\"\n\
   ["backdir", "output = page.getBackDir()\n", 0 ],
   ["fake", "output = \"\"\n", 0 ]
 ]
-
-#macro_list = []
-#macro_list.extend(system_macro_list)
 
 # TODO: always set output to "" when reading new macro definitions
 
@@ -655,7 +646,7 @@ class Page:
 
 		# By default, the id is the input directory
 		self.id = basedir + os.sep + pagedir
-		self.sort_order = 0
+		self.sort_order = -1
 
 		self.contents = []
 		self.files = []
@@ -714,7 +705,7 @@ class Page:
 		for c in self.children:
 			c.printOverview(depth+2)
 	
-	def printAll(self):
+	def printAll(self, max_depth = -1):
 		print "-----------PAGE-------------"
 		print "Name:", self.name
 		print "id:", self.id
@@ -729,7 +720,10 @@ class Page:
 		# print macros?
 		# print options?
 		for c in self.children:
-			c.printAll()
+			if max_depth > 0:
+				c.printAll(max_depth - 1)
+			elif max_depth == -1:
+				c.printAll(-1)
 	
 	def getOutputDir(self):
 		dir_parts = self.page_dir.split(get_option(self.options, "extension_separator"))
@@ -737,10 +731,6 @@ class Page:
 	
 	def getTotalOutputDir(self):
 		if self.parent == None:
-#			if self.is_subsite:
-#				return os.sep + self.name
-#				return ""
-#			else:
 			if not self.is_subsite and self.name != "":
 				return self.name + os.sep
 			else:
@@ -821,17 +811,10 @@ class Page:
 	
 	def copyFiles(self, output_directory):
 		# copies to output_directory argument, does NOT append its own subdir itself
-		#print "COPY"
-		#print "CURDIR: ",os.getcwd()
-		#print "COPIN: ",self.input_dir + os.sep + df
 		for f in self.files:
 			shutil.copy(f.input_file, output_directory)
 	
 	def createPage(self, output_directory, recursive):
-		#print "CREATE PAGE:", self.name
-		#print "from dir: ", self.input_dir
-		#print "with options:"
-		#print self.options
 		out_dir = output_directory + os.sep + self.getOutputDir()
 		#print "out_dir: "+out_dir
 		if  not os.path.isdir(out_dir):
@@ -939,8 +922,10 @@ class File:
 		print "id:", self.id
 		print "file:", self.input_file
 
-
-# 'compares' pages based on their sort order, then on the creation date of their input directories
+#
+# 'compares' pages based on their sort order, then on the last modified date of
+# their input directories (backwards)
+#
 def compare_pages(a, b):
 	if a.sort_order > b.sort_order:
 		return 1
@@ -954,6 +939,10 @@ def compare_pages(a, b):
 		else:
 			return 0
 
+#
+# 'compares' page content items based on their sort order, then on the 
+# last modified date of their input files (backwards)
+#
 def compare_contents(a, b):
 	if a.sort_order > b.sort_order:
 		return 1
@@ -961,9 +950,9 @@ def compare_contents(a, b):
 		return -1
 	else:
 		if os.stat(a.input_file)[stat.ST_MTIME] > os.stat(b.input_file)[stat.ST_MTIME]:
-			return 1
-		elif os.stat(a.input_file)[stat.ST_MTIME] < os.stat(b.input_file)[stat.ST_MTIME]:
 			return -1
+		elif os.stat(a.input_file)[stat.ST_MTIME] < os.stat(b.input_file)[stat.ST_MTIME]:
+			return 1
 		else:
 			return 0
 
@@ -1176,7 +1165,7 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
 			# stoppage checkage action
 			handle_dir = True
 			file_name_parts = df.split(get_option(options, "extension_separator"))
-			sort_order = 0
+			sort_order = -1
 			for fp in file_name_parts[1:]:
 				if fp == "stop":
 					if verbosity >= 2:
@@ -1191,7 +1180,13 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
 				child_page = build_page_tree(root_dir, df, options, macro_list, cur_depth+1)
 				if child_page.is_subsite == False:
 					child_page.parent = page
-				child_page.sort_order = sort_order
+				if child_page.sort_order >= 0:
+					if sort_order >= 0:
+						print "Warning, sort order for page '"+child_page.name+"' specified twice, taking order from directory name"
+						child_page.sort_order = sort_order
+				else:
+					child_page.sort_order = sort_order
+				
 				page.addChild(child_page)
 					#create_pages(root_dir, in_dir, out_dir + os.sep + file_base_name(df), options, macro_list, cur_dir_depth + 1)
 					#os.chdir(os.pardir)
@@ -1294,15 +1289,18 @@ if verbosity >= 1:
 		print "Output directory: " + out_dir
 os.chdir(in_dir)
 
+# Read pages rfom input directory tree
 site = build_page_tree(root_dir, "", base_options, system_macro_list, 0)
-#site.printAll()
 
-#create_pages(root_dir, in_dir, out_dir, base_options, system_macro_list, 0)
+# Check sorting and updates
+site.prepare()
+
+# Create output directory and HTML pages
 os.chdir(root_dir)
-	
 if not os.path.isdir(out_dir) and not inhibit_output:
     os.mkdir(out_dir)
-
 site.createPage(out_dir, True)
 
 #site.printOverview()
+#site.printAll(1)
+
