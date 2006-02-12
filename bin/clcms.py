@@ -69,11 +69,11 @@ def wiki_to_html_simple(line, page):
     line = line.replace(">", "&gt;")
     if line == "":
         return "<p></p>\n"
-    if line[:1] == '*' and line[-1:] == '*':
+    if line[:1] == '*' and line[-1:] == '*' and line != "*":
         return "<b>" + line[1:-1] + "</b>\n"
-    if line[:1] == '.' and line[-1:] == '.':
+    if line[:1] == '.' and line[-1:] == '.' and line != ".":
         return "<i>" + line[1:-1] + "</i>\n"
-    if line[:1] == '=' and line[-1:] == '=':
+    if line[:1] == '=' and line[-1:] == '=' and line != "=":
         return "<pre>" + line[1:-1] + "</pre>\n"
     # replace links and image refs
     adv_link_p = re.compile('\[\[(.*?)\]\[(.*?)\](?:\[(.*?)\])?\]')
