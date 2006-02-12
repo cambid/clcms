@@ -915,7 +915,7 @@ class Content:
 		self.name = name_parts[0]
 		# By default, the id is the input file
 		self.id = file
-		self.sort_order = 0
+		self.sort_order = -1
 		self.parse_wiki = True
 		self.show_item_title = True
 		self.show_item_title_date = False
@@ -972,8 +972,13 @@ class File:
 # 'compares' pages based on their sort order, then on the last modified date of
 # their input directories (backwards)
 #
+# pages with a sort order come before those without (ie. have value -1)
 def compare_pages(a, b):
-	if a.sort_order > b.sort_order:
+	if a.sort_order == -1 and b.sort_order > -1:
+		return 1
+	elif a.sort_order > -1 and b.sort_order == -1:
+		return -1
+	elif a.sort_order > b.sort_order:
 		return 1
 	elif a.sort_order < b.sort_order:
 		return -1
@@ -989,8 +994,13 @@ def compare_pages(a, b):
 # 'compares' page content items based on their sort order, then on the 
 # last modified date of their input files (backwards)
 #
+# contents with a sort order come before those without (ie. have value -1)
 def compare_contents(a, b):
-	if a.sort_order > b.sort_order:
+	if a.sort_order == -1 and b.sort_order > -1:
+		return 1
+	elif a.sort_order > -1 and b.sort_order == -1:
+		return -1
+	elif a.sort_order > b.sort_order:
 		return 1
 	elif a.sort_order < b.sort_order:
 		return -1
@@ -1348,5 +1358,5 @@ if not os.path.isdir(out_dir) and not inhibit_output:
 site.createPage(out_dir, True)
 
 #site.printOverview()
-#site.printAll(1)
+site.printAll(2)
 
