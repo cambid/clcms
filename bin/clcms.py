@@ -76,14 +76,17 @@ def wiki_to_html_simple(line, page):
     if line[:1] == '=' and line[-1:] == '=':
         return "<pre>" + line[1:-1] + "</pre>\n"
     # replace links and image refs
-    #simple_link_p = re.compile('[^\"]http://.*')
-    adv_link_p = re.compile('\[\[(.*)\]\[(.*)\]\]')
-    img_p = re.compile('\{\{(.*)\}\{(.*)\}\}')
+    adv_link_p = re.compile('\[\[(.*?)\]\[(.*?)\](?:\[(.*?)\])?\]')
+    img_p = re.compile('\{\{(.*?)\}\{(.*?)\}(?:\{(.*?)\})?\}')
+#    adv_link_p = re.compile('\[\[(.*)\]\[(.*)\]\]')
+#    img_p = re.compile('\{\{(.*)\}\{(.*)\}(?:\{(.*)\})?\}')
     adv_m = adv_link_p.search(line)
-    #simple_m = simple_link_p.search(line)
     if adv_m:
         name = line[adv_m.start(2):adv_m.end(2)]
         href = escape_url(line[adv_m.start(1):adv_m.end(1)])
+        extra = ""
+        if len(adv_m.groups()) > 2:
+        	extra = " " + line[adv_m.start(3):adv_m.end(3)]
         if href[0] == ':':
         	targetPage = None
         	if page:
@@ -94,14 +97,19 @@ def wiki_to_html_simple(line, page):
 		if name == "":
 			name = targetPage.name
 		href = page.getBackDir() + targetPage.getTotalOutputDir() + "index.html"
-        line = line[:adv_m.start()] + "<a href=\"" + href + "\">" + name + "</a>" + line[adv_m.end():]
+        line = line[:adv_m.start()] + "<a href=\"" + href + extra + "\">" + name + "</a>" + line[adv_m.end():]
+#        line = line[:adv_m.start()] + "<a href=\"" + href + "\">" + name + "</a>" + line[adv_m.end():]
     #elif simple_m:
     #    line = line[:simple_m.start()] + "<a href=\"" + line[simple_m.start():simple_m.end()] + "\">" + line[simple_m.start():simple_m.end()] + "</a>"
 
     img_m = img_p.search(line)
     if img_m:
-        line = line[:img_m.start()] + "<img src=\"" + escape_url(line[img_m.start(1):img_m.end(1)]) + "\" alt=\"" + line[img_m.start(2):img_m.end(2)] + "\" />" + line[img_m.end():]
-    
+        extra = ""
+        if img_m.group(2):
+        	extra = " " + line[img_m.start(3):img_m.end(3)]
+        line = line[:img_m.start()] + "<img src=\"" + escape_url(line[img_m.start(1):img_m.end(1)]) + "\" alt=\"" + line[img_m.start(2):img_m.end(2)] + "\"" + extra + "/>" + line[img_m.end():]
+#        line = line[:img_m.start()] + "<img src=\"" + escape_url(line[img_m.start(1):img_m.end(1)]) + "\" alt=\"" + line[img_m.start(2):img_m.end(2)] + "\" />" + line[img_m.end():]
+   
     return line + "\n"
 
 def wiki_to_html(wiki_lines, page = None):
@@ -1069,6 +1077,8 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
 			for l in file_lines(df):
 				if l[:4] == "id: ":
 					page.id = l[4:].rstrip()
+				if l[:12] == "sort order: ":
+					page.sort_order = int(l[12:].rstrip())
 		else:
 			dir_files2.append(df)
 	dir_files = dir_files2
