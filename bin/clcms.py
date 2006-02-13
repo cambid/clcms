@@ -1275,8 +1275,8 @@ def print_usage():
 	print "-h or --help:\t\t\tshow this help"
 	print "-i or --inhibit-output\t\tinhibit creation for all pages"
 	print "\t\t\t\t(ie. do a test run)"
-    	print "-m or --no-macros\t\tdo not evaluate macros"
-    	print "-n or --macro-names\t\tSurround macro expansions with the name names"
+    	print "-n or --no-macros\t\tdo not evaluate macros"
+    	print "-m or --macro-names\t\tSurround macro expansions with the name names"
 	print "-v <lvl> or --verbosity <lvl>\tset verbosity: 0 for no output, 5 for a lot"
 	
 
@@ -1291,7 +1291,7 @@ if len(sys.argv) > 1:
     #for arg in sys.argv[1:]:
     	arg = sys.argv[i]
     	if arg == "-c" or arg == "--write-config":
-    		for l in options:
+    		for l in system_options:
     			print l
 		sys.exit(0)
 	elif arg == "-f" or arg == "--force-output":
@@ -1301,9 +1301,9 @@ if len(sys.argv) > 1:
 		sys.exit(0)
 	elif arg == "-i" or arg == "--inhibit-output":
 		inhibit_output = True
-    	elif arg == "-m" or arg == "--no-macros":
+    	elif arg == "-n" or arg == "--no-macros":
     		no_macros = True
-    	elif arg == "-n" or arg == "--macro-names":
+    	elif arg == "-m" or arg == "--macro-names":
     		show_macro_names = True
 	elif arg == "-v" or arg == "--verbosity":
 		if (i < len(sys.argv)):
@@ -1357,11 +1357,15 @@ site = build_page_tree(root_dir, "", base_options, system_macro_list, 0)
 site.prepare()
 
 # Create output directory and HTML pages
-os.chdir(root_dir)
-if not os.path.isdir(out_dir) and not inhibit_output:
-    os.mkdir(out_dir)
-site.createPage(out_dir, True)
+if not inhibit_output:
+	os.chdir(root_dir)
+	if not os.path.isdir(out_dir) and not inhibit_output:
+		os.mkdir(out_dir)
+	site.createPage(out_dir, True)
 
-#site.printOverview()
-#site.printAll(2)
+if verbosity >= 5:
+	site.printAll(2)
+elif verbosity >= 2:
+	site.printOverview()
+
 
