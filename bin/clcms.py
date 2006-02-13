@@ -1120,10 +1120,15 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
 		# TODO: option
 		if df == "page.meta":
 			for l in file_lines(df):
-				if l[:4] == "id: ":
-					page.id = l[4:].rstrip()
-				if l[:12] == "sort order: ":
-					page.sort_order = int(l[12:].rstrip())
+				if l.rstrip() != "":
+					if l[:4] == "id: ":
+						page.id = l[4:].rstrip()
+					elif l[:12] == "sort order: ":
+						page.sort_order = int(l[12:].rstrip())
+					else:
+						print "Warning: unknown option line in page.meta file"
+						print "File: " + os.getcwd()+ os.sep + "page.meta:"
+						print l
 		else:
 			dir_files2.append(df)
 	dir_files = dir_files2
@@ -1219,34 +1224,34 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
 			if verbosity >= 3:
 				print "Reading page from directory: " + os.getcwd() + os.sep + df
 			# stoppage checkage action
-			handle_dir = True
-			file_name_parts = df.split(get_option(options, "extension_separator"))
-			sort_order = -1
-			for fp in file_name_parts[1:]:
-				if fp == "stop":
-					if verbosity >= 2:
-						print "Stop at dir: "+df
-					handle_dir = False
-				elif fp.isdigit():
-					sort_order = int(fp)
-			if handle_dir:
-				sub_page_orig_dir = os.getcwd()
-				os.chdir(df)
-				#print "Entering directory " + os.getcwd()
-				child_page = build_page_tree(root_dir, df, options, macro_list, cur_depth+1)
-				if child_page.is_subsite == False:
-					child_page.parent = page
-				if child_page.sort_order >= 0:
-					if sort_order >= 0:
-						print "Warning, sort order for page '"+child_page.name+"' specified twice, taking order from directory name"
-						child_page.sort_order = sort_order
-				else:
-					child_page.sort_order = sort_order
-				
-				page.addChild(child_page)
-					#create_pages(root_dir, in_dir, out_dir + os.sep + file_base_name(df), options, macro_list, cur_dir_depth + 1)
-					#os.chdir(os.pardir)
-				os.chdir(sub_page_orig_dir)
+			#handle_dir = True
+			#file_name_parts = df.split(get_option(options, "extension_separator"))
+			#sort_order = -1
+			#for fp in file_name_parts[1:]:
+			#	if fp == "stop":
+			#		if verbosity >= 2:
+			#			print "Stop at dir: "+df
+			#		handle_dir = False
+			#	elif fp.isdigit():
+			#		sort_order = int(fp)
+			#if handle_dir:
+			sub_page_orig_dir = os.getcwd()
+			os.chdir(df)
+			#print "Entering directory " + os.getcwd()
+			child_page = build_page_tree(root_dir, df, options, macro_list, cur_depth+1)
+			if child_page.is_subsite == False:
+				child_page.parent = page
+			#if child_page.sort_order >= 0:
+			#	if sort_order >= 0:
+			#		print "Warning, sort order for page '"+child_page.name+"' specified twice, taking order from directory name"
+			#		child_page.sort_order = sort_order
+			#else:
+			#	child_page.sort_order = sort_order
+			
+			page.addChild(child_page)
+				#create_pages(root_dir, in_dir, out_dir + os.sep + file_base_name(df), options, macro_list, cur_dir_depth + 1)
+				#os.chdir(os.pardir)
+			os.chdir(sub_page_orig_dir)
 		else:
 			dir_files2.append(df)
 	dir_files = dir_files2
@@ -1358,5 +1363,5 @@ if not os.path.isdir(out_dir) and not inhibit_output:
 site.createPage(out_dir, True)
 
 #site.printOverview()
-site.printAll(2)
+#site.printAll(2)
 
