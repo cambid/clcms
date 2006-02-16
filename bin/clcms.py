@@ -729,8 +729,9 @@ class Page:
 				c.printAll(-1)
 	
 	def getOutputDir(self):
-		dir_parts = self.page_dir.split(get_option(self.options, "extension_separator"))
-		return escape_url(dir_parts[0])
+		#dir_parts = self.page_dir.split(get_option(self.options, "extension_separator"))
+		#return escape_url(dir_parts[0])
+		return escape_url(self.page_dir)
 	
 	def getTotalOutputDir(self):
 		if self.parent == None:
@@ -753,10 +754,11 @@ class Page:
 		page_lines.append("</div>\n");
 		page_lines.append("_footer_");
 
-		macro_new_lines = []
-		for l in page_lines:
-			macro_new_lines.append(handle_macros(self, l))
-		page_lines = macro_new_lines
+		if not no_macros:
+			macro_new_lines = []
+			for l in page_lines:
+				macro_new_lines.append(handle_macros(self, l))
+			page_lines = macro_new_lines
 		return page_lines
 	
 	def getBackDir(self):
