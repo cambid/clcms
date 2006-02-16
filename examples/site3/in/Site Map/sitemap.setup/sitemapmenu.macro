@@ -1,0 +1,15 @@
+output = ""
+output += "<div class=\"menu\">\n"
+output += "<div class=\"smenu_item\">\n"
+ml = page.getRootPage().createMenu(page, 8, 0)
+output += "<table>\n"
+for l in ml:
+	output += "<tr>\n";
+	output += "<td>\n"
+	output += l
+	output += "</td>\n"
+	output += "</tr>\n"
+output += "</table>\n"
+output += "</div>\n"
+output += "</div>\n"
+

@@ -1,0 +1,3 @@
+[[metisse_screenshot.png][{{metisse_screenshot_small.png}{Metisse screenshot}{class="gallery_image"}}]]
+
+I have played around a bit with [[http://public.planetmirror.com/pub/metisse/index.html][Metisse]], an fvwm-style window manager that uses openGL for rendering. It adds all kinds of features like translucency, rotation and scaling. Unfortunately, while it looks very nice (especially if you take a bit of time to configure fvwm. Which I didn't), it's not really stable yet. I had a lot of problems with the perceived location of the cursor, which is way off sometimes... Still a lot of fun to keep at the side for those quick movie-OS impressions on bystanders.

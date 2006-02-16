@@ -1,0 +1,7 @@
+ignore_masks = \.\\*,DEADJOE,\\*\.inc
+show_item_title_date = no
+show_item_title = yes
+wiki_parse = yes
+show_submenu = no
+show_menu = no
+favicon = ./favicon.ico

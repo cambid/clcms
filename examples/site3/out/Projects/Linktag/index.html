@@ -1,0 +1,219 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
+		<link REL="stylesheet" TYPE="text/css" href="../../default.css">
+		<title>
+			Linktag
+		</title>
+	</head>
+
+	<body>
+	<div class="logo">
+		<img src="../../draakje.png" alt="logo"/>
+	</div>
+	<div id="main">
+
+	<div class="menu">
+
+
+<a href="../../News/index.html">News</a>
+
+
+<a href="../../About/index.html">About</a>
+
+
+<a href="../../Projects/index.html" class="selected">Projects</a>
+
+
+<a href="../../Desktop_Gallery/index.html">Desktop Gallery</a>
+
+
+<a href="../../Site_Map/index.html">Site Map</a>
+
+</div>
+
+	<div class="menu1_contents">
+		<div class="menu">
+
+
+<a href="../../Projects/clcms/index.html">clcms</a>
+
+
+<a href="../../Projects/DNSSEC/index.html">DNSSEC</a>
+
+
+<a href="../../Projects/Linktag/index.html" class="selected">Linktag</a>
+
+
+<a href="../../Projects/Mailbox_Alert/index.html">Mailbox Alert</a>
+
+
+<a href="../../Projects/RRTypes/index.html">RRTypes</a>
+
+</div>
+	<div class="menu1_contents">
+	<div class="datablock">
+	<div class="submenu">
+Page contents:<div><a href="#About">About</a>
+</div><div><a href="#Usage">Usage</a>
+</div><div><a href="#Download">Download</a>
+</div><div><a href="#Todo">Todo</a>
+</div><div><a href="#Changelog">Changelog</a>
+</div><div><a href="#Old_Versions">Old Versions</a>
+</div></div>
+	<div class="updated">
+		Last updated:<br />
+		2006-02-16
+	</div>
+	<div class="updated">
+		PageNav:<br />
+		Next: <a href="../../Projects/Mailbox_Alert/index.html">Mailbox Alert</a><br />
+		Up: <a href="../../Projects/index.html">Projects</a><br />
+		Prev: <a href="../../Projects/DNSSEC/index.html">DNSSEC</a><br />
+	</div>
+	</div>
+
+<div id="content">
+<a name="About"></a>
+<h3>About</h3>
+This extension for Firefox provides a way to add typable tags to hyperlinks
+on webpages. This can be useful for instance in forum pages where a lot of
+links have the same name, or links that only have images and no text.
+Installing the plugin should turn on accessibility.typeaheadfind and
+accessibility.typeaheadfind.linksonly. If it doesn't, or you want to turn it
+off again, go to about:config. You can then also use / to start a search.
+<div class="itemseparator">
+<div class="itemseparator-line">
+<hr noshade="noshade" size="1"/>
+</div><div class="itemseparator-toplink">
+<a href="#">Back to top</a>
+</div></div><a name="Usage"></a>
+<h3>Usage</h3>
+After you have installed it, you get an extra icon in your status bar. You
+can either click on it, select 'Tag Links' in the context or tools menu, or
+press Alt-L, and Linktag will be activated. While it is on, the current page
+and all new pages will have their links expanded with a tag that looks like:
+[l12]. The number starts with 1 and just counts up at every link. This way,
+all links get a unique tag that you can type on your keyboard, thus
+expanding the use of firefoxes accessibility.typeaheadfind. The feature can
+be turned off again the same way as it is turned on.
+<p></p>
+If you select preferences in the extensions menu, you can change the pre-
+and postfix of the tag (default "[l" and "] "), and turn of the menu items
+and statusbar icon. Of course, it also shows in about:config, under
+extensions.linktag.
+<div class="itemseparator">
+<div class="itemseparator-line">
+<hr noshade="noshade" size="1"/>
+</div><div class="itemseparator-toplink">
+<a href="#">Back to top</a>
+</div></div><a name="Download"></a>
+<h3>Download</h3>
+The current version is 0.9. <a href="linktag-0.9.xpi ">Get it here</a>.
+<div class="itemseparator">
+<div class="itemseparator-line">
+<hr noshade="noshade" size="1"/>
+</div><div class="itemseparator-toplink">
+<a href="#">Back to top</a>
+</div></div><a name="Todo"></a>
+<h3>Todo</h3>
+Current todo list includes:
+<p></p>
+<ul>
+	<li>
+<b>Screenshots</b>
+While there are not many things to show, every page need screenshots :p
+	</li>
+</ul>
+<div class="itemseparator">
+<div class="itemseparator-line">
+<hr noshade="noshade" size="1"/>
+</div><div class="itemseparator-toplink">
+<a href="#">Back to top</a>
+</div></div><a name="Changelog"></a>
+<h3>Changelog</h3>
+<ul>
+	<li>
+<b>[0.8-0.9]</b>
+<ul>
+	<li>
+Toggling link tagging will now update links on all tabs of a window
+	</li>
+	<li>
+Updated possible versions to anything up to firefox 1.9
+	</li>
+</ul>
+	</li>
+	<li>
+<b>[0.7-0.8]</b>
+<ul>
+	<li>
+Fixed bug where the context menu option was not removed after you disabled it in options.
+	</li>
+	<li>
+No longer removes real link items if you turn off linktag when you had not turned it on on the current tab
+	</li>
+	<li>
+No longer adds multiple tags if you had turned linktag off on another tab and then enabled it again on the current one
+	</li>
+	<li>
+Right-clicking the statusbar icon now opens preferences. Other click actions toggle link tagging
+	</li>
+	<li>
+accessibility.typeaheadfind and accessibility.typeaheadfind.linksonly are now set to true when you install linktag
+	</li>
+</ul>
+	</li>
+	<li>
+<b>[0.6-0.7]</b>
+Added preferences dialog
+	</li>
+	<li>
+<b>[0.5-0.6]</b>
+Added a shortcut key, made the code more general for use in other extensions, added update thingy (which may or may not work)
+	</li>
+	<li>
+<b>[0.1-0.5]</b>
+Made the feature toggable, added statusbar icon, and menu options
+	</li>
+	<li>
+<b>[0.0-0.1]</b>
+Initial version, just the original greasemonkey script wrapped in an extension.
+	</li>
+</ul>
+<div class="itemseparator">
+<div class="itemseparator-line">
+<hr noshade="noshade" size="1"/>
+</div><div class="itemseparator-toplink">
+<a href="#">Back to top</a>
+</div></div><a name="Old_Versions"></a>
+<h3>Old Versions</h3>
+<ul>
+	<li>
+<a href="linktag-0.1.xpi ">linktag-0.1.xpi</a>
+	</li>
+	<li>
+<a href="linktag-0.5.xpi ">linktag-0.5.xpi</a>
+	</li>
+	<li>
+<a href="linktag-0.6.xpi ">linktag-0.6.xpi</a>
+	</li>
+	<li>
+<a href="linktag-0.7.xpi ">linktag-0.7.xpi</a>
+	</li>
+	<li>
+<a href="linktag-0.8.xpi ">linktag-0.8.xpi</a>
+	</li>
+</ul>
+<div class="itemseparator">
+<div class="itemseparator-line">
+<hr noshade="noshade" size="1"/>
+</div><div class="itemseparator-toplink">
+<a href="#">Back to top</a>
+</div></div></div>
+		</div>
+	</div>
+	</div>
+ 	</body>
+</html>

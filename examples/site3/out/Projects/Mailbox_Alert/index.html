@@ -1,0 +1,333 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
+		<link REL="stylesheet" TYPE="text/css" href="../../default.css">
+		<title>
+			Mailbox Alert
+		</title>
+	</head>
+
+	<body>
+	<div class="logo">
+		<img src="../../draakje.png" alt="logo"/>
+	</div>
+	<div id="main">
+
+	<div class="menu">
+
+
+<a href="../../News/index.html">News</a>
+
+
+<a href="../../About/index.html">About</a>
+
+
+<a href="../../Projects/index.html" class="selected">Projects</a>
+
+
+<a href="../../Desktop_Gallery/index.html">Desktop Gallery</a>
+
+
+<a href="../../Site_Map/index.html">Site Map</a>
+
+</div>
+
+	<div class="menu1_contents">
+		<div class="menu">
+
+
+<a href="../../Projects/clcms/index.html">clcms</a>
+
+
+<a href="../../Projects/DNSSEC/index.html">DNSSEC</a>
+
+
+<a href="../../Projects/Linktag/index.html">Linktag</a>
+
+
+<a href="../../Projects/Mailbox_Alert/index.html" class="selected">Mailbox Alert</a>
+
+
+<a href="../../Projects/RRTypes/index.html">RRTypes</a>
+
+</div>
+	<div class="menu1_contents">
+	<div class="datablock">
+	<div class="submenu">
+Page contents:<div><a href="#About">About</a>
+</div><div><a href="#Usage">Usage</a>
+</div><div><a href="#Download">Download</a>
+</div><div><a href="#Changelog">Changelog</a>
+</div><div><a href="#Old_Versions">Old Versions</a>
+</div><div><a href="#Usage_Example">Usage Example</a>
+</div></div>
+	<div class="updated">
+		Last updated:<br />
+		2006-02-16
+	</div>
+	<div class="updated">
+		PageNav:<br />
+		Next: <a href="../../Projects/RRTypes/index.html">RRTypes</a><br />
+		Up: <a href="../../Projects/index.html">Projects</a><br />
+		Prev: <a href="../../Projects/Linktag/index.html">Linktag</a><br />
+	</div>
+	</div>
+
+<div id="content">
+<a name="About"></a>
+<h3>About</h3>
+This extension for <a href="http://www.mozilla.org/products/thunderbird/ ">Mozilla Thunderbird</a> allows you to specify, for each seperate mail folder, a system
+command that will be executed when new mail is found there. This way, you
+specify different actions for less important folders, or no action at all.
+<div class="itemseparator">
+<div class="itemseparator-line">
+<hr noshade="noshade" size="1"/>
+</div><div class="itemseparator-toplink">
+<a href="#">Back to top</a>
+</div></div><a name="Usage"></a>
+<h3>Usage</h3>
+After you have installed the extension, you get a new menu item 'Mailbox
+Alert' if you right-click on a folder in your folder pane. This option opens
+a small preferences screen that allows you to specify a system command that
+will be executed if Thunderbird notices that there is new mail there.
+<p></p>
+<img src="mailboxalert_pref.png" alt="Mailbox Alert Preferences Screen" />
+<p></p>
+You can use a few macros that will be substituted by appropriate values:
+<p></p>
+<ul>
+	<li>
+<b>%server</b>
+The name of the server where the mail folder resides
+	</li>
+	<li>
+<b>%folder</b>
+The name of the mail folder
+	</li>
+	<li>
+<b>%count</b>
+The number of unread messages
+	</li>
+	<li>
+<b>%sender</b>
+The sender of the last unread message
+	</li>
+	<li>
+<b>%subject</b>
+The subject of the last unread message
+	</li>
+	<li>
+<b>%charset</b>
+The character set of the folder
+<br />
+	</li>
+</ul>
+Be sure to escape arguments if they contain spaces. Spaces are read as
+argument separators so for instance, if you want the string "My Mail" to be
+1 argument, the space in that string must have a \ in front of it.
+<div class="itemseparator">
+<div class="itemseparator-line">
+<hr noshade="noshade" size="1"/>
+</div><div class="itemseparator-toplink">
+<a href="#">Back to top</a>
+</div></div><a name="Download"></a>
+<h3>Download</h3>
+The current version is <a href="mailboxalert-0.4.xpi ">0.4</a>.
+<p></p>
+To install it in Thunderbird, right-click the link, choose "Save as", go to
+Tools-&gt;extensions in Thunderbird, choose Install, and select the downloaded
+xpi file.
+<div class="itemseparator">
+<div class="itemseparator-line">
+<hr noshade="noshade" size="1"/>
+</div><div class="itemseparator-toplink">
+<a href="#">Back to top</a>
+</div></div><a name="Changelog"></a>
+<h3>Changelog</h3>
+<ul>
+	<li>
+<b>[0.3-0.4]</b>
+<ul>
+	<li>
+Added some debug messages using the dump() function (enable them by
+setting browser.dom.window.dump.enabled to true in your settings)
+	</li>
+	<li>
+No longer alerts with 'locked' or exceptions, instead it ignores the
+locked setting (doesn't seem to matter anyway for reading out folder
+data) and uses dump() for exceptions.
+	</li>
+</ul>
+	</li>
+	<li>
+<b>[0.2-0.3]</b>
+<ul>
+	<li>
+Changed the possible Thunderbird version to 1.0 - 1.9+ so that it
+also works in 1.5
+	</li>
+	<li>
+Fixed bad backslashes in front of &lt; &gt; and & characters in the messages
+	</li>
+</ul>
+	</li>
+	<li>
+<b>[0.1-0.2]</b>
+Made the function call non-blocking
+	</li>
+	<li>
+<b>[0.0-0.1]</b>
+Initial version
+	</li>
+</ul>
+<div class="itemseparator">
+<div class="itemseparator-line">
+<hr noshade="noshade" size="1"/>
+</div><div class="itemseparator-toplink">
+<a href="#">Back to top</a>
+</div></div><a name="Old_Versions"></a>
+<h3>Old Versions</h3>
+<ul>
+	<li>
+<a href="mailboxalert-0.3.xpi ">mailboxalert-0.3.xpi</a>
+	</li>
+	<li>
+<a href="mailboxalert-0.2.xpi ">mailboxalert-0.2.xpi</a>
+	</li>
+	<li>
+<a href="mailboxalert-0.1.xpi ">mailboxalert-0.1.xpi</a>
+	</li>
+</ul>
+<div class="itemseparator">
+<div class="itemseparator-line">
+<hr noshade="noshade" size="1"/>
+</div><div class="itemseparator-toplink">
+<a href="#">Back to top</a>
+</div></div><a name="Usage_Example"></a>
+<h3>Usage Example</h3>
+In KDE, i use KDialog to present the message for my main mailboxes. I still
+run it through a little script first (based on the one below) but that
+probably isn't even really needed. The result looks like this:
+<p></p>
+<img src="mailboxalert_example_kde.png" alt="Mailbox Alert Example KDE" />
+<p></p>
+In gnome, I have my main mailboxes setup with the following command:
+<p></p>
+<pre>/home/jeltejan/code/perl/mailalert.pl %count %server %folder %sender %subject %charset</pre>
+<p></p>
+The script it calls reads the information and creates a nice borderless
+non-focused temporary
+<a href="http://homepages.ihug.co.nz/~trmusson/programs.html ">gxmessage</a> alert:
+<p></p>
+<pre>
+
+#!/usr/bin/perl -w
+
+
+
+my $messager = 'gmessage';
+
+my $default_args = '-wrap -borderless -nofocus -center -font "sans 10"';
+
+$default_args .= " -timeout 5";
+
+#$default_args .= " -buttons \"\"";
+
+
+
+my $arg1 = shift();
+
+my $arg2 = shift();
+
+my $arg3 = shift();
+
+my $arg4 = shift();
+
+my $arg5 = shift();
+
+my $arg6 = shift();
+
+
+
+if ($arg6) {
+
+  $default_args .= " -encoding ".$arg6;
+
+}
+
+
+
+my $line1 = $arg1." new messages on ".$arg2."/".$arg3;
+
+my $line2 = "Most recent from: ".$arg4;
+
+my $line3 = "Subject: ".$arg5;
+
+
+
+my $size = (length($line1) ) * 8;
+
+my $size2 = (length($line2) ) * 8;
+
+if ($size2 > $size) {
+
+  $size = $size2;
+
+}
+
+$size2 = (length($line3) ) * 8;
+
+if ($size2 > $size) {
+
+  $size = $size2;
+
+}
+
+my $geom = "-geometry ${size}x1";
+
+
+
+my $tempfile = `mktemp`;
+
+system("echo '$line1' >> $tempfile");
+
+system("echo '$line2' >> $tempfile");
+
+system("echo '$line3' >> $tempfile");
+
+
+
+my $cmd = $messager." ".$default_args." ".$geom." -file ".$tempfile;
+
+#".$line1." ".$line2." ".$line3." ";
+
+
+
+print STDERR  "ARGS: ".$arg1." ".$arg2." ".$arg3." ".$arg4." ".$arg5."\n";
+
+print STDERR "LOG: ".$cmd."\n";
+
+
+
+system($cmd);
+
+system("rm $tempfile");
+
+</pre>
+
+<p></p>
+So when mail arrives in these folders, i get this popup:
+<p></p>
+<img src="mailboxalert_example.png" alt="Mailbox Alert Example GNOME" />
+<div class="itemseparator">
+<div class="itemseparator-line">
+<hr noshade="noshade" size="1"/>
+</div><div class="itemseparator-toplink">
+<a href="#">Back to top</a>
+</div></div></div>
+		</div>
+	</div>
+	</div>
+ 	</body>
+</html>

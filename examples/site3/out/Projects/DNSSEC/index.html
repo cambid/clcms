@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
+		<link REL="stylesheet" TYPE="text/css" href="../../default.css">
+		<title>
+			DNSSEC
+		</title>
+	</head>
+
+	<body>
+	<div class="logo">
+		<img src="../../draakje.png" alt="logo"/>
+	</div>
+	<div id="main">
+
+	<div class="menu">
+
+
+<a href="../../News/index.html">News</a>
+
+
+<a href="../../About/index.html">About</a>
+
+
+<a href="../../Projects/index.html" class="selected">Projects</a>
+
+
+<a href="../../Desktop_Gallery/index.html">Desktop Gallery</a>
+
+
+<a href="../../Site_Map/index.html">Site Map</a>
+
+</div>
+
+	<div class="menu1_contents">
+		<div class="menu">
+
+
+<a href="../../Projects/clcms/index.html">clcms</a>
+
+
+<a href="../../Projects/DNSSEC/index.html" class="selected">DNSSEC</a>
+
+
+<a href="../../Projects/Linktag/index.html">Linktag</a>
+
+
+<a href="../../Projects/Mailbox_Alert/index.html">Mailbox Alert</a>
+
+
+<a href="../../Projects/RRTypes/index.html">RRTypes</a>
+
+</div>
+	<div class="menu1_contents">
+	<div class="datablock">
+	<div class="submenu">
+Page contents:<div><a href="#DNSSEC_Test">DNSSEC Test</a>
+</div><div><a href="#Test_Tree">Test Tree</a>
+</div></div>
+	<div class="updated">
+		Last updated:<br />
+		2006-02-16
+	</div>
+	<div class="updated">
+		PageNav:<br />
+		Next: <a href="../../Projects/Linktag/index.html">Linktag</a><br />
+		Up: <a href="../../Projects/index.html">Projects</a><br />
+		Prev: <a href="../../Projects/clcms/index.html">clcms</a><br />
+	</div>
+	</div>
+
+<div id="content">
+<a name="DNSSEC_Test"></a>
+<h3>DNSSEC Test</h3>
+Welcome to my DNSSEC test page. You can verify if you have a working DNSSEC
+setup here. You may have arrived here through different hostnames but the
+important two are these:
+<p></p>
+<a href="http://www.jelte.nlnetlabs.nl/Projects/DNSSEC/index.html ">www.jelte.nlnetlabs.nl</a>
+<p></p>
+<a href="http://bogussig.test.jelte.nlnetlabs.nl/Projects/DNSSEC/index.html ">bogussig.test.jelte.nlnetlabs.nl</a>
+<p></p>
+on most systems, both these links should work, but if you use
+<a href="http://www.dnssec.net/ ">DNSSEC</a> with [jelte.]nlnetlabs.nl as
+dnssec-must-be-secure, and
+<a href="Kjelte.nlnetlabs.nl.+005+42860.key ">this key</a> as a trusted key, the first one should work, but the second should
+not.
+<p></p>
+if you use the NLnetLabs <a href="http://www.nlnetlabs.nl/dnssec/drill_extension.html ">DNSSEC firefox extension</a>
+with that key, the icon should appear green on the first link and red on the second.
+<div class="itemseparator">
+<div class="itemseparator-line">
+<hr noshade="noshade" size="1"/>
+</div><div class="itemseparator-toplink">
+<a href="#">Back to top</a>
+</div></div><a name="Test_Tree"></a>
+<h3>Test Tree</h3>
+I also created a complete tree to test your chaser/tracer/verifier/whatever
+with. At the moment it goes down 5 levels, test.jelte.nlnetlabs.nl every
+zone has 5 delegations:
+<p></p>
+<ul>
+	<li>
+<b>ok</b>
+these are signed correctly.
+	</li>
+	<li>
+<b>bogussig</b>
+the RRSIGs of rrsets starting with this name contain bad signature data.
+	</li>
+	<li>
+<b>sigexpired</b>
+the RRSIGs of rrsets starting with this name have an expiration date in the past.
+	</li>
+	<li>
+<b>signotincepted</b>
+the RRSIGs of rrsets starting with this name have an inception date in the future.
+	</li>
+	<li>
+<b>unknownalgorithm</b>
+the RRSIGS of rrsets starting with this name are signed correctly (with a known algorithm), but have the algorithm field set to another value.
+<br />
+	</li>
+</ul>
+The result is that you can test your programs with a range of domains, for
+example:
+<p></p>
+<ul>
+	<li>
+<a href="http://ok.ok.ok.test.jelte.nlnetlabs.nl/Projects/DNSSEC/index.html ">ok.ok.ok.test.jelte.nlnetlabs.nl</a>
+	</li>
+	<li>
+<a href="http://ok.bogussig.ok.ok.test.jelte.nlnetlabs.nl/Projects/DNSSEC/index.html ">ok.bogussig.ok.ok.test.jelte.nlnetlabs.nl</a>
+	</li>
+	<li>
+<a href="http://ok.unknownalgorithm.ok.sigexpired.ok.test.jelte.nlnetlabs.nl/Projects/DNSSEC/index.html ">ok.unknownalgorithm.ok.sigexpired.ok.test.jelte.nlnetlabs.nl</a>
+	</li>
+	<li>
+<a href="http://signotincepted.bogussig.sigexpired.bogussig.test.jelte.nlnetlabs.nl/Projects/DNSSEC/index.html ">signotincepted.bogussig.sigexpired.bogussig.test.jelte.nlnetlabs.nl</a>
+	</li>
+	<li>
+<a href="http://bogussig.test.jelte.nlnetlabs.nl/Projects/DNSSEC/index.html ">bogussig.test.jelte.nlnetlabs.nl</a>
+	</li>
+	<li>
+<a href="http://sigexpired.test.jelte.nlnetlabs.nl/Projects/DNSSEC/index.html ">sigexpired.test.jelte.nlnetlabs.nl</a>
+	</li>
+	<li>
+<a href="http://signotincepted.test.jelte.nlnetlabs.nl/Projects/DNSSEC/index.html ">signotincepted.test.jelte.nlnetlabs.nl</a>
+	</li>
+	<li>
+<a href="http://unknownalgorithm.test.jelte.nlnetlabs.nl/Projects/DNSSEC/index.html ">unknownalgorithm.test.jelte.nlnetlabs.nl</a>
+	</li>
+</ul>
+<div class="itemseparator">
+<div class="itemseparator-line">
+<hr noshade="noshade" size="1"/>
+</div><div class="itemseparator-toplink">
+<a href="#">Back to top</a>
+</div></div></div>
+		</div>
+	</div>
+	</div>
+ 	</body>
+</html>
