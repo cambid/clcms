@@ -1,0 +1,2 @@
+The whole of a site is stored in a directory tree. You can also place files
+that must be included as html, macro definitions, and binary data here.

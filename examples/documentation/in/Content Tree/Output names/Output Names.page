@@ -1,0 +1,11 @@
+The output filename for a page directory (in the out/ directory) will be the same as
+input directory name, except that spaces will be replaced by underscores (_)
+
+Keep this in mind when making hard internal links (which you shouldn't. Use
+id's.).
+
+All .page files for each page will become a part of the index.html for that
+page. Their title in the page is their name up to the first dot. The same
+goes for their HTML anchor, except that spaces are replaced by '_'.
+
+The names of copied files are kept intact.

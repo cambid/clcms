@@ -1,0 +1,17 @@
+Let's say we want to create 3 pages: a news page, an about page, and a Link page.
+
+We also want a standard menu, but no fancy layout for now.
+
+So, let's create the containers for those pages, shall we?
+
+=mkdir News=
+=mkdir About=
+=mkdir Links=
+
+If we want these pages to appear on the site in a fixed order, we have to
+create a page.meta file in each directory, containing the line
+=sort order: X=
+where X stands for the place the page should get.
+
+Since we have no news yet, let's start with the About page.
+
