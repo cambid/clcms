@@ -1,3 +1,0 @@
-[[xfce4_screenshot.png][{{xfce4_screenshot_small.png}{xfce4}{class="gallery_image"}}]]
-
-This is the current desktop on my laptop. I am pretty happy with xfce4, it does exactly what I expect and runs a hell of a lot faster than Gnome or KDE. I do like the multi-gnome-terminal from Gnome though, and probably couldn't live without anymore :). I use a zsh precmd() function to set the current directory or the currently running process as the title of the tab of my terminals. Which is nice.
