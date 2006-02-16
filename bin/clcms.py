@@ -661,6 +661,8 @@ class Page:
 		self.show_menu_item = True
 		self.show_submenu = True
 		self.is_subsite = False
+		
+		self.recreate = False
 
 	def addContent(self, content):
 		#print "Adding",content.name, "to page", self.name
@@ -785,14 +787,18 @@ class Page:
 				if len(c.contents) > 0:
 					link += "</a>"
 				if cur_depth >= start_depth:
-					menu_lines.append("_menuitem"+str(cur_depth+1)+"start-arg_("+link+")_\n")
+					if start_depth > 0 and cur_depth <= calling_page.getPageDepth():
+						if self.isParent(calling_page) or self == calling_page:
+							menu_lines.append("_menuitem"+str(cur_depth+1)+"start-arg_("+link+")_\n")
+					else:
+						menu_lines.append("_menuitem"+str(cur_depth+1)+"start-arg_("+link+")_\n")
 				if depth > 1:
 					if c.is_subsite:
 						cc = copy.deepcopy(c)
 						cc.parent = self
-						menu_lines.extend(cc.createMenu(calling_page, depth - 1))
+						menu_lines.extend(cc.createMenu(calling_page, depth - 1, start_depth))
 					else:
-						menu_lines.extend(c.createMenu(calling_page, depth - 1))
+						menu_lines.extend(c.createMenu(calling_page, depth - 1, start_depth))
 				if cur_depth >= start_depth:
 						menu_lines.append("_menuitem"+str(cur_depth+1)+"end_\n")
 		return menu_lines
@@ -824,22 +830,32 @@ class Page:
 		#print "out_dir: "+out_dir
 		if  not os.path.isdir(out_dir):
 		        os.mkdir(out_dir)
-		out_file = open(out_dir + os.sep + "index.html", "w")
-		out_file.writelines(self.toHTML())
-		out_file.close()
-		self.copyFiles(out_dir)
+		if self.recreate:
+			if verbosity >= 1:
+				print "Creating page '"+self.name+"'"
+			out_file = open(out_dir + os.sep + "index.html", "w")
+			out_file.writelines(self.toHTML())
+			out_file.close()
+			self.copyFiles(out_dir)
 		if recursive:
 			for c in self.children:
 				c.createPage(out_dir, recursive)
 	
-	def prepare(self):
+	def prepare(self, output_directory):
 		# todo: add update checks here too?
 		# how about file/page dates?
 		# walk through the tree, and update times and sort orders
-		self.children.sort(compare_pages)
-		self.contents.sort(compare_contents)
+		out_time = 0
+		out_dir = output_directory + os.sep + self.getOutputDir()
+		if os.path.isdir(out_dir):
+			out_time = time.gmtime(os.stat(out_dir + os.sep + "index.html")[stat.ST_MTIME])
+		in_time = self.findPageDate()
+		if in_time > out_time or force_output:
+			self.children.sort(compare_pages)
+			self.contents.sort(compare_contents)
+			self.recreate = True
 		for c in self.children:
-			c.prepare()
+			c.prepare(out_dir)
 
 	def findPageDate(self):
 		# searches this page and its contents for the last modified date
@@ -1356,7 +1372,7 @@ os.chdir(in_dir)
 site = build_page_tree(root_dir, "", base_options, system_macro_list, 0)
 
 # Check sorting and updates
-site.prepare()
+site.prepare(out_dir)
 
 # Create output directory and HTML pages
 if not inhibit_output:
