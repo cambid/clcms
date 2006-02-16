@@ -1,3 +1,0 @@
-{{xorg68_screenshot_small.png}{X.org 6.8 screenshot}}
-
-Still a Gnome Desktop, but with some of the new X.org 6.8 Composite features, like translucency and dropshadows. Very nice, but veeeery slow on my card, and the composite manager has the tendency to crash every now and then (taking X with it).
