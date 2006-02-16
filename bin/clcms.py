@@ -836,7 +836,7 @@ class Page:
 			out_file = open(out_dir + os.sep + "index.html", "w")
 			out_file.writelines(self.toHTML())
 			out_file.close()
-			self.copyFiles(out_dir)
+		self.copyFiles(out_dir)
 		if recursive:
 			for c in self.children:
 				c.createPage(out_dir, recursive)
