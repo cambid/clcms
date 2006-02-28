@@ -63,50 +63,95 @@ def escape_html(line):
     line = line.replace('"', '\\"')
     return line.rstrip("\r\n\t")
 
-def wiki_to_html_simple(line, page):
-    line = line.rstrip("\n\r\t ")
-    line = line.replace("<", "&lt;")
-    line = line.replace(">", "&gt;")
-    if line == "":
-        return "<p></p>\n"
-    if line[:1] == '*' and line[-1:] == '*' and line != "*":
-        return "<b>" + line[1:-1] + "</b>\n"
-    if line[:1] == '.' and line[-1:] == '.' and line != ".":
-        return "<i>" + line[1:-1] + "</i>\n"
-    if line[:1] == '=' and line[-1:] == '=' and line != "=":
-        return "<pre>" + line[1:-1] + "</pre>\n"
-    # replace links and image refs
-    adv_link_p = re.compile('\[\[(.*?)\]\[(.*?)\](?:\[(.*?)\])?\]')
-    img_p = re.compile('\{\{(.*?)\}\{(.*?)\}(?:\{(.*?)\})?\}')
-    adv_m = adv_link_p.search(line)
-    if adv_m:
-        name = line[adv_m.start(2):adv_m.end(2)]
-        href = escape_url(line[adv_m.start(1):adv_m.end(1)])
-        extra = ""
-        if len(adv_m.groups()) > 2:
-        	extra = " " + line[adv_m.start(3):adv_m.end(3)]
-        if href[0] == ':':
-        	targetPage = None
-        	if page:
-        		targetPage = page.getRootPage().findPageByID(href[1:])
-		if not targetPage:
-			print "Page with ID '"+href[1:]+"' not found. Quitting."
-			sys.exit(1)
-		if name == "":
-			name = targetPage.name
-		href = page.getBackDir() + targetPage.getTotalOutputDir() + "index.html"
-        line = line[:adv_m.start()] + "<a href=\"" + href + extra + "\">" + name + "</a>" + line[adv_m.end():]
+def break_wiki_to_html(line):
+    line=line.strip()
+    line=line.replace('\n\n','</p><p>')
+    line=line.replace('\n',' ')
+    line="<p>"+line+"</p>"
+    return line
 
-    img_m = img_p.search(line)
-    if img_m:
-        extra = ""
-        if img_m.group(2):
-        	extra = " " + line[img_m.start(3):img_m.end(3)]
-        line = line[:img_m.start()] + "<img src=\"" + escape_url(line[img_m.start(1):img_m.end(1)]) + "\" alt=\"" + line[img_m.start(2):img_m.end(2)] + "\"" + extra + "/>" + line[img_m.end():]
-   
+def bold_wiki_to_html(line):
+    such=re.compile('(\'\'\'.{1,}\'\'\')')
+    result=such.search(line)
+    while result:
+          line=such.sub("<b>" +line[result.start()+3:result.end()-3] +"</b>",line,0)
+          result=such.search(line)
+    return line
+
+def italic_wiki_to_html(line):
+    such=re.compile('(\'\'.{1,}?\'\')')
+    result=such.search(line)
+    while result:
+          line=such.sub("<i>" +line[result.start()+2:result.end()-2] +"</i>",line,1)
+          result=such.search(line)
+    return line
+
+def link_wiki_to_html(line, page):
+#     such=re.compile('(\[.{1,}?\])')
+#     such2=re.compile('(\[\[.{1,}?\]\])')
+#     result=such.findall(line)
+#     while result:
+#         for counter in range(0,result.__len__(),2):
+#             url=result[counter][2:-1]
+#             desc=result[counter+1][1:-1]
+#             link="<a href=\"" +url +"\">" +desc +"</a>"
+#             line=such2.sub(link,line,1)
+#         else:
+#             result=""
+     return line
+
+def img_wiki_to_html(line, page):
+#    such2=re.compile('(\{\{.{1,}?\}\})')
+#    result2=such2.search(line)
+#    while result2:
+#        such=re.compile('(\{.{1,}?\})')
+#        result=such.findall(result2.group())
+#        if result:
+#             if result.__len__()==1:
+#                     htmlline="<img src=\"" + result[0][2:-1] +"\">"
+#             elif result.__len__()==2:
+#                     such1=re.compile("\d+(px|\%)*")
+#                     result1=such1.search(result[0])
+#                     if result[0]=="thumb":
+#                         img="<img width=\"180px\" alt=\"\" float=\"right\" src=\"" + result[1][2:-1] +"\">"
+#                     elif result1:
+#                         img="<img width=\"" +result1.group() +"\" src=\"" + result[1][1:-1] +"\">"
+#                     else:
+#                         img="<img src=\"" +result[0][2:-1] +"\" alt=\"" +result[1][1:-1] +"\">"
+#             elif result.__len__()==3:
+#                         img="<img src=\"" +result[1][1:-1] +"\" width=\"" +result[0][2:-1] +"\" alt=\"" +result[2][1:-1] +"\">"
+#             line=such2.sub(img,line,1)
+#        result2=such2.search(line)
+#    else:
+#        result2=""
+    return line
+
+def wiki_to_html_simple(line, page):
+    line = break_wiki_to_html(line)
+    line = italic_wiki_to_html(line)
+    line = bold_wiki_to_html(line)
+    line = link_wiki_to_html(line, line)
+    line = img_wiki_to_html(line, page)
     return line + "\n"
 
 def wiki_to_html(wiki_lines, page = None):
+    html_lines = []
+    i = 0
+    no_wiki = False
+    whitespace_p = re.compile('^\s*\n$')
+    while i < len(wiki_lines):
+        line = wiki_lines[i]
+        if no_wiki:
+            if line[:14] == "_NO_WIKI_END_\n":
+                no_wiki = False
+            else:
+                html_lines.append(line)
+        else:
+            if line[:10] == "_NO_WIKI_\n":
+    current_bullet_depth = 0
+
+
+def old_wiki_to_html(wiki_lines, page = None):
     html_lines = []
     i = 0
     no_wiki = False
