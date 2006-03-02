@@ -31,7 +31,7 @@ import code
 import traceback
 import copy
 
-version = "0.4"
+version = "0.5"
 verbosity = 1;
 
 no_macros = False
@@ -64,73 +64,95 @@ def escape_html(line):
     return line.rstrip("\r\n\t")
 
 def break_wiki_to_html(line):
-    line=line.strip()
-    line=line.replace('\n\n','</p><p>')
-    line=line.replace('\n',' ')
-    line="<p>"+line+"</p>"
+    #line=line.strip()
+    if line == "\n":
+        line = "</p><p>\n"
+    #line=line.replace('\n','</p><p>')
+    #line=line.replace('\n',' ')
     return line
 
 def bold_wiki_to_html(line):
-    such=re.compile('(\'\'\'.{1,}\'\'\')')
-    result=such.search(line)
+    line_p=re.compile('(\'\'\'.{1,}\'\'\')')
+    result=line_p.search(line)
     while result:
-          line=such.sub("<b>" +line[result.start()+3:result.end()-3] +"</b>",line,0)
-          result=such.search(line)
+          line=line_p.sub("<b>" +line[result.start()+3:result.end()-3] +"</b>",line,0)
+          result=line_p.search(line)
     return line
 
 def italic_wiki_to_html(line):
-    such=re.compile('(\'\'.{1,}?\'\')')
-    result=such.search(line)
+    line_p=re.compile('(\'\'.{1,}?\'\')')
+    result=line_p.search(line)
     while result:
-          line=such.sub("<i>" +line[result.start()+2:result.end()-2] +"</i>",line,1)
-          result=such.search(line)
+          line=line_p.sub("<i>" +line[result.start()+2:result.end()-2] +"</i>",line,1)
+          result=line_p.search(line)
     return line
 
 def link_wiki_to_html(line, page):
-#     such=re.compile('(\[.{1,}?\])')
-#     such2=re.compile('(\[\[.{1,}?\]\])')
-#     result=such.findall(line)
-#     while result:
-#         for counter in range(0,result.__len__(),2):
-#             url=result[counter][2:-1]
-#             desc=result[counter+1][1:-1]
-#             link="<a href=\"" +url +"\">" +desc +"</a>"
-#             line=such2.sub(link,line,1)
-#         else:
-#             result=""
-     return line
+    line_p = re.compile('\[\[(.{1,}?)\]\]');
+    line_m = line_p.search(line);
+    while line_m:
+    	parts = line_m.group(1).split("][");
+        url = parts[0]
+        name = ""
+        html = ""
+        if len(parts) > 1:
+	        name = parts[1]
+	if len(parts) > 2:
+		html = " " + parts[2]
+        if url[:1] == ':':
+            # this is an id
+            if page:
+                targetPage = page.getRootPage().findPageByID(url[1:])
+                if not targetPage:
+                    print "Page with ID '"+url[1:]+"' not found. Quitting."
+                    sys.exit(1)
+                if name == "":
+                    name = targetPage.name
+                url = page.getBackDir() + targetPage.getTotalOutputDir() + "index.html"
+        if name == "":
+            name = url
+	line = line[:line_m.start()] + "<a href=\"" + url + "\"" + html + ">"+name+"</a>" + line[line_m.end():]
+	line_m = line_p.search(line)
+    return line
 
 def img_wiki_to_html(line, page):
-#    such2=re.compile('(\{\{.{1,}?\}\})')
-#    result2=such2.search(line)
-#    while result2:
-#        such=re.compile('(\{.{1,}?\})')
-#        result=such.findall(result2.group())
-#        if result:
-#             if result.__len__()==1:
-#                     htmlline="<img src=\"" + result[0][2:-1] +"\">"
-#             elif result.__len__()==2:
-#                     such1=re.compile("\d+(px|\%)*")
-#                     result1=such1.search(result[0])
-#                     if result[0]=="thumb":
-#                         img="<img width=\"180px\" alt=\"\" float=\"right\" src=\"" + result[1][2:-1] +"\">"
-#                     elif result1:
-#                         img="<img width=\"" +result1.group() +"\" src=\"" + result[1][1:-1] +"\">"
-#                     else:
-#                         img="<img src=\"" +result[0][2:-1] +"\" alt=\"" +result[1][1:-1] +"\">"
-#             elif result.__len__()==3:
-#                         img="<img src=\"" +result[1][1:-1] +"\" width=\"" +result[0][2:-1] +"\" alt=\"" +result[2][1:-1] +"\">"
-#             line=such2.sub(img,line,1)
-#        result2=such2.search(line)
-#    else:
-#        result2=""
+    line_p = re.compile('\{\{(.{1,}?)\}\}');
+    line_m = line_p.search(line);
+    while line_m:
+    	parts = line_m.group(1).split("}{");
+        url = parts[0]
+        name = ""
+        html = ""
+        if len(parts) > 1:
+	        name = parts[1]
+	if len(parts) > 2:
+		html = " " + parts[2]
+        if url[:1] == ':':
+            # this is an id
+            print "ID for images not implemented (yet?)"
+            sys.exit(12)
+            if page:
+                targetPage = page.getRootPage().findPageByID(url[1:])
+                if not targetPage:
+                    print "Page with ID '"+url[1:]+"' not found. Quitting."
+                    sys.exit(1)
+                if name == "":
+                    name = targetPage.name
+                url = page.getBackDir() + targetPage.getTotalOutputDir() + "index.html"
+        if name == "":
+            name = url
+	line = line[:line_m.start()] + "<img src=\"" + url + "\"" + html + " alt=\"" + name + "\" />" + line[line_m.end():]
+	line_m = line_p.search(line)
+    return line
+
     return line
 
 def wiki_to_html_simple(line, page):
+    print "WIKIING: '"+line+"'"
     line = break_wiki_to_html(line)
     line = italic_wiki_to_html(line)
     line = bold_wiki_to_html(line)
-    line = link_wiki_to_html(line, line)
+    line = link_wiki_to_html(line, page)
     line = img_wiki_to_html(line, page)
     return line + "\n"
 
@@ -139,6 +161,7 @@ def wiki_to_html(wiki_lines, page = None):
     i = 0
     no_wiki = False
     whitespace_p = re.compile('^\s*\n$')
+    html_lines.append("<p>\n")
     while i < len(wiki_lines):
         line = wiki_lines[i]
         if no_wiki:
@@ -148,8 +171,13 @@ def wiki_to_html(wiki_lines, page = None):
                 html_lines.append(line)
         else:
             if line[:10] == "_NO_WIKI_\n":
-    current_bullet_depth = 0
-
+	        no_wiki = True
+	    else:
+	        html_lines.append(wiki_to_html_simple(line, page))
+	i += 1
+#    current_bullet_depth = 0
+    html_lines.append("</p>\n")
+    return html_lines
 
 def old_wiki_to_html(wiki_lines, page = None):
     html_lines = []
@@ -558,6 +586,7 @@ def file_lines(file, filters = []):
     try:
         f_lines = open(file, "r")
         for l in f_lines:
+            l = l.rstrip(" \t\n");
             if filters == []:
                     lines.append(l + "\n")
             else:
@@ -892,7 +921,8 @@ class Page:
 		# walk through the tree, and update times and sort orders
 		out_time = 0
 		out_dir = output_directory + os.sep + self.getOutputDir()
-		if os.path.isdir(out_dir):
+		#if os.path.isdir(out_dir):
+		if os.path.exists(out_dir + os.sep + "index.html"):
 			out_time = time.gmtime(os.stat(out_dir + os.sep + "index.html")[stat.ST_MTIME])
 		in_time = self.findPageDate()
 		if in_time > out_time or force_output:
@@ -1340,6 +1370,7 @@ def print_usage():
 	print "\t\t\t\t(ie. do a test run)"
     	print "-n or --no-macros\t\tdo not evaluate macros"
     	print "-m or --macro-names\t\tSurround macro expansions with the name names"
+    	print "-s <file>\t\tJust wiki-parse <file> and print output to stdout\n";
 	print "-v <lvl> or --verbosity <lvl>\tset verbosity: 0 for no output, 5 for a lot"
 	
 
