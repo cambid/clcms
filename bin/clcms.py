@@ -148,13 +148,68 @@ def img_wiki_to_html(line, page):
     return line
 
 def wiki_to_html_simple(line, page):
-    print "WIKIING: '"+line+"'"
-    line = break_wiki_to_html(line)
-    line = italic_wiki_to_html(line)
-    line = bold_wiki_to_html(line)
-    line = link_wiki_to_html(line, page)
-    line = img_wiki_to_html(line, page)
+    # if line starts with __, do not do rest
+    if line[:2] == "__":
+    	line = "<pre>"+line+"</pre>"
+    else:
+        line = break_wiki_to_html(line)
+        line = italic_wiki_to_html(line)
+        line = bold_wiki_to_html(line)
+        line = link_wiki_to_html(line, page)
+        line = img_wiki_to_html(line, page)
     return line + "\n"
+
+def wiki_handle_lists(prev_list_part, list_part, html_lines):
+    same_part = ""
+    new_item = False
+    html_lines.append("<!-- plp: "+prev_list_part+" lp: "+list_part+" -->\n")
+    # for html code layout
+    cur_depth = 0
+    
+    if list_part != "":
+        new_item = True
+    
+    while len(prev_list_part) > 0 and len(list_part) > 0 \
+          and prev_list_part[0] == list_part[0]:
+        same_part = same_part + list_part[0]
+        prev_list_part = prev_list_part[1:]
+        list_part = list_part[1:]
+    
+    cur_depth = len(same_part)
+    
+    html_lines.append("<!-- sp: "+same_part +" plp: "+prev_list_part+" lp: "+list_part+" -->\n")
+    if same_part != "" or prev_list_part != "":
+        if prev_list_part != "":
+            cur_depth += 1
+        html_lines.append((cur_depth * "\t") + "</li>\n");
+
+    # go back in lists 
+    cur_depth = len(same_part)
+    while len(prev_list_part) > 0:
+        if prev_list_part[-1] == '*':
+            html_lines.append((cur_depth * "\t") + "</ul>\n")
+        elif prev_list_part[-1] == '#':
+            html_lines.append((cur_depth * "\t") + "</ol>\n")
+        else:
+            print "Error in prev_list_part: "+prev_list_part[0]+" should not appear here. please file a bug report"
+            sys.exit(1)
+        prev_list_part = prev_list_part[:-1]
+        cur_depth += 1
+
+    cur_depth = len(same_part)
+    while len(list_part) > 0:
+        if list_part[0] == '*':
+            html_lines.append((cur_depth * "\t") + "<ul>\n")
+        elif list_part[0] == '#':
+            html_lines.append((cur_depth * "\t") + "<ol>\n")
+        else:
+            print "Error in list_part: "+list_part[0]+" should not appear here. please file a bug report"
+            sys.exit(1)
+        list_part = list_part[1:]
+        cur_depth += 1
+
+    if new_item:
+        html_lines.append((cur_depth * "\t") + "<li>\n")
 
 def wiki_to_html(wiki_lines, page = None):
     html_lines = []
@@ -162,6 +217,9 @@ def wiki_to_html(wiki_lines, page = None):
     no_wiki = False
     whitespace_p = re.compile('^\s*\n$')
     html_lines.append("<p>\n")
+    list_p = re.compile('^([#*]+) (.*)$')
+    prev_list_part = ""
+    
     while i < len(wiki_lines):
         line = wiki_lines[i]
         if no_wiki:
@@ -173,9 +231,20 @@ def wiki_to_html(wiki_lines, page = None):
             if line[:10] == "_NO_WIKI_\n":
 	        no_wiki = True
 	    else:
+	        list_m = list_p.match(line)
+	        if list_m:
+	            wiki_handle_lists(prev_list_part, list_m.group(1), html_lines)
+	            prev_list_part = list_m.group(1)
+	            line = list_m.group(2)
+	        elif prev_list_part != "":
+	            wiki_handle_lists(prev_list_part, "", html_lines)
+	            prev_list_part = ""
 	        html_lines.append(wiki_to_html_simple(line, page))
+	        
 	i += 1
-#    current_bullet_depth = 0
+    if prev_list_part != "":
+        wiki_handle_lists(prev_list_part, "", html_lines)
+        prev_list_part = ""
     html_lines.append("</p>\n")
     return html_lines
 
