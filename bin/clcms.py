@@ -87,6 +87,22 @@ def italic_wiki_to_html(line):
           result=line_p.search(line)
     return line
 
+def heading_wiki_to_html(line):
+    line_p = re.compile('(=.{1,}=)')
+    result = line_p.search(line)
+    if result:
+        text = result.group(1)
+        heading_level = 0
+        while len(text) > 1 and text[0] == '=' and text[-1] == '=':
+        	heading_level += 1
+        	text = text[1:-1]
+	line = "<h" + str(heading_level) + ">"
+	text = text.lstrip(" \t")
+	text = text.rstrip(" \t")
+	line += text
+	line += "</h" + str(heading_level) + ">"
+    return line
+
 def link_wiki_to_html(line, page):
     line_p = re.compile('\[\[(.{1,}?)\]\]');
     line_m = line_p.search(line);
@@ -155,6 +171,7 @@ def wiki_to_html_simple(line, page):
         line = break_wiki_to_html(line)
         line = italic_wiki_to_html(line)
         line = bold_wiki_to_html(line)
+        line = heading_wiki_to_html(line)
         line = link_wiki_to_html(line, page)
         line = img_wiki_to_html(line, page)
     return line + "\n"

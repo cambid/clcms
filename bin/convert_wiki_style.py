@@ -14,14 +14,23 @@ def wiki_to_new_simple(line):
     if line[:1] == '.' and line[-1:] == '.' and line != ".":
         return "''" + line[1:-1] + "''\n"
     if line[:1] == '=' and line[-1:] == '=' and line != "=":
-        return " " + line[1:-1] + "\n"
+        return "__" + line[1:-1] + "\n"
     if line[:5] == "   * ":
     	return "* "+ wiki_to_new_simple(line[5:])
     if line[:8] == "      * ":
     	return "** "+ wiki_to_new_simple(line[8:])
     if line[:11] == "         * ":
     	return "*** "+ wiki_to_new_simple(line[11:])
-    
+    if line[:3] == "---":
+	j = 3
+	while line[j] == "+":
+	    j += 1
+	if (j > 3):
+	    print "LINE: '"+line+"'"
+	    print "LINEP:'"+line[j:]+"'"
+	    line = (j-3)*"=" + wiki_to_new_simple(line[j:]).rstrip("\n") + (j-3)*"="
+	    line += "\n"
+	    return line
     # replace links and image refs
 #    adv_link_p = re.compile('\[\[(.*?)\]\[(.*?)\](?:\[(.*?)\])?\]')
 #    img_p = re.compile('\{\{(.*?)\}\{(.*?)\}(?:\{(.*?)\})?\}')
@@ -79,7 +88,8 @@ def old_wiki_to_html(wiki_lines, page = None):
                 while line[j] == "+":
                     j += 1
                 if (j > 3):
-                    html_lines.append("<h" + str(j-3) + ">" + wiki_to_html_simple(line[j:], page) + "</h" + str(j-3) +  ">\n")
+		    html_lines.append((j-3)*"=" + wiki_to_html_simple(line[j:]) + (j-3)*"=")
+                    #html_lines.append("<h" + str(j-3) + ">" + wiki_to_html_simple(line[j:], page) + "</h" + str(j-3) +  ">\n")
                 else:
                     html_lines.append(wiki_to_html_simple(line, page))
             elif line[:5] == "   * ":
@@ -168,25 +178,100 @@ def old_wiki_to_html(wiki_lines, page = None):
     return html_lines
 
 
+def usage():
+	print "Usage: convert_wiki_style.py [OPTIONS]"
+	print "Replaces syntax in .page files in current directory and below from"
+	print "clcms 0.4 and before by the syntax of 0.5"
+	print ""
+	print "For each .page file, a backup will be made called <file>.page.bak"
+	print "You can then regenerate your site and check if the conversion worked"
+	print "If so, run this program again with -d to delete the backup files"
+	print ""
+	print "Remember that the .bak files are not recognized by clcms and"
+        print "therefore copied when you run it"
+	print ""
+	print "Options:"
+	print "-c or --convert\tperform the actual conversion"
+	print "-d or --delete\tdelete the backup files (if original run went well)"
+	print "-r or --revert\trevert changes (backup files will be copied back"
+	print "\t\tand deleted)"
+	print "-h or --help\tshow this text"
+	print ""
+
+
+
 #
-# find all .page files in this dirtree
-# copy them to .page.bak
-# then translate to new wiki style and write to original .page file
+# command line arguments
 #
-page_file_list = []
-for root, dirs, files in os.walk("."):
-	for f in files:
-		if f[-5:] == ".page":
-			pagefilename = os.path.join(root, f)
-			bakfilename = os.path.join(root, f+".bak")
-			#shutil.copyfile(pagefilename, bakfilename)
-			i_file = open(pagefilename, "r")
-			o_lines = wiki_to_new(i_file.readlines())
-			i_file.close()
-			o_file = open(bakfilename, "w")
-			for ol in o_lines:
-				o_file.write(ol)
-			o_file.close()
+delete = False
+revert = False
+
+if len(sys.argv) > 1:
+    i = 1
+    while i < len(sys.argv):
+    #for arg in sys.argv[1:]:
+    	arg = sys.argv[i]
+    	if arg == "-c" or arg == "--convert":
+    		print "Converting .page files"
+    	elif arg == "-d" or arg == "--delete":
+    		if revert:
+    			print "delete and revert cannot both be specified"
+    			sys.exit(2)
+    		delete = True
+    	elif arg == "-r" or arg == "--revert":
+    		if delete:
+    			print "delete and revert cannot both be specified"
+    			sys.exit(2)
+    		revert = True
+	elif arg == "-h" or arg == "--help":
+		usage()
+		sys.exit(0)
+	i += 1
+else:
+    usage()
+    sys.exit(0)
+
+
+if delete:
+	#
+	# find all .page.bak files in this dirtree
+	# copy them to .page.bak
+	# then translate to new wiki style and write to original .page file
+	#
+	page_file_list = []
+	for root, dirs, files in os.walk("."):
+		for f in files:
+			if f[-5:] == ".page":
+				if os.path.exists(os.path.join(root, f+".bak")):
+					os.remove(os.path.join(root, f+".bak"))
+elif revert:
+	page_file_list = []
+	for root, dirs, files in os.walk("."):
+		for f in files:
+			if f[-5:] == ".page":
+				if os.path.exists(os.path.join(root, f+".bak")):
+					shutil.copyfile(os.path.join(root, f+".bak"), os.path.join(root, f))
+					os.remove(os.path.join(root, f+".bak"))
+else:
+	#
+	# find all .page files in this dirtree
+	# copy them to .page.bak
+	# then translate to new wiki style and write to original .page file
+	#
+	page_file_list = []
+	for root, dirs, files in os.walk("."):
+		for f in files:
+			if f[-5:] == ".page":
+				pagefilename = os.path.join(root, f)
+				bakfilename = os.path.join(root, f+".bak")
+				shutil.copyfile(pagefilename, bakfilename)
+				i_file = open(bakfilename, "r")
+				o_lines = wiki_to_new(i_file.readlines())
+				i_file.close()
+				o_file = open(pagefilename, "w")
+				for ol in o_lines:
+					o_file.write(ol)
+				o_file.close()
 
 #print all_file_list
 
