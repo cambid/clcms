@@ -33,7 +33,6 @@ def wiki_to_new_simple(line):
 	    return line
     # replace links and image refs
 #    adv_link_p = re.compile('\[\[(.*?)\]\[(.*?)\](?:\[(.*?)\])?\]')
-#    img_p = re.compile('\{\{(.*?)\}\{(.*?)\}(?:\{(.*?)\})?\}')
 #    adv_m = adv_link_p.search(line)
 #    if adv_m:
 #        name = line[adv_m.start(2):adv_m.end(2)]
@@ -53,12 +52,13 @@ def wiki_to_new_simple(line):
 #		href = page.getBackDir() + targetPage.getTotalOutputDir() + "index.html"
 #        line = line[:adv_m.start()] + "<a href=\"" + href + extra + "\">" + name + "</a>" + line[adv_m.end():]
 
-#    img_m = img_p.search(line)
-#    if img_m:
+    img_p = re.compile('\{\{(.*?)\}\{(.*?)\}(?:\{(.*?)\})?\}')
+    img_m = img_p.search(line)
+    if img_m:
 #        extra = ""
 #        if img_m.group(2):
 #        	extra = " " + line[img_m.start(3):img_m.end(3)]
-#        line = line[:img_m.start()] + "<img src=\"" + escape_url(line[img_m.start(1):img_m.end(1)]) + "\" alt=\"" + line[img_m.start(2):img_m.end(2)] + "\"" + extra + "/>" + line[img_m.end():]
+        line = line[:img_m.start()] + "[[Image:" + line[img_m.start(1):img_m.end(1)] + "|" + line[img_m.start(2):img_m.end(2)] + "]]" + line[img_m.end():]
    
     return line + "\n"
 

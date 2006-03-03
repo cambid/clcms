@@ -107,6 +107,7 @@ def link_wiki_to_html(line, page):
     line_p = re.compile('\[\[(.{1,}?)\]\]');
     line_m = line_p.search(line);
     while line_m:
+        is_image = False
     	parts = line_m.group(1).split("][");
         url = parts[0]
         name = ""
@@ -115,7 +116,48 @@ def link_wiki_to_html(line, page):
 	        name = parts[1]
 	if len(parts) > 2:
 		html = " " + parts[2]
-        if url[:1] == ':':
+	if url[:6] == 'Image:':
+	    # this is an image
+	    url = url[6:]
+	    parts = url.split('|')
+	    image = parts[0]
+	    alt = image
+	    width = ""
+	    thumb = False
+	    frame = False
+	    position = ""
+	    if len(parts) > 0:
+	        # last part is alt/caption
+	        alt = parts[-1]
+	        parts = parts[1:-1]
+                for part in parts:
+                    if part[-2:] == "px":
+                    	width = part
+		    elif part == "thumb":
+		        thumb = True
+		    elif part == "frame":
+		        frame = True
+		    elif part == "left" or part == "right" or part == "center":
+		        if position:
+		            print "Error in image link: "+line
+		            print "Position specified more than once"
+		        position = part
+	            else:
+	                print "Error in image link: "+line
+	                print "Unknown argument: "+part
+	    
+	    img_html = "<img src=\"" + image + "\" alt=\"" + alt + "\""
+	    if width:
+	    	img_html += " width = \"" + width + "\""
+	    if frame:
+	        img_html += " border = \"1\""
+	    img_html += "/>"
+	    if thumb:
+	        img_html = "<a href=\"" + image + "\">" + img_html + "</a>"
+	    
+            line = line[:line_m.start()] + img_html + line[line_m.end():]
+            is_image = True
+        elif url[:1] == ':':
             # this is an id
             if page:
                 targetPage = page.getRootPage().findPageByID(url[1:])
@@ -127,10 +169,12 @@ def link_wiki_to_html(line, page):
                 url = page.getBackDir() + targetPage.getTotalOutputDir() + "index.html"
         if name == "":
             name = url
-	line = line[:line_m.start()] + "<a href=\"" + url + "\"" + html + ">"+name+"</a>" + line[line_m.end():]
+        if not is_image:
+            line = line[:line_m.start()] + "<a href=\"" + escape_url(url) + "\"" + html + ">"+name+"</a>" + line[line_m.end():]
 	line_m = line_p.search(line)
     return line
 
+# deprecated, part of link now
 def img_wiki_to_html(line, page):
     line_p = re.compile('\{\{(.{1,}?)\}\}');
     line_m = line_p.search(line);
@@ -169,11 +213,11 @@ def wiki_to_html_simple(line, page):
     	line = "<pre>"+line+"</pre>"
     else:
         line = break_wiki_to_html(line)
-        line = italic_wiki_to_html(line)
         line = bold_wiki_to_html(line)
+        line = italic_wiki_to_html(line)
         line = heading_wiki_to_html(line)
         line = link_wiki_to_html(line, page)
-        line = img_wiki_to_html(line, page)
+        #line = img_wiki_to_html(line, page)
     return line + "\n"
 
 def wiki_handle_lists(prev_list_part, list_part, html_lines):

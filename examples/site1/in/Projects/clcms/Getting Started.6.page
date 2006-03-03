@@ -2,7 +2,7 @@ After untarring the tarball, add <dir>/bin to your path or copy bin/clcms.py
 to a directory in your path.
 
 You can now go to <dir>/examples/documentation and build the tutorial by running
-=clcms.py=
+__clcms.py
 
 Now wasn't that easy?
 
