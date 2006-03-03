@@ -26,8 +26,6 @@ def wiki_to_new_simple(line):
 	while line[j] == "+":
 	    j += 1
 	if (j > 3):
-	    print "LINE: '"+line+"'"
-	    print "LINEP:'"+line[j:]+"'"
 	    line = (j-3)*"=" + wiki_to_new_simple(line[j:]).rstrip("\n") + (j-3)*"="
 	    line += "\n"
 	    return line
