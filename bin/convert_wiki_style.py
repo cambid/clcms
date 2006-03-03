@@ -9,6 +9,8 @@ def wiki_to_new_simple(line):
     line = line.rstrip("\n\r\t ")
     if line == "":
         return "\n"
+    line = line.replace("<", "<<")
+    line = line.replace(">", ">>")
     if line[:1] == '*' and line[-1:] == '*' and line != "*":
         return "'''" + line[1:-1] + "'''\n"
     if line[:1] == '.' and line[-1:] == '.' and line != ".":
@@ -62,8 +64,16 @@ def wiki_to_new_simple(line):
 
 def wiki_to_new(wiki_lines):
 	new_lines = []
+	no_wiki = False
 	for l in wiki_lines:
-		new_lines.append(wiki_to_new_simple(l))
+		if l == "_NO_WIKI_":
+			no_wiki = True
+		elif l == "_NO_WIKI_END_":
+			no_wiki = False
+		elif not no_wiki:
+			new_lines.append(wiki_to_new_simple(l))
+		else:
+			new_lines.append(l)
 	return new_lines
 
 def old_wiki_to_html(wiki_lines, page = None):

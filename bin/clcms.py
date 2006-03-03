@@ -63,6 +63,11 @@ def escape_html(line):
     line = line.replace('"', '\\"')
     return line.rstrip("\r\n\t")
 
+def escapes_wiki_to_html(line):
+    line = line.replace("<<", "&lt;")
+    line = line.replace(">>", "&gt;")
+    return line
+
 def break_wiki_to_html(line):
     #line=line.strip()
     if line == "\n":
@@ -210,8 +215,9 @@ def img_wiki_to_html(line, page):
 def wiki_to_html_simple(line, page):
     # if line starts with __, do not do rest
     if line[:2] == "__":
-    	line = "<pre>"+line+"</pre>"
+    	line = "<pre>"+line[2:]+"</pre>"
     else:
+        line = escapes_wiki_to_html(line)
         line = break_wiki_to_html(line)
         line = bold_wiki_to_html(line)
         line = italic_wiki_to_html(line)
