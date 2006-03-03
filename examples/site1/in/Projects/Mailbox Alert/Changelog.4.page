@@ -2,7 +2,5 @@
 ** Changed the possible Thunderbird version to 1.0 - 1.9+ so that it
         also works in 1.5
 ** Fixed bad backslashes in front of < > and & characters in the messages
-* '''[0.1-0.2]'''
-     Made the function call non-blocking
-* '''[0.0-0.1]'''
-     Initial version
+* '''[0.1-0.2]''' Made the function call non-blocking
+* '''[0.0-0.1]''' Initial version

@@ -292,14 +292,22 @@ def wiki_to_html(wiki_lines, page = None):
             if line[:10] == "_NO_WIKI_\n":
 	        no_wiki = True
 	    else:
+	        # in lists, single line breaks are <br />, but not end of lists
 	        list_m = list_p.match(line)
 	        if list_m:
 	            wiki_handle_lists(prev_list_part, list_m.group(1), html_lines)
 	            prev_list_part = list_m.group(1)
 	            line = list_m.group(2)
-	        elif prev_list_part != "":
-	            wiki_handle_lists(prev_list_part, "", html_lines)
-	            prev_list_part = ""
+	        #elif prev_list_part != "":
+	        #    wiki_handle_lists(prev_list_part, "", html_lines)
+	        #    prev_list_part = ""
+	        else:
+	            if line == "\n":
+			if prev_list_part != "":
+			    wiki_handle_lists(prev_list_part, "", html_lines)
+			    prev_list_part = ""
+		    else:
+	                    html_lines.append("<br/>\n")
 	        html_lines.append(wiki_to_html_simple(line, page))
 	        
 	i += 1
