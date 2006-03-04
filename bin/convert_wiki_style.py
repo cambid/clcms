@@ -66,10 +66,12 @@ def wiki_to_new(wiki_lines):
 	new_lines = []
 	no_wiki = False
 	for l in wiki_lines:
-		if l == "_NO_WIKI_":
-			no_wiki = True
-		elif l == "_NO_WIKI_END_":
+		if l[:13] == "_NO_WIKI_END_":
 			no_wiki = False
+			new_lines.append(l)
+		elif l[:9] == "_NO_WIKI_":
+			no_wiki = True
+			new_lines.append(l)
 		elif not no_wiki:
 			new_lines.append(wiki_to_new_simple(l))
 		else:
