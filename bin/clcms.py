@@ -312,8 +312,8 @@ def wiki_to_html(wiki_lines, page = None):
 			if prev_list_part != "":
 			    wiki_handle_lists(prev_list_part, "", html_lines)
 			    prev_list_part = ""
-		    else:
-	                    html_lines.append("<br/>\n")
+		    elif prev_list_part != "":
+	                html_lines.append("<br/>\n")
 	        html_lines.append(wiki_to_html_simple(line, page))
 	        
 	i += 1
