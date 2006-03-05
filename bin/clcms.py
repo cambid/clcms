@@ -93,7 +93,7 @@ def italic_wiki_to_html(line):
     return line
 
 def heading_wiki_to_html(line):
-    line_p = re.compile('(=.{1,}=)')
+    line_p = re.compile('(==.{1,}==)')
     result = line_p.search(line)
     if result:
         text = result.group(1)
@@ -109,11 +109,25 @@ def heading_wiki_to_html(line):
     return line
 
 def link_wiki_to_html(line, page):
-    line_p = re.compile('\[\[(.{1,}?)\]\]');
-    line_m = line_p.search(line);
-    while line_m:
-        is_image = False
-    	parts = line_m.group(1).split("][");
+    # we need to be able to do nested expressions
+    # if you want to include an image in a link
+    # so regexps won't work
+    open_pos = line.find("[[")
+    while open_pos >= 0:
+        nesting_level = 1
+        cur_pos = open_pos + 2
+        while nesting_level > 0 and cur_pos < len(line):
+            if line[cur_pos:cur_pos + 2] == ']]':
+                nesting_level -= 1
+	    elif line[cur_pos:cur_pos + 2] == '[[':
+	        nesting_level += 1
+            cur_pos += 1
+	if nesting_level > 0:
+	    print "Link nesting error in line:"
+	    print line
+	    sys.exit(3)
+	is_image = False
+    	parts = line[open_pos + 2:cur_pos - 1].split("][");
         url = parts[0]
         name = ""
         html = ""
@@ -131,6 +145,7 @@ def link_wiki_to_html(line, page):
 	    thumb = False
 	    frame = False
 	    position = ""
+	    print "IMG: "+url
 	    if len(parts) > 0:
 	        # last part is alt/caption
 	        alt = parts[-1]
@@ -160,7 +175,7 @@ def link_wiki_to_html(line, page):
 	    if thumb:
 	        img_html = "<a href=\"" + image + "\">" + img_html + "</a>"
 	    
-            line = line[:line_m.start()] + img_html + line[line_m.end():]
+            line = line[:open_pos] + img_html + line[cur_pos + 1:]
             is_image = True
         elif url[:1] == ':':
             # this is an id
@@ -175,8 +190,8 @@ def link_wiki_to_html(line, page):
         if name == "":
             name = url
         if not is_image:
-            line = line[:line_m.start()] + "<a href=\"" + escape_url(url) + "\"" + html + ">"+name+"</a>" + line[line_m.end():]
-	line_m = line_p.search(line)
+            line = line[:open_pos] + "<a href=\"" + escape_url(url) + "\"" + html + ">"+name+"</a>" + line[cur_pos + 1:]
+        open_pos = line.find("[[")
     return line
 
 # deprecated, part of link now
