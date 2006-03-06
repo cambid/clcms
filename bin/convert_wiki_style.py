@@ -261,6 +261,7 @@ elif revert:
 			if f[-5:] == ".page":
 				if os.path.exists(os.path.join(root, f+".bak")):
 					shutil.copyfile(os.path.join(root, f+".bak"), os.path.join(root, f))
+					shutil.copystat(os.path.join(root, f+".bak"), os.path.join(root, f))
 					os.remove(os.path.join(root, f+".bak"))
 else:
 	#
@@ -275,6 +276,7 @@ else:
 				pagefilename = os.path.join(root, f)
 				bakfilename = os.path.join(root, f+".bak")
 				shutil.copyfile(pagefilename, bakfilename)
+				shutil.copystat(pagefilename, bakfilename)
 				i_file = open(bakfilename, "r")
 				o_lines = wiki_to_new(i_file.readlines())
 				i_file.close()
@@ -282,6 +284,7 @@ else:
 				for ol in o_lines:
 					o_file.write(ol)
 				o_file.close()
+				shutil.copystat(bakfilename, pagefilename)
 
 #print all_file_list
 
