@@ -1,6 +1,6 @@
 I have my main mailboxes setup with the following command:
 
-__/home/jeltejan/code/perl/mailalert.pl %count %server %folder %sender %subject %charset
+=/home/jeltejan/code/perl/mailalert.pl %count %server %folder %sender %subject %charset=
 
 The script it calls reads the information and creates a nice borderless
 non-focused temporary
@@ -59,4 +59,4 @@ _NO_WIKI_END_
 
 So when mail arrives in these folders, i get this popup:
 
-[[Image:mailboxalert_example.png|Mailbox Alert Example]]
+{{mailboxalert_example.png}{Mailbox Alert Example}}

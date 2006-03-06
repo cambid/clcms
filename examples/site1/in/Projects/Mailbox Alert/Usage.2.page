@@ -3,21 +3,21 @@ Alert' if you right-click on a folder in your folder pane. This option opens
 a small preferences screen that allows you to specify a system command that
 will be executed if Thunderbird notices that there is new mail there.
 
-[[Image:mailboxalert_pref.png|Mailbox Alert Preferences Screen]]
+{{mailboxalert_pref.png}{Mailbox Alert Preferences Screen}}
 
 You can use a few macros that will be substituted by appropriate values:
 
-* '''%server'''
+   * *%server*
      The name of the server where the mail folder resides
-* '''%folder'''
+   * *%folder*
      The name of the mail folder
-* '''%count'''
+   * *%count*
      The number of unread messages
-* '''%sender'''
+   * *%sender*
      The sender of the last unread message
-* '''%subject'''
+   * *%subject*
      The subject of the last unread message
-* '''%charset'''
+   * *%charset*
      The character set of the folder
 
 Be sure to escape arguments if they contain spaces. Spaces are read as

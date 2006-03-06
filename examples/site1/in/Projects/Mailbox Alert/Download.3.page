@@ -2,4 +2,4 @@ The current version is [[mailboxalert-0.3.xpi][0.3]].
 
 To install it in Thunderbird, right-click the link, choose "Save as", go to
 Tools->extensions in Thunderbird, choose Install, and select the downloaded
-''xpi file''
+.xpi file.
