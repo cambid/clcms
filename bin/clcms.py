@@ -231,7 +231,7 @@ def img_wiki_to_html(line, page):
 def wiki_to_html_simple(line, page):
     # if line starts with __, do not do rest
     if line[:2] == "__":
-    	line = "<pre>"+line[2:]+"</pre>"
+    	line = "<pre>"+escapes_wiki_to_html(line[2:])+"</pre>"
     else:
         line = escapes_wiki_to_html(line)
         line = break_wiki_to_html(line)
@@ -241,6 +241,7 @@ def wiki_to_html_simple(line, page):
         line = link_wiki_to_html(line, page)
         #line = img_wiki_to_html(line, page)
     return line + "\n"
+#    return line
 
 def wiki_handle_lists(prev_list_part, list_part, html_lines):
     same_part = ""
@@ -309,8 +310,14 @@ def wiki_to_html(wiki_lines, page = None):
         prev_line = line
         line = wiki_lines[i]
         line = line.lstrip("\n\t ")
+#        if line == "":
+#            line = "\n"
+#        if line == "" and prev_list_part == "" and not no_wiki:
         if line == "" and prev_list_part == "":
-            html_lines.append("</p><p>\n")
+            if no_wiki:
+                html_lines.append("\n")
+            else:
+                html_lines.append("</p><p>\n")
         elif no_wiki:
             if line[:14] == "_NO_WIKI_END_\n":
                 no_wiki = False
