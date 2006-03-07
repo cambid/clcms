@@ -70,17 +70,19 @@ def escapes_wiki_to_html(line):
 
 def break_wiki_to_html(line):
     #line=line.strip()
-    if line == "\n":
-        line = "</p><p>\n"
+#    if line == "\n":
+#        line = "</p><p>\n"
     #line=line.replace('\n','</p><p>')
     #line=line.replace('\n',' ')
     return line
 
 def bold_wiki_to_html(line):
-    line_p=re.compile('(\'\'\'.{1,}\'\'\')')
+#    line_p=re.compile('(\'\'\'.{1,}?\'\'\')')
+    line_p=re.compile('(\'\'\'.{1,}?\'\'\')')
     result=line_p.search(line)
     while result:
-          line=line_p.sub("<b>" +line[result.start()+3:result.end()-3] +"</b>",line,0)
+#          line=line_p.sub("<b>" +line[result.start()+3:result.end()-3] +"</b>",line,0)
+          line=line_p.sub("<b>" +line[result.start()+3:result.end()-3] +"</b>",line,1)
           result=line_p.search(line)
     return line
 
@@ -145,7 +147,6 @@ def link_wiki_to_html(line, page):
 	    thumb = False
 	    frame = False
 	    position = ""
-	    print "IMG: "+url
 	    if len(parts) > 0:
 	        # last part is alt/caption
 	        alt = parts[-1]
@@ -301,10 +302,16 @@ def wiki_to_html(wiki_lines, page = None):
     html_lines.append("<p>\n")
     list_p = re.compile('^([#*]+) (.*)$')
     prev_list_part = ""
+    line = ""
     
     while i < len(wiki_lines):
+        
+        prev_line = line
         line = wiki_lines[i]
-        if no_wiki:
+        line = line.lstrip("\n\t ")
+        if line == "" and prev_list_part == "":
+            html_lines.append("</p><p>\n")
+        elif no_wiki:
             if line[:14] == "_NO_WIKI_END_\n":
                 no_wiki = False
             else:
@@ -323,11 +330,11 @@ def wiki_to_html(wiki_lines, page = None):
 	        #    wiki_handle_lists(prev_list_part, "", html_lines)
 	        #    prev_list_part = ""
 	        else:
-	            if line == "\n":
+	            if line == "" and prev_line == "":
 			if prev_list_part != "":
 			    wiki_handle_lists(prev_list_part, "", html_lines)
 			    prev_list_part = ""
-		    elif prev_list_part != "":
+		    elif line == "" and prev_list_part != "":
 	                html_lines.append("<br/>\n")
 	        html_lines.append(wiki_to_html_simple(line, page))
 	        
@@ -991,8 +998,16 @@ class Page:
 
 		if not no_macros:
 			macro_new_lines = []
+			do_handle_macros = True
 			for l in page_lines:
-				macro_new_lines.append(handle_macros(self, l))
+  				if l[:14] == "_NO_MACRO_END_":
+  				    do_handle_macros = True
+  				elif l[:10] == "_NO_MACRO_":
+  				    do_handle_macros = False
+			        elif do_handle_macros:
+  				    macro_new_lines.append(handle_macros(self, l))
+  				else:
+  				    macro_new_lines.append(l)
 			page_lines = macro_new_lines
 		return page_lines
 	
@@ -1529,7 +1544,7 @@ def print_usage():
 	print "\t\t\t\t(ie. do a test run)"
     	print "-n or --no-macros\t\tdo not evaluate macros"
     	print "-m or --macro-names\t\tSurround macro expansions with the name names"
-    	print "-s <file>\t\tJust wiki-parse <file> and print output to stdout\n";
+    	#print "-s <file>\t\t\tJust wiki-parse <file> and print output to\n\t\t\t\tstdout\n";
 	print "-v <lvl> or --verbosity <lvl>\tset verbosity: 0 for no output, 5 for a lot"
 	
 

@@ -7,6 +7,7 @@ import re
 
 def wiki_to_new_simple(line):
     line = line.rstrip("\n\r\t ")
+    line = line.lstrip("\n\r\t ")
     if line == "":
         return "\n"
     line = line.replace("<", "<<")
