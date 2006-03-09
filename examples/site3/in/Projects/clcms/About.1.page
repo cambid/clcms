@@ -11,7 +11,7 @@ style input for page content. The result is clcms.
 Its in beta state at the moment, mostly to try out some different
 approaches to various challenges. But i thought i'd share it now, so if
 you're interested and might have some ideas on where to go from here, drop
-me a line (or a patch). 
+me a line (or a patch).
 
 It's also a way for me to learn Python, so i might in my ignorance produce
 some weird constructs here and there. Please let me know, but be gentle :)

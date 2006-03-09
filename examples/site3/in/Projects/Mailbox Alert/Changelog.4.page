@@ -1,14 +1,14 @@
-   * *[0.3-0.4]*
-      * Added some debug messages using the dump() function (enable them by
+* '''[0.3-0.4]'''
+** Added some debug messages using the dump() function (enable them by
         setting browser.dom.window.dump.enabled to true in your settings)
-      * No longer alerts with 'locked' or exceptions, instead it ignores the
+** No longer alerts with 'locked' or exceptions, instead it ignores the
         locked setting (doesn't seem to matter anyway for reading out folder
         data) and uses dump() for exceptions.
-   * *[0.2-0.3]*
-      * Changed the possible Thunderbird version to 1.0 - 1.9+ so that it
+* '''[0.2-0.3]'''
+** Changed the possible Thunderbird version to 1.0 - 1.9+ so that it
         also works in 1.5
-      * Fixed bad backslashes in front of < > and & characters in the messages
-   * *[0.1-0.2]*
+** Fixed bad backslashes in front of <<<< >>>> and & characters in the messages
+* '''[0.1-0.2]'''
      Made the function call non-blocking
-   * *[0.0-0.1]*
+* '''[0.0-0.1]'''
      Initial version

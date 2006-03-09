@@ -1,32 +1,32 @@
-   * *[0.3 - 0.4]*
-      * Rewritten page creation algorithm
-      * Added redefinable _selected_ menu macro
-      * Internal pages can now be referenced by id in wiki links
-      * Macros now get a Page instance as argument, from which other data can be retrieved
-      * Added handling of a page.meta file that contains information about the page (like sort order and id)
-      * Page directories can no longer contain meta info (like sorting)
-      * Wiki links and images have optional third argument that can contain html info like class or width
-      * Added default macros for page navigation
-      * Added command line argument to print macro names in the html code (for debugging)
-   * *[0.2 - 0.3]*
-      * Macro arguments can be enclosed in parentheses, after which they
+* '''[0.3 - 0.4]'''
+** Rewritten page creation algorithm
+** Added redefinable _selected_ menu macro
+** Internal pages can now be referenced by id in wiki links
+** Macros now get a Page instance as argument, from which other data can be retrieved
+** Added handling of a page.meta file that contains information about the page (like sort order and id)
+** Page directories can no longer contain meta info (like sorting)
+** Wiki links and images have optional third argument that can contain html info like class or width
+** Added default macros for page navigation
+** Added command line argument to print macro names in the html code (for debugging)
+* '''[0.2 - 0.3]'''
+** Macro arguments can be enclosed in parentheses, after which they
         will accept any character
-      * More elaborate menu generation
-      * Moved some hardcoded html to (redefinable) macros.
-      * Bugfixes
-      * Added subset of my site as examples
-      * Added some command line options
-      * Changed macros will now force pages in which they are used to be
+** More elaborate menu generation
+** Moved some hardcoded html to (redefinable) macros.
+** Bugfixes
+** Added subset of my site as examples
+** Added some command line options
+** Changed macros will now force pages in which they are used to be
         regenerated
-      * Renamed all uppercase default macros to lowercase
-   * *[0.1 - 0.2]*
-      * Moved include files from .setup to default macros
-      * Added file date check to see if pages need to be recreated
-      * Added error handling on common errors
-      * Made directory separators and parent directory references portable
-      * Added macro arguments
-      * Added some macors
-      * Bugfixes
-   * *[0.0 - 0.1]*
+** Renamed all uppercase default macros to lowercase
+* '''[0.1 - 0.2]'''
+** Moved include files from .setup to default macros
+** Added file date check to see if pages need to be recreated
+** Added error handling on common errors
+** Made directory separators and parent directory references portable
+** Added macro arguments
+** Added some macors
+** Bugfixes
+* '''[0.0 - 0.1]'''
      First version
 

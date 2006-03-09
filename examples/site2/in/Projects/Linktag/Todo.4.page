@@ -1,6 +1,6 @@
 Current todo list includes:
 
-   * *Screenshots*
+* '''Screenshots'''
      While there are not many things to show, every page need screenshots :p
-   * *Multiple tabs*
+* '''Multiple tabs'''
      Currently, the 'enabled' status is global, but link tagging is actually handled per tab. It doesn't break if you turn it on in one and then off in another, but i should make the state on a per-tab basis or something.

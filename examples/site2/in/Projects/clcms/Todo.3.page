@@ -4,35 +4,35 @@ the minute.
 
 The most important things are (in random order):
 
-   * *Error detection and feedback*
+* '''Error detection and feedback'''
 
      There's still a lot to improve on error handling i guess.
 
-   * *Code cleanup*
+* '''Code cleanup'''
 
      The everlasting todo.
 
-   * *Command line options*
+* '''Command line options'''
 
      Verbosity, 'check run', option overrides, etc.
 
-   * *Documentation*
+* '''Documentation'''
 
      The other everlasting todo.
 
-   * *File date checks*
+* '''File date checks'''
 
      clcms does check to see if pages need to be recreated, but only outputs
      them if this is so, they are always internally built. Also, updates
      from .inc and .macro files are not taken into account. I'll have to
      think up some dependency system for this.
 
-   * *Page types*
+* '''Page types'''
 
      I'd like to add some form of page types, i.e. 'blog style' or 'FAQ' or
      something like that.
 
-   * *File modified date*
+* '''File modified date'''
 
      The file modified could maybe use some sort of memory, copying them
      without keeping the original modified dates can often lead to an

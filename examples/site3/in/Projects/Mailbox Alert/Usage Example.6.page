@@ -2,11 +2,11 @@ In KDE, i use KDialog to present the message for my main mailboxes. I still
 run it through a little script first (based on the one below) but that
 probably isn't even really needed. The result looks like this:
 
-{{mailboxalert_example_kde.png}{Mailbox Alert Example KDE}}
+[[Image:mailboxalert_example_kde.png|Mailbox Alert Example KDE]]
 
 In gnome, I have my main mailboxes setup with the following command:
 
-=/home/jeltejan/code/perl/mailalert.pl %count %server %folder %sender %subject %charset=
+__/home/jeltejan/code/perl/mailalert.pl %count %server %folder %sender %subject %charset
 
 The script it calls reads the information and creates a nice borderless
 non-focused temporary
@@ -65,4 +65,4 @@ _NO_WIKI_END_
 
 So when mail arrives in these folders, i get this popup:
 
-{{mailboxalert_example.png}{Mailbox Alert Example GNOME}}
+[[Image:mailboxalert_example.png|Mailbox Alert Example GNOME]]
