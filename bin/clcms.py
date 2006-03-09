@@ -168,13 +168,16 @@ def link_wiki_to_html(line, page):
 	                print "Unknown argument: "+part
 	    
 	    img_html = "<img src=\"" + image + "\" alt=\"" + alt + "\""
+	    # argument html
+	    if name != "": 
+	    	html = " " + name
 	    if width:
 	    	img_html += " width = \"" + width + "\""
 	    if frame:
 	        img_html += " border = \"1\""
-	    img_html += "/>"
+	    img_html += html + "/>"
 	    if thumb:
-	        img_html = "<a href=\"" + image + "\">" + img_html + "</a>"
+	        img_html = "<a href=\"" + image + "\"" + html + ">" + img_html + "</a>"
 	    
             line = line[:open_pos] + img_html + line[cur_pos + 1:]
             is_image = True
@@ -183,7 +186,7 @@ def link_wiki_to_html(line, page):
             if page:
                 targetPage = page.getRootPage().findPageByID(url[1:])
                 if not targetPage:
-                    print "Page with ID '"+url[1:]+"' not found. Quitting."
+                    print "Page with ID '"+url[1:]+"' not found (referenced in " + page.getTotalOutputDir() + "). Quitting."
                     sys.exit(1)
                 if name == "":
                     name = targetPage.name
@@ -1106,9 +1109,9 @@ class Page:
 		if os.path.exists(out_dir + os.sep + "index.html"):
 			out_time = time.gmtime(os.stat(out_dir + os.sep + "index.html")[stat.ST_MTIME])
 		in_time = self.findPageDate()
+		self.children.sort(compare_pages)
+		self.contents.sort(compare_contents)
 		if in_time > out_time or force_output:
-			self.children.sort(compare_pages)
-			self.contents.sort(compare_contents)
 			self.recreate = True
 		for c in self.children:
 			c.prepare(out_dir)

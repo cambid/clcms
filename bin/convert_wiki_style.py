@@ -7,24 +7,17 @@ import re
 
 def wiki_to_new_simple(line):
     line = line.rstrip("\n\r\t ")
-    line = line.lstrip("\n\r\t ")
     if line == "":
         return "\n"
     line = line.replace("<", "<<")
     line = line.replace(">", ">>")
-    if line[:1] == '*' and line[-1:] == '*' and line != "*":
-        return "'''" + line[1:-1] + "'''\n"
-    if line[:1] == '.' and line[-1:] == '.' and line != ".":
-        return "''" + line[1:-1] + "''\n"
-    if line[:1] == '=' and line[-1:] == '=' and line != "=":
-        return "__" + line[1:-1] + "\n"
     if line[:5] == "   * ":
     	return "* "+ wiki_to_new_simple(line[5:])
-    if line[:8] == "      * ":
+    elif line[:8] == "      * ":
     	return "** "+ wiki_to_new_simple(line[8:])
-    if line[:11] == "         * ":
+    elif line[:11] == "         * ":
     	return "*** "+ wiki_to_new_simple(line[11:])
-    if line[:3] == "---":
+    elif line[:3] == "---":
 	j = 3
 	while line[j] == "+":
 	    j += 1
@@ -32,6 +25,14 @@ def wiki_to_new_simple(line):
 	    line = (j-3)*"=" + wiki_to_new_simple(line[j:]).rstrip("\n") + (j-3)*"="
 	    line += "\n"
 	    return line
+    elif line[:1] == '*' and line[-1:] == '*' and line != "*":
+        print "Line: "+line
+        print "To:   " + "'''" + line[1:-1] + "'''\n"
+        return "'''" + line[1:-1] + "'''\n"
+    elif line[:1] == '.' and line[-1:] == '.' and line != ".":
+        return "''" + line[1:-1] + "''\n"
+    elif line[:1] == '=' and line[-1:] == '=' and line != "=":
+        return "__" + line[1:-1] + "\n"
     # replace links and image refs
 #    adv_link_p = re.compile('\[\[(.*?)\]\[(.*?)\](?:\[(.*?)\])?\]')
 #    adv_m = adv_link_p.search(line)
@@ -276,6 +277,9 @@ else:
 			if f[-5:] == ".page":
 				pagefilename = os.path.join(root, f)
 				bakfilename = os.path.join(root, f+".bak")
+				if os.path.exists(bakfilename):
+				    print "Error: "+bakfilename+" already exists. Use -r to revert or rename the conflicting file.\n";
+				    sys.exit(9);
 				shutil.copyfile(pagefilename, bakfilename)
 				shutil.copystat(pagefilename, bakfilename)
 				i_file = open(bakfilename, "r")
