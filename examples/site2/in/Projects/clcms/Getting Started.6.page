@@ -1,12 +1,12 @@
-After untarring the tarball, add <dir>/bin to your path or copy bin/clcms.py
+After untarring the tarball, add <<dir>>/bin to your path or copy bin/clcms.py
 to a directory in your path.
 
-You can now go to <dir>/examples/documentation and build the tutorial by running
-=clcms.py=
+You can now go to <<dir>>/examples/documentation and build the tutorial by running
+__clcms.py
 
 Now wasn't that easy?
 
-Point your browser to file://<dir>/examples/documentation/out/index.html and
+Point your browser to file://<<dir>>/examples/documentation/out/index.html and
 see the result of all your hard work.
 
 If it did not work, it's not your fault. Just remember that version number.
