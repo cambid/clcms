@@ -68,20 +68,10 @@ def escapes_wiki_to_html(line):
     line = line.replace(">>", "&gt;")
     return line
 
-def break_wiki_to_html(line):
-    #line=line.strip()
-#    if line == "\n":
-#        line = "</p><p>\n"
-    #line=line.replace('\n','</p><p>')
-    #line=line.replace('\n',' ')
-    return line
-
 def bold_wiki_to_html(line):
-#    line_p=re.compile('(\'\'\'.{1,}?\'\'\')')
     line_p=re.compile('(\'\'\'.{1,}?\'\'\')')
     result=line_p.search(line)
     while result:
-#          line=line_p.sub("<b>" +line[result.start()+3:result.end()-3] +"</b>",line,0)
           line=line_p.sub("<b>" +line[result.start()+3:result.end()-3] +"</b>",line,1)
           result=line_p.search(line)
     return line
@@ -198,53 +188,17 @@ def link_wiki_to_html(line, page):
         open_pos = line.find("[[")
     return line
 
-# deprecated, part of link now
-def img_wiki_to_html(line, page):
-    line_p = re.compile('\{\{(.{1,}?)\}\}');
-    line_m = line_p.search(line);
-    while line_m:
-    	parts = line_m.group(1).split("}{");
-        url = parts[0]
-        name = ""
-        html = ""
-        if len(parts) > 1:
-	        name = parts[1]
-	if len(parts) > 2:
-		html = " " + parts[2]
-        if url[:1] == ':':
-            # this is an id
-            print "ID for images not implemented (yet?)"
-            sys.exit(12)
-            if page:
-                targetPage = page.getRootPage().findPageByID(url[1:])
-                if not targetPage:
-                    print "Page with ID '"+url[1:]+"' not found. Quitting."
-                    sys.exit(1)
-                if name == "":
-                    name = targetPage.name
-                url = page.getBackDir() + targetPage.getTotalOutputDir() + "index.html"
-        if name == "":
-            name = url
-	line = line[:line_m.start()] + "<img src=\"" + url + "\"" + html + " alt=\"" + name + "\" />" + line[line_m.end():]
-	line_m = line_p.search(line)
-    return line
-
-    return line
-
 def wiki_to_html_simple(line, page):
     # if line starts with __, do not do rest
     if line[:2] == "__":
     	line = "<pre>"+escapes_wiki_to_html(line[2:])+"</pre>"
     else:
         line = escapes_wiki_to_html(line)
-        line = break_wiki_to_html(line)
         line = bold_wiki_to_html(line)
         line = italic_wiki_to_html(line)
         line = heading_wiki_to_html(line)
         line = link_wiki_to_html(line, page)
-        #line = img_wiki_to_html(line, page)
     return line + "\n"
-#    return line
 
 def wiki_handle_lists(prev_list_part, list_part, html_lines):
     same_part = ""
@@ -313,9 +267,6 @@ def wiki_to_html(wiki_lines, page = None):
         prev_line = line
         line = wiki_lines[i]
         line = line.lstrip("\n\t ")
-#        if line == "":
-#            line = "\n"
-#        if line == "" and prev_list_part == "" and not no_wiki:
         if line == "" and prev_list_part == "":
             if no_wiki:
                 html_lines.append("\n")
@@ -336,9 +287,6 @@ def wiki_to_html(wiki_lines, page = None):
 	            wiki_handle_lists(prev_list_part, list_m.group(1), html_lines)
 	            prev_list_part = list_m.group(1)
 	            line = list_m.group(2)
-	        #elif prev_list_part != "":
-	        #    wiki_handle_lists(prev_list_part, "", html_lines)
-	        #    prev_list_part = ""
 	        else:
 	            if line == "" and prev_line == "":
 			if prev_list_part != "":
@@ -364,12 +312,6 @@ def wiki_to_html(wiki_lines, page = None):
 # macro name (for instance "MENU" for the macro _MENU_) and the 
 # second object is a source string that will be executed
 # a macro function is supposed to return a string
-# TODO: make correct html with header macros etc
-#  ["menu", "output = \"\"\nfor ml in create_menu(root_dir, in_dir, options, arguments[0], cur_dir_depth):\n\toutput += ml\n", 0 ],
-#  ["submenu", "output = \"\"\nfor ml in create_submenu(show_submenu, page_files, options):\n\toutput += ml\n", 0 ],
-#  ["datefile", "output = time.strftime(\"%Y-%m-%d\", time.gmtime(last_modified))\n", 0 ],
-#  ["stylesheet", 'i = 0\noutput = ""\nwhile i < page.getPageDepth():\n\toutput += os.pardir + os.sep\n\ti += 1\noutput += get_option(page.options, "style_sheet")\n', 0 ],
-#  ["stylesheet", "output = ((os.pardir + os.sep)*page.getPageDepth()) + get_options(page.options, 'stylesheet')\n", 0 ],
 system_macro_list = [
   ["menu", "menu_depth = 1\nmenu_start_depth = 0\nif len(arguments) > 0:\n\tmenu_depth = int(arguments[0])\nif len(arguments) > 1:\n\tmenu_start_depth = int(arguments[1])\nml = page.getRootPage().createMenu(page, menu_depth, menu_start_depth)\noutput = \"_menustart_\\n\"\nfor l in ml:\n\toutput += l\noutput += \"_menuend_\\n\"\n", 0],
   ["submenu", "output = \"\"\nsml = page.createAnchorMenu()\nfor l in sml:\n\toutput += l", 0],
@@ -777,7 +719,7 @@ def create_submenu(show_submenu, page_files, options):
 def print_indentation(depth):
 	print "  "*depth,
     
-################## NEW STUFF CLASS PUT IN OTHER .py? ##########
+
 class Page:
 	"A page object"
 
