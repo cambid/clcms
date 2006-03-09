@@ -137,7 +137,7 @@ div.logo {
     position: absolute;
     top: 0px;
     right: 10px;
-    z-index: 2;
+    z-index: 1;
     height: 53px;
     color: #436976;
     background: #ffffff;
@@ -146,13 +146,22 @@ div.logo {
 
 #main {
     position: absolute;
-    top: 35px;
-    z-index: 1;
+    top: 55px;
+    z-index: 2;
 }
 
 .gallery_image {
     float: left;
     padding: 0px 20px 0px 0px;
     border: none;
+}
+
+.big {
+    font-size: xx-large;
+}
+
+pre {
+    background: #dddddd;
+    color: #436976;
 }
 

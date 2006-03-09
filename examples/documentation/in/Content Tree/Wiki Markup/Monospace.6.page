@@ -1,0 +1,29 @@
+A line that is prepended with __ (two underscores) will be put in monospace
+font (ie. between <<pre>> tags).
+
+__monospace example
+
+If you want to monospace multiple lines, you can use _NO_WIKI_ and normal <<pre>> tags.
+
+_NO_WIKI_
+<pre>
+multiple line
+monospace
+example
+</pre>
+_NO_WIKI_END_
+
+
+
+_NO_WIKI_
+<pre>
+_NO_WIKI_
+&lt;pre&gt;
+multiple line
+monospace
+example
+&lt;/pre&gt;
+_NO_WIKI_END_fake__
+_NO_WIKI_END_
+</pre>
+

@@ -1,11 +1,11 @@
 Now that we have our first content, let's see if it works.
 
 Go to the base directory, and run
-=clcms.py=
+__clcms.py
 
 This should create an out/ dir, with the pages you just created.
 
-Let's see what clcms made of it, and point a webbrowser to file:///<dir>/out/
+Let's see what clcms made of it, and point a webbrowser to file:///<<dir>>/out/
 
 Since we did not put a .page file or index.html in our base directory, we
 get the three pages we created in a list. Click on one and see the

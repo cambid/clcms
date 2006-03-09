@@ -1,6 +1,6 @@
 In the base dir, we will create a content dir (the output dir will be created by clcms if it does not exist yet).
 
-=mkdir in=
+__mkdir in
 
-=cd in/=
+__cd in/
 

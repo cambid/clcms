@@ -5,23 +5,23 @@ store the results in the directory out/. This can be overridden with a
 
 A typical directory tree would look a little like this small example:
 
-   * in/
-      * my_site.setup
-      * header.inc
-      * footer.inc
-      * fancy.macro
-      * Welcome/
-         * welcome.page
-      * News/
-         * page.meta
-         * new\ site.page
-         * going\ to\ move.page
-         * added\ pages.page
-      * Contact/
-         * Address.page
-         * Info.page
+* in/
+** my_site.setup
+** header.inc
+** footer.inc
+** fancy.macro
+** Welcome/
+*** welcome.page
+** News/
+*** page.meta
+*** new\ site.page
+*** going\ to\ move.page
+*** added\ pages.page
+** Contact/
+*** Address.page
+*** Info.page
 
-         
+
 my_site.setup contains setup directives for this website, for instance the
 name of the CSS style sheet.
 

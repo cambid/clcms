@@ -11,7 +11,7 @@
 	<body>
 
 	<div class="logo">
-		<h3>clcms 0.4 documentation</h3>
+		<h3>clcms 0.5 documentation</h3>
 	</div>
 
 	<div id="main">

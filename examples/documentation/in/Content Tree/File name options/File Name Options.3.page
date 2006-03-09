@@ -5,25 +5,25 @@ order of the extensions is free.
 
 The complete list of options is:
 
-   * *nomenu*
+* '''nomenu'''
 
      This part will not be put in the submenu (if you have a submenu on the page).
 
-   * *notitle*
+* '''notitle'''
 
      This part will not be preceded by its filename title.
 
-   * *title*
+* '''title'''
 
      This part
      .will.
      be preceded by its filename title.
 
-   * *nowiki*
+* '''nowiki'''
 
      This part will not be put through the wiki engine.
 
-   * *wiki*
+* '''wiki'''
      This part
      .will.
      be put through the wiki engine.

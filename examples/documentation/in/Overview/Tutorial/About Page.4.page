@@ -1,6 +1,6 @@
 First go to the about page.
 
-=cd About/=
+__cd About/
 
 Let's say that the order of the contents of this page does not matter for
 us. We'll specify no sort order, and clcms will order them by last modified
@@ -8,18 +8,18 @@ date.
 
 Page content must be put in so-called .page files, you do not have to type
 html tags, just type some lines. You can do 'special' things by using Wiki
-style syntax See [[:wiki_parser][]] for more information on this.
+style syntax See [[:wiki_markup][]] for more information on this.
 
 So let's create one:
 
-=$EDITOR About\ Me.page=
+__$EDITOR About\ Me.page
 
 Just write some nice lines about what you do, or not.
 
-=$EDITOR About\ this\ site.page=
+__$EDITOR About\ this\ site.page
 
 This is
-.the.
+''the''
 place to put those praises you have for the system you have created your
 beautiful site with (for the record, that's clcms).
 

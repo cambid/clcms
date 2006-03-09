@@ -1,15 +1,15 @@
 As said in the [[File_Types][File types]] section, you can create .inc files
 and .macro files. These will both be usable in your pages as macros.
 
-A macro looks like this: 
-=_<name>_=
+A macro looks like this:
+___<<name>>_
 
-This will be replaced by the contents of the <name>.inc in the current
+This will be replaced by the contents of the <<name>>.inc in the current
 directory scope, or by the value you have put in the output variable in the
-<name>.macro file in the current directory scope.
+<<name>>.macro file in the current directory scope.
 
 Some macros can have arguments:
-=_<name>_<arg1>_<arg2>_=
+___<<name>>_<<arg1>>_<<arg2>>_
 
 Passing too few arguments, or bad ones can result in some nasty errors, so
 watch out for this. Passing too much arguments has no result. See

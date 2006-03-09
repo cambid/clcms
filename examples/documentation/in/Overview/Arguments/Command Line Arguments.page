@@ -1,44 +1,44 @@
 You can give the following command-line arguments to clcms:
 
-   * *-c*
-     or
-     *--write-config*
-     
-     print the default options to stdout
-   * *-f*
-     or
-     *--force-output*
+* '''-c'''
+or
+'''--write-config'''
 
-     force creation of all pages even if their sources are not changed
+print the default options to stdout
+* '''-f'''
+or
+'''--force-output'''
 
-   * *-h*
-     or
-     *--help*
+force creation of all pages even if their sources are not changed
 
-     show possible arguments
+* '''-h'''
+or
+'''--help'''
 
-   * *-i*
-     or
-     *--inhibit-output*
+show possible arguments
 
-     inhibit creation for all pages (ie. do a test run)
+* '''-i'''
+or
+'''--inhibit-output'''
 
-   * *-n*
-     or
-     *--no-macros*
+inhibit creation for all pages (ie. do a test run)
 
-     do not evaluate macros
+* '''-n'''
+or
+'''--no-macros'''
 
-   * *-m*
-     or
-     *--macro-names*
+do not evaluate macros
 
-     put the name of the macro before and after each replacement in the
-     pages. This will probably break you html/css style, but it can be very
-     helpful when debugging macro's.
+* '''-m'''
+or
+'''--macro-names'''
 
-   * *-v <lvl>*
-     or
-     *--verbosity <lvl>*
+put the name of the macro before and after each replacement in the
+pages. This will probably break you html/css style, but it can be very
+helpful when debugging macro's.
 
-     set verbosity: 0 for no output, 5 for a lot
+* '''-v <<lvl>>'''
+or
+'''--verbosity <<lvl>>'''
+
+set verbosity: 0 for no output, 5 for a lot
