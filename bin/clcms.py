@@ -93,11 +93,11 @@ def heading_wiki_to_html(line):
         while len(text) > 1 and text[0] == '=' and text[-1] == '=':
         	heading_level += 1
         	text = text[1:-1]
-	line = "<h" + str(heading_level) + ">"
+	line = "</p><h" + str(heading_level) + ">"
 	text = text.lstrip(" \t")
 	text = text.rstrip(" \t")
 	line += text
-	line += "</h" + str(heading_level) + ">"
+	line += "</h" + str(heading_level) + "><p>"
     return line
 
 def link_wiki_to_html(line, page):
@@ -228,9 +228,9 @@ def wiki_handle_lists(prev_list_part, list_part, html_lines):
     cur_depth = len(same_part)
     while len(prev_list_part) > 0:
         if prev_list_part[-1] == '*':
-            html_lines.append((cur_depth * "\t") + "</ul>\n")
+            html_lines.append((cur_depth * "\t") + "</ul><p>\n")
         elif prev_list_part[-1] == '#':
-            html_lines.append((cur_depth * "\t") + "</ol>\n")
+            html_lines.append((cur_depth * "\t") + "</ol><p>\n")
         else:
             print "Error in prev_list_part: "+prev_list_part[0]+" should not appear here. please file a bug report"
             sys.exit(1)
@@ -240,9 +240,9 @@ def wiki_handle_lists(prev_list_part, list_part, html_lines):
     cur_depth = len(same_part)
     while len(list_part) > 0:
         if list_part[0] == '*':
-            html_lines.append((cur_depth * "\t") + "<ul>\n")
+            html_lines.append((cur_depth * "\t") + "</p><ul>\n")
         elif list_part[0] == '#':
-            html_lines.append((cur_depth * "\t") + "<ol>\n")
+            html_lines.append((cur_depth * "\t") + "</p><ol>\n")
         else:
             print "Error in list_part: "+list_part[0]+" should not appear here. please file a bug report"
             sys.exit(1)
@@ -1049,7 +1049,7 @@ class Content:
 
 	def toHTML(self):
 		page_lines = []
-		page_lines.append("<a name=\"" + self.getAnchorName() + "\"></a>\n")
+		page_lines.append("<a id=\"" + self.getAnchorName() + "\"></a>\n")
 		if self.show_item_title or self.show_item_title_date:
 			title_line = "<h3>"
 			if self.show_item_title_date:
