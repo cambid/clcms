@@ -1024,8 +1024,55 @@ class Content:
 		name_parts = file.split(get_option(page.options, "extension_separator"))
 		
 		self.name = name_parts[0]
-		# By default, the id is the input file
 		self.id = file
+		# By default, the id is the input file
+
+		lines = file_lines(file)
+		while len(lines) > 0 and (lines[0][:6] == "DESC: " or lines[0][:6] == "desc: "):
+			descr_option = lines[0][6:].rstrip("\n\t ")
+			if descr_option[:3] == "id ":
+				self.id = descr_option[3:]
+				#print "Set id to '"+id+"'"
+			elif descr_option[:5] == "wiki ":
+				value = descr_option[5:]
+				if value == "true":
+					self.parse_wiki = True
+				elif value == "false":
+					self.parse_wiki = False
+				else:
+					print "Error in description part of "+self.input_file+": unknown value for wiki option: "+value
+			elif descr_option[:10] == "showtitle ":
+				value = descr_option[6:]
+				if value == "true":
+					self.show_item_title = True
+				elif value == "false":
+					self.show_item_title = False
+				else:
+					print "Error in description part of "+self.input_file+": unknown value for showtitle option: "+value
+			elif descr_option[:14] == "showtitledate ":
+				value = descr_option[10:]
+				if value == "true":
+					self.show_item_title = True
+				elif value == "false":
+					self.show_item_title = False
+				else:
+					print "Error in description part of "+self.input_file+": unknown value for titledate option: "+value
+			elif descr_option[:11] == "sort order ":
+				try:
+					sort_order = int(descr_option[11:])
+				except ValueError:
+					print "Error in description part of "+self.input_file+": bad value for sort order option: "+value
+			elif descr_option[:1] == "X ":
+				id = id
+			elif descr_option[:1] == "X ":
+				id = id
+			elif descr_option[:1] == "X ":
+				id = id
+			else:
+				print "Error in description part of "+self.input_file+": unknown option "+descr_option
+				sys.exit(4);
+			lines = lines[1:]
+			
 		self.sort_order = -1
 		self.parse_wiki = True
 		self.show_item_title = True
@@ -1304,7 +1351,20 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
                         content = Content(page, df)
 
 			# check extension options
+			# EXTENSION OPTIONS ARE DEPRECATED!
+			# files can contain descr lines
+			# (ie lines starting with DESC: or desc:
+			#   followed by an options:
+			#   sort_order <int>: place of item on page
+			#   wiki <bool>: use wiki engine or not
+			#   title <bool>: show title or not
+			#   item_date <date>: if not entered, clcms will add this!
+			#                     time the item was first made (todo :) )
+			#    
 			for option_name in file_name_parts[1:-1]:
+				print "Extension options are deprecated!"
+				print "This file should probably be updated: "+df
+				sys.exit(2);
 		                if option_name == "nowiki":
 				    wiki_parse = False
 				elif option_name == "wiki":
@@ -1315,7 +1375,7 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
 				     show_item_title = False
 				elif option_name.isdigit():
 					content.sort_order = int(option_name)
-
+			lines = file_lines(df)
 			content.parse_wiki = wiki_parse
 			content.show_item_title = show_item_title
 			content.show_item_title_date = show_item_title_date
