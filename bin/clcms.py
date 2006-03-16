@@ -31,7 +31,7 @@ import code
 import traceback
 import copy
 
-version = "0.5"
+version = "0.6"
 verbosity = 1;
 
 no_macros = False
@@ -1035,33 +1035,34 @@ class Content:
 				#print "Set id to '"+id+"'"
 			elif descr_option[:5] == "wiki ":
 				value = descr_option[5:]
-				if value == "true":
+				if value.lower == "true":
 					self.parse_wiki = True
-				elif value == "false":
+				elif value.lower() == "false":
 					self.parse_wiki = False
 				else:
 					print "Error in description part of "+self.input_file+": unknown value for wiki option: "+value
 			elif descr_option[:10] == "showtitle ":
-				value = descr_option[6:]
-				if value == "true":
+				value = descr_option[10:]
+				if value.lower() == "true":
 					self.show_item_title = True
-				elif value == "false":
+				elif value.lower() == "false":
 					self.show_item_title = False
 				else:
 					print "Error in description part of "+self.input_file+": unknown value for showtitle option: "+value
-			elif descr_option[:14] == "showtitledate ":
-				value = descr_option[10:]
-				if value == "true":
+			elif descr_option[:16] == "showtitledate ":
+				value = descr_option[16:]
+				if value.lower() == "true":
 					self.show_item_title = True
-				elif value == "false":
+				elif value.lower() == "false":
 					self.show_item_title = False
 				else:
 					print "Error in description part of "+self.input_file+": unknown value for titledate option: "+value
 			elif descr_option[:11] == "sort order ":
 				try:
 					sort_order = int(descr_option[11:])
-				except ValueError:
+				except ValueError, e:
 					print "Error in description part of "+self.input_file+": bad value for sort order option: "+value
+					print e
 			elif descr_option[:1] == "X ":
 				id = id
 			elif descr_option[:1] == "X ":
@@ -1283,6 +1284,10 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
 						page.id = l[4:].rstrip()
 					elif l[:12] == "sort order: ":
 						page.sort_order = int(l[12:].rstrip())
+					elif l[:6] == "nomenu":
+						page.show_menu_item = False
+					elif l[:9] == "nosubmenu":
+						page.show_submenu = False
 					else:
 						print "Warning: unknown option line in page.meta file"
 						print "File: " + os.getcwd()+ os.sep + "page.meta:"

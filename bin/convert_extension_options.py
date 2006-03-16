@@ -15,6 +15,7 @@ for root, dirs, files in os.walk("."):
 			sort_order = ""
 			wiki_parse = ""
 			show_title = ""
+			show_menu= ""
 			
 			if len(file_name_parts) > 0:
 				for option in file_name_parts:
@@ -28,6 +29,10 @@ for root, dirs, files in os.walk("."):
 						show_title = "True"
 					elif option == "notitle":
 						show_title = "False"
+#					elif option == "menu":
+#						show_menu = "True"
+#					elif option == "nomenu":
+#						show_menu = "True"
 					#print option
 					
 					#
@@ -45,7 +50,9 @@ for root, dirs, files in os.walk("."):
 					if wiki_parse and wiki_parse != "":
 						o_file.write("desc: wiki "+wiki_parse+"\n")
 					if show_title and show_title != "":
-						o_file.write("desc: show title "+show_title+"\n")
+						o_file.write("desc: showtitle "+show_title+"\n")
+#					if show_menu and show_menu != "":
+#						o_file.write("desc: showmenu "+show_menu+"\n")
 					
 					o_file.write("\n\n")
 					for il in i_lines:
