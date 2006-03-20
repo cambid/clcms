@@ -1,0 +1,18 @@
+attr: id Usage.page
+attr: date 2006-03-20 22:09:23
+attr: sort order 2
+
+
+After you have installed it, you get an extra icon in your status bar. You
+can either click on it, select 'Tag Links' in the context or tools menu, or
+press Alt-L, and Linktag will be activated. While it is on, the current page
+and all new pages will have their links expanded with a tag that looks like:
+[l12]. The number starts with 1 and just counts up at every link. This way,
+all links get a unique tag that you can type on your keyboard, thus
+expanding the use of firefoxes accessibility.typeaheadfind. The feature can
+be turned off again the same way as it is turned on.
+
+If you select preferences in the extensions menu, you can change the pre-
+and postfix of the tag (default "[l" and "] "), and turn of the menu items
+and statusbar icon. Of course, it also shows in about:config, under
+extensions.linktag.

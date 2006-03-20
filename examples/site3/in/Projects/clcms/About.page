@@ -1,0 +1,22 @@
+attr: id About.page
+attr: date 2006-03-20 22:09:23
+attr: sort order 1
+
+
+clcms (pronounced "clickmas") is my own command line content management
+system. It's not a dynamic cms, but a script that takes a source tree and
+creates a web site out of it.
+
+The idea came to me when i was using m4 for my website to generate the HTML,
+but i did not like the idea that i was still typing HTML in my pages, even
+if it was simplified by using macros. I was updating a wiki page somewhere
+when it hit me: i wanted a command line system that was able to take wiki
+style input for page content. The result is clcms.
+
+Its in beta state at the moment, mostly to try out some different
+approaches to various challenges. But i thought i'd share it now, so if
+you're interested and might have some ideas on where to go from here, drop
+me a line (or a patch).
+
+It's also a way for me to learn Python, so i might in my ignorance produce
+some weird constructs here and there. Please let me know, but be gentle :)

@@ -1,0 +1,73 @@
+attr: id Usage Example.page
+attr: date 2006-03-20 22:09:23
+attr: sort order 6
+
+
+In KDE, i use KDialog to present the message for my main mailboxes. I still
+run it through a little script first (based on the one below) but that
+probably isn't even really needed. The result looks like this:
+
+[[Image:mailboxalert_example_kde.png|Mailbox Alert Example KDE]]
+
+In gnome, I have my main mailboxes setup with the following command:
+
+__/home/jeltejan/code/perl/mailalert.pl %count %server %folder %sender %subject %charset
+
+The script it calls reads the information and creates a nice borderless
+non-focused temporary
+[[http://homepages.ihug.co.nz/~trmusson/programs.html][gxmessage]] alert:
+
+_NO_WIKI_
+<pre>
+#!/usr/bin/perl -w
+
+my $messager = 'gmessage';
+my $default_args = '-wrap -borderless -nofocus -center -font "sans 10"';
+$default_args .= " -timeout 5";
+#$default_args .= " -buttons \"\"";
+
+my $arg1 = shift();
+my $arg2 = shift();
+my $arg3 = shift();
+my $arg4 = shift();
+my $arg5 = shift();
+my $arg6 = shift();
+
+if ($arg6) {
+  $default_args .= " -encoding ".$arg6;
+}
+
+my $line1 = $arg1." new messages on ".$arg2."/".$arg3;
+my $line2 = "Most recent from: ".$arg4;
+my $line3 = "Subject: ".$arg5;
+
+my $size = (length($line1) ) * 8;
+my $size2 = (length($line2) ) * 8;
+if ($size2 > $size) {
+  $size = $size2;
+}
+$size2 = (length($line3) ) * 8;
+if ($size2 > $size) {
+  $size = $size2;
+}
+my $geom = "-geometry ${size}x1";
+
+my $tempfile = `mktemp`;
+system("echo '$line1' >> $tempfile");
+system("echo '$line2' >> $tempfile");
+system("echo '$line3' >> $tempfile");
+
+my $cmd = $messager." ".$default_args." ".$geom." -file ".$tempfile;
+#".$line1." ".$line2." ".$line3." ";
+
+print STDERR  "ARGS: ".$arg1." ".$arg2." ".$arg3." ".$arg4." ".$arg5."\n";
+print STDERR "LOG: ".$cmd."\n";
+
+system($cmd);
+system("rm $tempfile");
+</pre>
+_NO_WIKI_END_
+
+So when mail arrives in these folders, i get this popup:
+
+[[Image:mailboxalert_example.png|Mailbox Alert Example GNOME]]

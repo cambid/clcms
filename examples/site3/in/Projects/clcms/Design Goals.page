@@ -1,0 +1,15 @@
+attr: id Design Goals.page
+attr: date 2006-03-20 22:09:23
+attr: sort order 2
+
+
+* Updates should be possible with a terminal and an editor
+* Content is stored in a directory tree
+* Adding pages (or items?) should be as easy as creating a new file
+     and typing some lines in it.
+* For default pages/items no config necessary
+* No HTML, XML or anything alike for normal usage (after initial setup, of course)
+* All pages have their binary content (images, download files) in
+     the directory of the page itself
+* All output is static, no generating on the fly
+

@@ -1,0 +1,11 @@
+attr: id About.page
+attr: date 2006-03-20 22:09:23
+attr: sort order 1
+
+
+This extension for Firefox provides a way to add typable tags to hyperlinks
+on webpages. This can be useful for instance in forum pages where a lot of
+links have the same name, or links that only have images and no text.
+Installing the plugin should turn on accessibility.typeaheadfind and
+accessibility.typeaheadfind.linksonly. If it doesn't, or you want to turn it
+off again, go to about:config. You can then also use / to start a search.
