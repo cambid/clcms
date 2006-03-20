@@ -701,24 +701,6 @@ def get_dir_files(options, dir, ignore_masks, invert = False):
         os.chdir(orig_path)
     return dirfiles
 
-def create_submenu(show_submenu, page_files, options):
-    submenu_lines = []
-    # submenu
-    if show_submenu and len(page_files) > 1:
-        submenu_lines.append("_submenustart_\n")
-        first = True
-        for pf in page_files:
-            if pf.find(".nomenu") < 0:
-                if not first:
-                    submenu_lines.append("_submenuitemseparator_\n")
-                else:
-                    first = False
-                submenu_lines.append("_submenuitemstart_\n");
-                submenu_lines.append("<a href=\"#" + escape_url(file_base_name(pf)) + "\">" + file_base_name(pf) + "</a>\n")
-                submenu_lines.append("_submenuitemend_\n");
-        submenu_lines.append("_submenuend_\n")
-    return submenu_lines
-
 def print_indentation(depth):
 	print "  "*depth,
     
@@ -1046,7 +1028,7 @@ class Content:
 		self.date_from_file = False
 
 		lines = file_lines(file)
-		while len(lines) > 0 and lines[0][:6].lower() == "desc: ":
+		while len(lines) > 0 and lines[0][:6].lower() == "attr: ":
 
 			descr_option = lines[0][6:].rstrip("\n\t ")
 
@@ -1054,7 +1036,7 @@ class Content:
 				self.id = descr_option[3:]
 				#print "Set id to '"+id+"'"
 				self.id_from_file = True
-			elif descr_option[:5] == "date ":
+			elif descr_option[:5].lower() == "date ":
 				# try several formats
 				try:
 					self.date = time.strptime(descr_option[5:], "%Y-%m-%d %H:%M:%S")
@@ -1062,64 +1044,61 @@ class Content:
 					try:
 						self.date = time.strptime(descr_option[5:], "%Y-%m-%d")
 					except:
-						print "Bad date in description line in file: " + self.input_file
+						print "Bad date in attribute line in file: " + self.input_file
 						print "Line: " + lines[0]
 						print "Format should be either \"YYYY-MM-DD\" or \"YYYY-MM-DD HH:mm:ss\"."
 						sys.exit(3)
 				self.date_from_file = True
-			elif descr_option[:5] == "wiki ":
+			elif descr_option[:5].lower() == "wiki ":
 				value = descr_option[5:]
-				if value.lower == "true":
+				if value.lower() == "true":
 					self.parse_wiki = True
 				elif value.lower() == "false":
 					self.parse_wiki = False
 				else:
-					print "Error in description part of "+self.input_file+": unknown value for wiki option: "+value
+					print "Error in attribute part of "+self.input_file+": unknown value for wiki option: "+value
 				self.parse_wiki_from_file = True
-			elif descr_option[:10] == "showtitle ":
+			elif descr_option[:10].lower() == "showtitle ":
 				value = descr_option[10:]
 				if value.lower() == "true":
 					self.show_item_title = True
 				elif value.lower() == "false":
 					self.show_item_title = False
 				else:
-					print "Error in description part of "+self.input_file+": unknown value for showtitle option: "+value
+					print "Error in attribute part of "+self.input_file+": unknown value for showtitle option: "+value
 				self.show_item_title_from_file = True
-			elif descr_option[:16] == "showtitledate ":
+			elif descr_option[:16].lower() == "showtitledate ":
 				value = descr_option[16:]
 				if value.lower() == "true":
 					self.show_item_title_date = True
 				elif value.lower() == "false":
 					self.show_item_title_date = False
 				else:
-					print "Error in description part of "+self.input_file+": unknown value for titledate option: "+value
+					print "Error in attribute part of "+self.input_file+": unknown value for titledate option: "+value
 				self.show_item_title_date_from_file = True
-			elif descr_option[:11] == "sort order ":
+			elif descr_option[:11].lower() == "sort order ":
 				try:
-					sort_order = int(descr_option[11:])
+					self.sort_order = int(descr_option[11:])
+					#print "Sort order for "+self.input_file+":", sort_order
 				except ValueError, e:
-					print "Error in description part of "+self.input_file+": bad value for sort order option: "+value
+					print "Error in attribute part of "+self.input_file+": bad value for sort order option: "+value
 					print e
-			elif descr_option[:1] == "X ":
-				id = id
-			elif descr_option[:1] == "X ":
-				id = id
-			elif descr_option[:1] == "X ":
-				id = id
+			#elif descr_option[:1] == "X ":
+			#	id = id
 			else:
-				print "Error in description part of "+self.input_file+": unknown option "+descr_option
+				print "Error in attribute part of "+self.input_file+": unknown option "+descr_option
 				sys.exit(4);
 			lines = lines[1:]
 			
 		# set date if not set yet
-		if not self.date_from_file or not self.id_from_file:
+		if not inhibit_output and (not self.date_from_file or not self.id_from_file):
 			# read file and write again
 			flines = file_lines(self.input_file)
 			outfile = open(self.input_file, "w")
 			if not self.id_from_file:
-				outfile.write("desc: id " + self.id + "\n")
+				outfile.write("attr: id " + self.id + "\n")
 			if not self.date_from_file:
-				outfile.write("desc: date " + time.strftime("%Y-%m-%d %H:%M:%S", self.date) + "\n");
+				outfile.write("attr: date " + time.strftime("%Y-%m-%d %H:%M:%S", self.date) + "\n");
 			for fl in flines:
 				outfile.write(fl)
 			outfile.close()
@@ -1144,7 +1123,7 @@ class Content:
 		page_lines = []
 		flines = file_lines(self.input_file)
 		# strip desc lines
-		while len(flines) > 0 and flines[0][:6].lower() == "desc: ":
+		while len(flines) > 0 and flines[0][:6].lower() == "attr: ":
 			flines = flines[1:]
 		page_lines.append("<a id=\"" + self.getAnchorName() + "\"></a>\n")
 		if self.show_item_title or self.show_item_title_date:
@@ -1325,8 +1304,7 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
 	page.options = options
 
 	for df in dir_files:
-		# TODO: option
-		if df == "page.meta":
+		if df == "page.attr":
 			for l in file_lines(df):
 				if l.rstrip() != "":
 					if l[:4] == "id: ":
@@ -1338,8 +1316,8 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
 					elif l[:9] == "nosubmenu":
 						page.show_submenu = False
 					else:
-						print "Warning: unknown option line in page.meta file"
-						print "File: " + os.getcwd()+ os.sep + "page.meta:"
+						print "Warning: unknown option line in page.attr file"
+						print "File: " + os.getcwd()+ os.sep + "page.attr:"
 						print l
 		else:
 			dir_files2.append(df)
@@ -1407,7 +1385,7 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
 			# check extension options
 			# EXTENSION OPTIONS ARE DEPRECATED!
 			# files can contain descr lines
-			# (ie lines starting with DESC: or desc:
+			# (ie lines starting with attr:
 			#   followed by an options:
 			#   sort_order <int>: place of item on page
 			#   wiki <bool>: use wiki engine or not

@@ -46,13 +46,13 @@ for root, dirs, files in os.walk("."):
 					o_file = open(os.path.join(root, page_name+".page"), "w")
 					
 					if sort_order and sort_order != "":
-						o_file.write("desc: sort order "+sort_order+"\n")
+						o_file.write("attr: sort order "+sort_order+"\n")
 					if wiki_parse and wiki_parse != "":
-						o_file.write("desc: wiki "+wiki_parse+"\n")
+						o_file.write("attr: wiki "+wiki_parse+"\n")
 					if show_title and show_title != "":
-						o_file.write("desc: showtitle "+show_title+"\n")
+						o_file.write("attr: showtitle "+show_title+"\n")
 #					if show_menu and show_menu != "":
-#						o_file.write("desc: showmenu "+show_menu+"\n")
+#						o_file.write("attr: showmenu "+show_menu+"\n")
 					
 					o_file.write("\n\n")
 					for il in i_lines:
