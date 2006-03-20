@@ -38,6 +38,7 @@ no_macros = False
 force_output = False
 inhibit_output = False
 show_macro_names = False
+store_dates = True
 
 # is there a built-in function for this?
 def copy_list(l):
@@ -1025,14 +1026,31 @@ class Content:
 		
 		self.name = name_parts[0]
 		self.id = file
+		self.id_from_file = False
 		# By default, the id is the input file
 
+		self.sort_order = -1
+		self.parse_wiki = True
+		self.show_item_title = True
+		self.show_item_title_date = False
+		
+		self.date = time.gmtime(os.stat(self.input_file)[stat.ST_MTIME])
+		self.date_from_file = False
+
 		lines = file_lines(file)
-		while len(lines) > 0 and (lines[0][:6] == "DESC: " or lines[0][:6] == "desc: "):
+		while len(lines) > 0 and lines[0][:6].lower() == "desc: ":
+#			print self.name+" desc!"
 			descr_option = lines[0][6:].rstrip("\n\t ")
+#			print descr_option
+#			print "dus"
 			if descr_option[:3] == "id ":
 				self.id = descr_option[3:]
 				#print "Set id to '"+id+"'"
+				self.id_from_file = True
+			elif descr_option[:5] == "date ":
+				# try several formats
+				self.date = time.strptime(descr_option[5:], "%Y-%m-%d %H:%M:%S")
+				self.date_from_file = True
 			elif descr_option[:5] == "wiki ":
 				value = descr_option[5:]
 				if value.lower == "true":
@@ -1043,18 +1061,20 @@ class Content:
 					print "Error in description part of "+self.input_file+": unknown value for wiki option: "+value
 			elif descr_option[:10] == "showtitle ":
 				value = descr_option[10:]
+#				print "show title: "+value
 				if value.lower() == "true":
 					self.show_item_title = True
 				elif value.lower() == "false":
+					print "No title for ",self.name
 					self.show_item_title = False
 				else:
 					print "Error in description part of "+self.input_file+": unknown value for showtitle option: "+value
 			elif descr_option[:16] == "showtitledate ":
 				value = descr_option[16:]
 				if value.lower() == "true":
-					self.show_item_title = True
+					self.show_item_title_date = True
 				elif value.lower() == "false":
-					self.show_item_title = False
+					self.show_item_title_date = False
 				else:
 					print "Error in description part of "+self.input_file+": unknown value for titledate option: "+value
 			elif descr_option[:11] == "sort order ":
@@ -1074,10 +1094,18 @@ class Content:
 				sys.exit(4);
 			lines = lines[1:]
 			
-		self.sort_order = -1
-		self.parse_wiki = True
-		self.show_item_title = True
-		self.show_item_title_date = False
+		# set date if not set yet
+		if not self.date_from_file or not self.id_from_file:
+			# read file and write again
+			flines = file_lines(self.input_file)
+			outfile = open(self.input_file, "w")
+			if not self.id_from_file:
+				outfile.write("desc: id " + self.id + "\n")
+			if not self.date_from_file:
+				outfile.write("desc: date " + time.strftime("%Y-%m-%d %H:%M:%S", self.date) + "\n");
+			for fl in flines:
+				outfile.write(fl)
+			outfile.close()
 
 		# parent page
 		self.page = page
@@ -1097,8 +1125,14 @@ class Content:
 
 	def toHTML(self):
 		page_lines = []
+		flines = file_lines(self.input_file)
+		# strip desc lines
+		while len(flines) > 0 and flines[0][:6].lower() == "desc: ":
+			flines = flines[1:]
 		page_lines.append("<a id=\"" + self.getAnchorName() + "\"></a>\n")
 		if self.show_item_title or self.show_item_title_date:
+			print "showtitle: ", self.show_item_title
+			print "showtitled: ", self.show_item_title_date
 			title_line = "<h3>"
 			if self.show_item_title_date:
 				title_line += time.strftime("%Y-%m-%d", time.gmtime(os.stat(self.input_file)[stat.ST_MTIME]))
@@ -1107,9 +1141,9 @@ class Content:
 			title_line += "</h3>\n"
 			page_lines.append(title_line)
 		if self.parse_wiki:
-			page_lines.extend(wiki_to_html(file_lines(self.input_file), self.page))
+			page_lines.extend(wiki_to_html(flines, self.page))
 		else:
-			page_lines.extend(file_lines(self.input_file))
+			page_lines.extend(flines)
 		return page_lines
 
 class File:
@@ -1346,8 +1380,6 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
 	#
 	# check options for here
         wiki_parse = get_option(options, "wiki_parse") == 'yes'
-        show_item_title = get_option(options, "show_item_title") == 'yes'
-        show_item_title_date = get_option(options, "show_item_title_date") == 'yes'
 
 	for df in dir_files:
 		file_name_parts = df.split(get_option(options, "extension_separator"));
@@ -1382,8 +1414,6 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
 					content.sort_order = int(option_name)
 			lines = file_lines(df)
 			content.parse_wiki = wiki_parse
-			content.show_item_title = show_item_title
-			content.show_item_title_date = show_item_title_date
                         page.addContent(content)
                 else:
                         #print "FILEEXT: "+file_name_parts[-1]
