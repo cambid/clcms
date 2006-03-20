@@ -1,0 +1,18 @@
+attr: id DNSSEC Test.page
+attr: date 2006-03-20 22:06:30
+Welcome to my DNSSEC test page. You can verify if you have a working DNSSEC
+setup here. You may have arrived here through different hostnames but the
+important two are these:
+
+[[http://www.jelte.nlnetlabs.nl/Projects/DNSSEC/index.html][www.jelte.nlnetlabs.nl]]
+
+[[http://bogussig.test.jelte.nlnetlabs.nl/Projects/DNSSEC/index.html][bogussig.test.jelte.nlnetlabs.nl]]
+
+on most systems, both these links should work, but if you use
+[[http://www.dnssec.net/][DNSSEC]] with [jelte.]nlnetlabs.nl as
+dnssec-must-be-secure, and
+[[Kjelte.nlnetlabs.nl.+005+42860.key][this key]] as a trusted key, the first one should work, but the second should
+not.
+
+if you use the NLnetLabs [[http://www.nlnetlabs.nl/dnssec/drill_extension.html][DNSSEC firefox extension]]
+with that key, the icon should appear green on the first link and red on the second.

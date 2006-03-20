@@ -1,0 +1,16 @@
+attr: id Changelog.page
+attr: date 2006-03-20 22:06:30
+attr: sort order 5
+
+
+* '''[0.1 - 0.2]'''
+** Moved include files from .setup to default macros
+** Added file date check to see if pages need to be recreated
+** Added error handling on common errors
+** Made directory separators and parent directory references portable
+** Added macro arguments
+** Added some macors
+** Bugfixes
+* '''[0.0 - 0.1]'''
+     First version
+

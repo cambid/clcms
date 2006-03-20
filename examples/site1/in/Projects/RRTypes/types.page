@@ -1,0 +1,610 @@
+attr: id types.page
+attr: date 2006-03-20 22:06:30
+_NO_WIKI_
+      <p>Quick reference page, mail me if i am missing types.</p>
+
+      <p>I also have to check the references to rfcs (especially for obsoleted rfcs) and i want to add a state in the near future (experimental/deprecated etc)</p>
+
+      <p>white types are experimental, red types are obsolete. (information according to <a href="http://www.iana.org/assignments/dns-parameters">IANA</a>, with updates where i found them)</p>
+
+      <table summary="rr types">
+        <tr class="">
+
+          <td>1</td>
+
+          <td><b>A</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc1035.txt">rfc1035</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=1035&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>a host address</td>
+
+        </tr>
+
+        <tr class="">
+          <td>2</td>
+
+          <td><b>NS</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc1035.txt">rfc1035</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=1035&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>an authoritative name server</td>
+        </tr>
+
+        <tr class="red">
+          <td>3</td>
+
+          <td><b>MD</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc1035.txt">rfc1035</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=1035&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>a mail destination</td>
+        </tr>
+
+        <tr class="red">
+          <td>4</td>
+
+          <td><b>MF</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc1035.txt">rfc1035</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=1035&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>a mail forwarder</td>
+        </tr>
+
+        <tr class="">
+          <td>5</td>
+
+          <td><b>CNAME</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc1035.txt">rfc1035</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=1035&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>the canonical name for an alias</td>
+        </tr>
+
+        <tr class="">
+          <td>6</td>
+
+          <td><b>SOA</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc1035.txt">rfc1035</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=1035&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>marks the start of a zone of authority</td>
+        </tr>
+
+        <tr class="white">
+          <td>7</td>
+
+          <td><b>MB</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc1035.txt">rfc1035</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=1035&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>a mailbox domain name (EXPERIMENTAL)</td>
+        </tr>
+
+        <tr class="white">
+          <td>8</td>
+
+          <td><b>MG</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc1035.txt">rfc1035</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=1035&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>a mail group member (EXPERIMENTAL)</td>
+        </tr>
+
+        <tr class="white">
+          <td>9</td>
+
+          <td><b>MR</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc1035.txt">rfc1035</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=1035&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>a mail rename domain name (EXPERIMENTAL)</td>
+        </tr>
+
+        <tr class="white">
+          <td>10</td>
+
+          <td><b>NULL</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc1035.txt">rfc1035</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=1035&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>a null RR (EXPERIMENTAL)</td>
+        </tr>
+
+        <tr class="">
+          <td>11</td>
+
+          <td><b>WKS</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc1035.txt">rfc1035</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=1035&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>a well known service description</td>
+        </tr>
+
+        <tr class="">
+          <td>12</td>
+
+          <td><b>PTR</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc1035.txt">rfc1035</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=1035&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>a domain name pointer</td>
+        </tr>
+
+        <tr class="">
+          <td>13</td>
+
+          <td><b>HINFO</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc1035.txt">rfc1035</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=1035&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>host information</td>
+        </tr>
+
+        <tr class="">
+          <td>14</td>
+
+          <td><b>MINFO</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc1035.txt">rfc1035</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=1035&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>mailbox or mail list information</td>
+        </tr>
+
+        <tr class="">
+          <td>15</td>
+
+          <td><b>MX</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc1035.txt">rfc1035</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=1035&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>mail exchange</td>
+        </tr>
+
+        <tr class="">
+          <td>16</td>
+
+          <td><b>TXT</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc1035.txt">rfc1035</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=1035&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>text strings</td>
+        </tr>
+
+        <tr class="">
+          <td>17</td>
+
+          <td><b>RP</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc1183.txt">rfc1183</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=1183&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>responsible person</td>
+        </tr>
+
+        <tr class="">
+          <td>18</td>
+
+          <td><b>AFSDB</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc1183.txt">rfc1183</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=1183&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>location of AFS &amp; OSF/DCE server</td>
+        </tr>
+
+        <tr class="">
+
+          <td>19</td>
+
+          <td><b>X25</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc1183.txt">rfc1183</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=1183&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>ITU X.121 numbering plan PSDN address</td>
+
+        </tr>
+
+        <tr class="">
+          <td>20</td>
+
+          <td><b>ISDN</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc1183.txt">rfc1183</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=1183&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>maps a name into an ISDN phone number</td>
+        </tr>
+
+        <tr class="">
+          <td>21</td>
+
+          <td><b>RT</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc1183.txt">rfc1183</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=1183&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>provides a route-through binding for hosts that do not have their own direct wide area network addresses</td>
+        </tr>
+
+        <tr class="">
+          <td>22</td>
+
+          <td><b>NSAP</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc1706.txt">rfc1706</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=1706&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>variable length addresses, targeted for CLNP</td>
+        </tr>
+
+        <tr class="">
+          <td>23</td>
+
+          <td><b>NSAP-PTR</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc1348.txt">rfc1348</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=1348&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>nsap pointer</td>
+        </tr>
+
+        <tr class="">
+          <td>24</td>
+
+          <td><b>SIG</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc2913.txt">rfc2913</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=2913&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>dnssec signature</td>
+        </tr>
+
+        <tr class="">
+          <td>25</td>
+
+          <td><b>KEY</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc2535.txt">rfc2535</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=2535&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>dnssec key</td>
+        </tr>
+
+        <tr class="">
+          <td>26</td>
+
+          <td><b>PX</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc2163.txt">rfc2163</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=2163&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>mapping between RFC 822 domain names and X.400 O/R names, see also rfc2156</td>
+        </tr>
+
+        <tr class="">
+          <td>27</td>
+
+          <td><b>GPOS</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc1712.txt">rfc1712</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=1712&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>geographical location</td>
+        </tr>
+
+        <tr class="">
+          <td>28</td>
+
+          <td><b>AAAA</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc3596.txt">rfc3596</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=3596&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>ipv6 address</td>
+        </tr>
+
+        <tr class="">
+          <td>29</td>
+
+          <td><b>LOC</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc1876.txt">rfc1876</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=1876&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>location of hosts</td>
+        </tr>
+
+        <tr class="red">
+          <td>30</td>
+
+          <td><b>NXT</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc2535.txt">rfc2535</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=2535&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>) <a href="http://www.ietf.org/rfc/rfc3755.txt">rfc3755</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=3755&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>dnssec next record (for nonexistence proofs)</td>
+        </tr>
+
+        <tr class="">
+          <td>31</td>
+
+          <td><b>EID</b></td>
+
+          <td nowrap="nowrap">draft-ietf-nimrod-dns-01.txt</td>
+
+          <td>endpoint identifier</td>
+
+        </tr>
+
+        <tr class="">
+          <td>32</td>
+
+          <td><b>NIMLOC</b></td>
+
+          <td nowrap="nowrap">draft-ietf-nimrod-dns-01.txt</td>
+
+          <td>nimrod locator</td>
+        </tr>
+
+        <tr class="">
+          <td>33</td>
+
+          <td><b>SRV</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc2782.txt">rfc2782</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=2782&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>service registration</td>
+        </tr>
+
+        <tr class="red">
+          <td>34</td>
+
+          <td><b>ATMA</b></td>
+
+          <td nowrap="nowrap">http://www.jhsoft.com/rfc/af-saa-0069.000.rtf</td>
+
+          <td>maps domain name to ATM address</td>
+        </tr>
+
+        <tr class="">
+          <td>35</td>
+
+          <td><b>NAPTR</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc2168.txt">rfc2168</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=2168&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>) <a href="http://www.ietf.org/rfc/rfc2915.txt">rfc2915</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=2915&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>naming authority pointer</td>
+
+        </tr>
+
+        <tr class="">
+          <td>36</td>
+
+          <td><b>KX</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc2230.txt">rfc2230</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=2230&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>key exchange delegation</td>
+        </tr>
+
+        <tr class="">
+          <td>37</td>
+
+          <td><b>CERT</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc2538.txt">rfc2538</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=2538&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>certificate</td>
+        </tr>
+
+        <tr class="">
+          <td>38</td>
+
+          <td><b>A6</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc2874.txt">rfc2874</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=2874&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>alternative way to store IPv6 addresses</td>
+        </tr>
+
+        <tr class="">
+          <td>39</td>
+
+          <td><b>DNAME</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc2672.txt">rfc2672</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=2672&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>domain name redirection</td>
+        </tr>
+
+        <tr class="red">
+          <td>40</td>
+
+          <td><b>SINK</b></td>
+
+          <td nowrap="nowrap">dnsind-kitchen-sink-02.txt</td>
+
+          <td>kitchen sink, for arbitrary data</td>
+        </tr>
+
+        <tr class="">
+          <td>41</td>
+
+          <td><b>OPT</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc2671.txt">rfc2671</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=2671&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>pseudo OPT record</td>
+        </tr>
+
+        <tr class="">
+
+          <td>42</td>
+
+          <td><b>APL</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc3123.txt">rfc3123</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=3123&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>address prefix lists</td>
+
+        </tr>
+
+        <tr class="">
+          <td>43</td>
+
+          <td><b>DS</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc3658.txt">rfc3658</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=3658&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>dnssecbis delegation signer</td>
+        </tr>
+
+        <tr class="">
+          <td>44</td>
+
+          <td><b>SSHFP</b></td>
+
+          <td nowrap="nowrap">RFC-ietf-secsh-dns-05.txt</td>
+
+          <td>SSH Key Fingerprint</td>
+        </tr>
+
+        <tr class="">
+          <td>45</td>
+
+          <td><b>IPSECKEY</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/internet-drafts/draft-ietf-ipseckey-rr-12.txt">draft-richardson-ipseckey-rr-12.txt</a></td>
+
+          <td>IPSEC key storage</td>
+        </tr>
+
+        <tr class="">
+          <td>46</td>
+
+          <td><b>RRSIG</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc3755.txt">rfc3755</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=3755&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>dnssecbis rrset signature</td>
+        </tr>
+
+        <tr class="">
+          <td>47</td>
+
+          <td><b>NSEC</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc3755.txt">rfc3755</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=3755&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>dnssecbis next secure</td>
+        </tr>
+
+        <tr class="">
+          <td>48</td>
+
+          <td><b>DNSKEY</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc3755.txt">rfc3755</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=3755&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>dnssecbis dns key</td>
+        </tr>
+
+        <tr class="">
+          <td>100</td>
+
+          <td><b>UINFO</b></td>
+
+          <td nowrap="nowrap"></td>
+
+          <td>reserved by IANA</td>
+        </tr>
+
+        <tr class="">
+          <td>101</td>
+
+          <td><b>UID</b></td>
+
+          <td nowrap="nowrap"></td>
+
+          <td>reserved by IANA</td>
+        </tr>
+
+        <tr class="">
+          <td>102</td>
+
+          <td><b>GID</b></td>
+
+          <td nowrap="nowrap"></td>
+
+          <td>reserved by IANA</td>
+        </tr>
+
+        <tr class="">
+          <td>103</td>
+
+          <td><b>UNSPEC</b></td>
+
+          <td nowrap="nowrap"></td>
+
+          <td>reserved by IANA</td>
+        </tr>
+
+        <tr class="">
+          <td>249</td>
+
+          <td><b>TKEY</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc2930.txt">rfc2930</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=2930&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>transaction authentication key</td>
+        </tr>
+
+        <tr class="">
+          <td>250</td>
+
+          <td><b>TSIG</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc2845.txt">rfc2845</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=2845&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>transaction authentication signature</td>
+        </tr>
+
+        <tr class="">
+          <td>251</td>
+
+          <td><b>IXFR</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc1035.txt">rfc1035</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=1035&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>incremental transfer</td>
+        </tr>
+
+        <tr class="">
+          <td>252</td>
+
+          <td><b>AXFR</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc1035.txt">rfc1035</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=1035&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>transfer of entire zone</td>
+        </tr>
+
+        <tr class="">
+          <td>253</td>
+
+          <td><b>MAILB</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc1035.txt">rfc1035</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=1035&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>request for mailbox-related records (MB, MG or MR)</td>
+        </tr>
+
+        <tr class="red">
+          <td>254</td>
+
+          <td><b>MAILA</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc1035.txt">rfc1035</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=1035&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>request for mail agent RRs</td>
+        </tr>
+
+        <tr class="">
+          <td>255</td>
+
+          <td><b>ANY</b></td>
+
+          <td nowrap="nowrap"><a href="http://www.ietf.org/rfc/rfc1035.txt">rfc1035</a> (<a href="http://www.rfc-editor.org/cgi-bin/rfcsearch.pl?searchwords=1035&amp;opt=Number&amp;search=1&amp;filefmt=txt&amp;num=25">db</a>)</td>
+
+          <td>any type (wildcard)</td>
+        </tr>
+
+      </table>
+_NO_WIKI_END_
