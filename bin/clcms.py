@@ -869,7 +869,7 @@ class Page:
 		if calling_page.getPageDepth() > 0:
 			back_dir =  calling_page.getBackDir()
 		for c in self.children:
-			if self.show_menu_item:
+			if c.show_menu_item:
 				link = ""
 				if len(c.contents) > 0:
 					#link = "<a href=\""+(os.pardir + os.sep)*(calling_page.getPageDepth()) + os.pardir + c.getTotalOutputDir() + os.sep + "index.html\""
