@@ -1,4 +1,0 @@
-output = "<li>\n"
-output += "_".join(arguments)
-output += "\n<ul>\n<li class=\"hide\"></li>\n"
-

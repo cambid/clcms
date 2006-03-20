@@ -1,1 +1,0 @@
-<li><span class="divider"> : </span></li>
