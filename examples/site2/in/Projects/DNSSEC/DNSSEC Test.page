@@ -1,3 +1,5 @@
+attr: id DNSSEC Test.page
+attr: date 2006-03-20 22:08:32
 Welcome to my DNSSEC test page. You can verify if you have a working DNSSEC
 setup here. You may have arrived here through different hostnames but the
 important two are these:

@@ -1,4 +1,6 @@
+attr: id clcms.page
+attr: date 2006-03-20 22:08:32
 A little while ago, i was talking to a good friend, and i decided that i
 wanted some form of content management that did not need pure dynamic pages,
-and that could be updated from the command line. 
+and that could be updated from the command line.
 [[clcms/index.html][See here]] my first attempt.

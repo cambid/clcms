@@ -1,3 +1,5 @@
+attr: id Linktag.page
+attr: date 2006-03-20 22:08:32
 This extension for Firefox provides a way to add typable tags to hyperlinks
 on webpages. This can be useful for instance in forum pages where a lot of
 links have the same name, or links that only have images and no text.

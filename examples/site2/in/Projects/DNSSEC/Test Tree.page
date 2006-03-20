@@ -1,3 +1,5 @@
+attr: id Test Tree.page
+attr: date 2006-03-20 22:08:32
 I also created a complete tree to test your chaser/tracer/verifier/whatever
 with. At the moment it goes down 5 levels, test.jelte.nlnetlabs.nl every
 zone has 5 delegations:
