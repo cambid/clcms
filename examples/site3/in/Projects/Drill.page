@@ -1,6 +1,0 @@
-At Labs, we are working on a low-level tool for DNSSEC debugging. It works
-(and feels) a lot like dig, but with some different features (mainly DNSSEC
-support). See our 
-[[http://www.nlnetlabs.nl/dnssec/drill.html][Drill]]
-page at
-[[http://www.nlnetlabs.nl/][NLnet Labs]].
