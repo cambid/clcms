@@ -1,0 +1,7 @@
+output = ""
+if page.getPageDepth() > 0:
+	output += "\t_menu_2_1_\n"
+	output +="\n"
+	output +="\t<div class=\"menu1_contents\">\n"
+
+

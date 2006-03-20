@@ -1,0 +1,9 @@
+attr: id The Program.page
+attr: date 2006-03-20 20:15:53
+attr: sort order 1
+
+
+All of clcms is done by 1 Python script; clcms.py. Just running it in the
+right directory will (re)create your website for you. It will generate the
+HTML, create the right document directory structures, conjure up your menus,
+and copy the binary data for the site.

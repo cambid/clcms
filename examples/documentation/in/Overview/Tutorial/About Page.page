@@ -1,0 +1,38 @@
+attr: id About Page.page
+attr: date 2006-03-20 20:15:53
+attr: sort order 4
+
+
+First go to the about page.
+
+__cd About/
+
+Let's say that the order of the contents of this page does not matter for
+us. We'll specify no sort order, and clcms will order them by last modified
+date. Later runs of clcms will keep this original order (by default).
+
+
+Page content must be put in so-called .page files, you do not have to type
+html tags, just type some lines. You can specify markup by using Wiki
+style syntax See [[:wiki_markup][]] for more information on this.
+
+So let's create one:
+
+__$EDITOR About\ Me.page
+
+Just write some nice lines about what you do, or not.
+
+__$EDITOR About\ this\ site.page
+
+This is
+''the''
+place to put those praises you have for the system you have created your
+beautiful site with (for the record, that's clcms).
+
+Note that after building the site, the file names up to the dot can be
+formed into a small in-page submenu, if there is more than one .page file
+present. An example of this can be seen on the top right of this page,
+underneath the pageNave box.
+
+For now, we are done here, you can also add other nice stuff about you or
+your site, but I'll leave that up to you.

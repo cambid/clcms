@@ -1,0 +1,10 @@
+attr: id Italic text.page
+attr: date 2006-03-20 20:15:53
+attr: sort order 4
+
+
+You can specify '''bold text''' by enclosing it in 3 quotes.
+
+Source:
+__You can specify '''bold text''' by enclosing it in 3 quotes.
+

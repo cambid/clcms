@@ -1,0 +1,39 @@
+attr: id News.page
+attr: date 2006-03-20 20:15:53
+attr: sort order 6
+
+
+The last part is telling the world of your great new site, so let's add an entry to the News page.
+
+__cd News
+
+__$EDITOR newpage.page
+
+And put in some nice lines about you having this great new site (links and
+references to clcms are appreciated ;) ).
+
+Again, we don't specify a fixed sort order, so newer files will end up
+before older ones.
+
+In this page, let's say that we do not want to have all .page parts preceded
+by their file name title, but we do want to have the date automatically
+added. For this we create a .setup file in the News.1/ directory:
+
+__$EDITOR news.setup
+
+in which we put the following lines:
+
+_NO_WIKI_
+_NO_MACRO_
+<pre>
+show_submenu = no
+show_item_title = no
+show_item_title_date = yes
+</pre>
+_NO_MACRO_END_
+_NO_WIKI_END_
+
+This will tell clcms not to place an in-page submenu in this page, and not
+add the page item title, but instead use the last modified date of the .page
+files.
+

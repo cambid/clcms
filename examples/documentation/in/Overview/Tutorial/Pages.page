@@ -1,0 +1,22 @@
+attr: id Pages.page
+attr: date 2006-03-20 20:15:53
+attr: sort order 3
+
+
+Let's say we want to create 3 pages: a news page, an about page, and a Link page.
+
+We also want a standard menu, but no fancy layout for now.
+
+So, let's create the containers for those pages, shall we?
+
+__mkdir News
+__mkdir About
+__mkdir Links
+
+If we want these pages to appear on the site in a fixed order, we have to
+create a page.attr file in each directory, containing the line
+__sort order: X
+where X is a number that represents the place the page should get.
+
+Since we have no news yet, let's start with the About page.
+

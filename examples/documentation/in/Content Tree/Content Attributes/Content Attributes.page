@@ -1,0 +1,60 @@
+attr: id Content Attributes.page
+attr: date 2006-03-20 20:15:53
+attr: sort order 3
+
+
+For .page files, you can specify some options with attribute lines:
+__attr: <<attribute name>> <<optional attirbute value>>
+
+For instance:
+__attr: sort order 4
+
+Attribute lines are only parsed if they are the first lines of the .page
+file, and must begin with "attr: " (case insensitive). Once a line has been
+seen that does not start with "attr: ", clcms will stop looking for
+attribute lines.
+
+Attribute names and values are case insensitive.
+
+The complete list of attributes is:
+
+* '''id'''
+
+     This is the id of the content item. At the moment this is not used.
+     Future versions can use this in links, much the same as ids of
+     page.attr files. If no id is specified, clcms will add it for you.
+
+* '''date <<date>>'''
+
+     This attribute specifies the date of creation of this file. This is
+     used in sorting, and can be shown like the title of this content item
+     by setting showtitledate to true.  The date format can be specified in
+     the .setup options, and defaults to "YYYY-MM-DD". If this attribute is
+     not specified, clcms will add it for you. If you want to regenerate it
+     later, just remove this line.
+
+* '''showtitle <<true/false>>'''
+
+     Specifies if this part will be preceded by its title (i.e. the filename without the extension).
+
+* '''showtitledate <<true/false>>'''
+
+     Specifies if this part will be preceded by its set date.
+
+* '''wiki <<true/false>>'''
+
+     Specifies if part will be put through the wiki engine.
+
+
+
+Example:
+
+_NO_WIKI_
+<pre>
+attr: id Content Attributes.page
+attr: date 2006-03-20 20:15:53
+attr: sort order 3
+attr: wiki true
+attr: showtitle true
+</pre>
+_NO_WIKI_END_

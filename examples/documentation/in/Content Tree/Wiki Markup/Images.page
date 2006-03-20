@@ -1,0 +1,49 @@
+attr: id Images.page
+attr: date 2006-03-20 20:15:53
+attr: sort order 8
+
+
+Images are specified like links, with square brackets. The URL part looks like this:
+Image:<<url>>[|<<alt-tag>>]
+
+The text of the alt-tag will appear instead of the image in browsers that
+cannot display images, and in the tooltip for browsers that can. If you do
+not specify an alt-tag, it will be replaced by the filename.
+
+
+[[Image:example_image.png|example image]]
+
+__[[Image:example_image.png|example image]]
+
+You can specify extra options between the url and the alt-tag, separated by |:
+
+* '''<<size>>px'''
+
+    The image will be scaled to a width of <<size>> pixels.
+
+* '''thumb'''
+
+    The image will be enclosed by a link to the image itself.
+
+* '''frame'''
+
+    The image will get a border.
+
+
+[[Image:example_image.png|64px|thumb|frame|example image thumbnail]]
+
+__[[Image:example_image.png|64px|thumb|frame|example image thumbnail]]
+
+
+You can nest an image in a link:
+
+[[http://www.jelte.nlnetlabs.nl][[[Image:example_image.png]]]]
+
+You can specify additional html code for the img tag in an optional second
+field:
+
+[[Image:example_image.png][onclick='alert("you clicked!");']]
+
+__[[Image:example_image.png][onclick='alert("you clicked!");']]
+
+

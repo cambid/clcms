@@ -1,0 +1,24 @@
+attr: id Headings.page
+attr: date 2006-03-20 20:15:53
+attr: sort order 3
+
+
+Headings can be specified by enclosing them in equal-signs. More signs means a smaller header, with a minimum of two.
+
+==Header==
+
+===Subheader===
+
+====SubsubHeader====
+
+Source:
+_NO_WIKI_
+<pre>
+==Header==
+
+===Subheader===
+
+====SubsubHeader====
+</pre>
+_NO_WIKI_END_
+

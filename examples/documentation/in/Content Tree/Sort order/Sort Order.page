@@ -1,0 +1,15 @@
+attr: id Sort Order.page
+attr: date 2006-02-13 20:18:28
+
+For .page files, you can specify the sorting order as an attribute. If files
+have no or equal sort orders, they are sorted by their date attribute (later
+date = earlier in list). If they have no date attribute yet it is derived
+from the last modified date of the file.
+
+That way, new items in, for example, a news page will be added to the top of
+the page. If a sort order is specified for an item, this item will always
+come before those without a sort order.
+
+For pages, you can specify the sort order is by putting it into the
+page.attr file, see [[:file_types][]] for more information on the page.attr
+file.

@@ -1,0 +1,69 @@
+attr: id File Types.page
+attr: date 2006-03-09 07:33:23
+clcms makes a distinction between files based on two things: whether they
+are a file or a directory, and what their extension is. The default
+extension separator is the ., but this can be changed.
+
+There are 4 different file types:
+
+* '''.setup file'''
+
+     A file that ends in .setup contains configuration directives for clcms
+     to use. These directives will override the current ones, or be added to
+     them. They will only be used in the current directory and the
+     subdirectories of the current directory, if they are not overriden
+     again. You can see the possible options if you call clcms with the -c
+     argument.
+
+* '''.setup directory'''
+
+     A Directory whose name ends in .setup will be scanned for setup, .inc
+     .and .macro files. These will be read as if they stood in
+     the current directory.
+
+* '''Normal directory'''
+
+     A Directory whose name does not end in .setup will be seen as a page
+     container. It either stands for a website page itself (if it has one or
+     more .page files), it contains several other pages (if it has page
+     directories as children), or both.
+
+* '''.page file'''
+
+     A .page file contains the actual content of a (part of a) page. As the
+     directory stands for the page itself, this stands for a part of the
+     content.
+
+* '''.inc file'''
+
+     A .inc file will be read and added directly to the macro list. For this
+     directory and its subdirectories, you can use _<<filename>>_ (where
+     filename is the .inc file name up to the first (!) '.' character. This
+     will be replaced by the contents of the .inc file.
+
+* '''.macro file'''
+
+     .macro files work the same way, except that they do not contain plain
+     text, but actual Python code. See the section
+     [[:macros][]] for more on this.
+
+* '''page.attr'''
+
+     A page.attr file is a text file that contains a few directives for
+     clcms regarding the page in whose directory this file was found.
+     The file should contain lines of the form "<<name>>: <<value>>"
+     Currently, there are two options:
+** id:
+        This is the id of the page, you can refer to this page in links with
+        the colon. See the Links section in [[:wiki_markup][]] for more on
+        this.
+** sort order:
+        This is the sort order of the page, with this you can influence the
+        order in which pages are shown on your site.
+** nomenu:
+	This page will not be added to the menu.
+** nosubmenu:
+	This page will not contain a submenu with anchors to .content files.
+
+* All other files are seen as content data and are directly copied to the
+     output directory of the current page.
