@@ -1,6 +1,0 @@
-This extension for [[http://www.mozilla.org/products/thunderbird/][Mozilla Thunderbird]]
-allows you to specify, for each
-seperate mail folder, a system command that will be executed when new mail
-is found there. This way, you specify different actions for less important
-folders, or no action at all. For more information, see the
-[[Mailbox Alert/index.html][Mailbox Alert page]].
