@@ -319,6 +319,7 @@ system_macro_list = [
   ["stylesheet", "output = (os.pardir + os.sep)*(page.getPageDepth())+get_option(page.options, 'stylesheet')\n", 0 ],
   ["title", "output = page.name\n", 0 ],
   ["date", "output = time.strftime(\"%Y-%m-%d\")\n", 0 ],
+#TODO:
   ["datefile", "output = time.strftime(\"%Y-%m-%d\", page.findPageDate())\n", 0],
   ["itemseparator", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\" />\"", 0 ],
   ["submenuitemseparator", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\" />\"", 0 ],
@@ -580,6 +581,7 @@ system_options = add_option(system_options, "inc_file_name = inc")
 system_options = add_option(system_options, "wiki_parse = yes")
 system_options = add_option(system_options, "show_item_title = yes")
 system_options = add_option(system_options, "show_item_title_date = no")
+system_options = add_option(system_options, "date_format = %Y-%m-%d")
 system_options = add_option(system_options, "ignore_masks = \\.\\\\*,DEADJOE")
 system_options = add_option(system_options, "extension_separator = .")
 system_options = add_option(system_options, "create_pages = yes")
@@ -1030,26 +1032,40 @@ class Content:
 		# By default, the id is the input file
 
 		self.sort_order = -1
+
 		self.parse_wiki = True
+		self.parse_wiki_from_file = False
+
 		self.show_item_title = True
+		self.show_item_title_from_file = False
+		
 		self.show_item_title_date = False
+		self.show_item_title_date_from_file = False
 		
 		self.date = time.gmtime(os.stat(self.input_file)[stat.ST_MTIME])
 		self.date_from_file = False
 
 		lines = file_lines(file)
 		while len(lines) > 0 and lines[0][:6].lower() == "desc: ":
-#			print self.name+" desc!"
+
 			descr_option = lines[0][6:].rstrip("\n\t ")
-#			print descr_option
-#			print "dus"
+
 			if descr_option[:3] == "id ":
 				self.id = descr_option[3:]
 				#print "Set id to '"+id+"'"
 				self.id_from_file = True
 			elif descr_option[:5] == "date ":
 				# try several formats
-				self.date = time.strptime(descr_option[5:], "%Y-%m-%d %H:%M:%S")
+				try:
+					self.date = time.strptime(descr_option[5:], "%Y-%m-%d %H:%M:%S")
+				except:
+					try:
+						self.date = time.strptime(descr_option[5:], "%Y-%m-%d")
+					except:
+						print "Bad date in description line in file: " + self.input_file
+						print "Line: " + lines[0]
+						print "Format should be either \"YYYY-MM-DD\" or \"YYYY-MM-DD HH:mm:ss\"."
+						sys.exit(3)
 				self.date_from_file = True
 			elif descr_option[:5] == "wiki ":
 				value = descr_option[5:]
@@ -1059,16 +1075,16 @@ class Content:
 					self.parse_wiki = False
 				else:
 					print "Error in description part of "+self.input_file+": unknown value for wiki option: "+value
+				self.parse_wiki_from_file = True
 			elif descr_option[:10] == "showtitle ":
 				value = descr_option[10:]
-#				print "show title: "+value
 				if value.lower() == "true":
 					self.show_item_title = True
 				elif value.lower() == "false":
-					print "No title for ",self.name
 					self.show_item_title = False
 				else:
 					print "Error in description part of "+self.input_file+": unknown value for showtitle option: "+value
+				self.show_item_title_from_file = True
 			elif descr_option[:16] == "showtitledate ":
 				value = descr_option[16:]
 				if value.lower() == "true":
@@ -1077,6 +1093,7 @@ class Content:
 					self.show_item_title_date = False
 				else:
 					print "Error in description part of "+self.input_file+": unknown value for titledate option: "+value
+				self.show_item_title_date_from_file = True
 			elif descr_option[:11] == "sort order ":
 				try:
 					sort_order = int(descr_option[11:])
@@ -1131,11 +1148,9 @@ class Content:
 			flines = flines[1:]
 		page_lines.append("<a id=\"" + self.getAnchorName() + "\"></a>\n")
 		if self.show_item_title or self.show_item_title_date:
-			print "showtitle: ", self.show_item_title
-			print "showtitled: ", self.show_item_title_date
 			title_line = "<h3>"
 			if self.show_item_title_date:
-				title_line += time.strftime("%Y-%m-%d", time.gmtime(os.stat(self.input_file)[stat.ST_MTIME]))
+				title_line += time.strftime(get_option(self.page.options, "date_format"), self.date)
 			if self.show_item_title:
 				title_line += self.name
 			title_line += "</h3>\n"
@@ -1198,9 +1213,9 @@ def compare_contents(a, b):
 	elif a.sort_order < b.sort_order:
 		return -1
 	else:
-		if os.stat(a.input_file)[stat.ST_MTIME] > os.stat(b.input_file)[stat.ST_MTIME]:
+		if a.date > b.date:
 			return -1
-		elif os.stat(a.input_file)[stat.ST_MTIME] < os.stat(b.input_file)[stat.ST_MTIME]:
+		elif a.date < b.date:
 			return 1
 		else:
 			return 0
@@ -1380,6 +1395,8 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
 	#
 	# check options for here
         wiki_parse = get_option(options, "wiki_parse") == 'yes'
+        show_item_title = get_option(options, "show_item_title") == 'yes'
+        show_item_title_date = get_option(options, "show_item_title_date") == 'yes'
 
 	for df in dir_files:
 		file_name_parts = df.split(get_option(options, "extension_separator"));
@@ -1413,7 +1430,12 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
 				elif option_name.isdigit():
 					content.sort_order = int(option_name)
 			lines = file_lines(df)
-			content.parse_wiki = wiki_parse
+			if not content.parse_wiki_from_file:
+				content.parse_wiki = wiki_parse
+			if not content.show_item_title_from_file:
+				content.show_item_title = show_item_title
+			if not content.show_item_title_date_from_file:
+				content.show_item_title_date = show_item_title_date
                         page.addContent(content)
                 else:
                         #print "FILEEXT: "+file_name_parts[-1]
