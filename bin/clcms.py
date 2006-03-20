@@ -204,7 +204,7 @@ def wiki_to_html_simple(line, page):
 def wiki_handle_lists(prev_list_part, list_part, html_lines):
     same_part = ""
     new_item = False
-    html_lines.append("<!-- plp: "+prev_list_part+" lp: "+list_part+" -->\n")
+    #html_lines.append("<!-- plp: "+prev_list_part+" lp: "+list_part+" -->\n")
     # for html code layout
     cur_depth = 0
     
@@ -219,7 +219,7 @@ def wiki_handle_lists(prev_list_part, list_part, html_lines):
     
     cur_depth = len(same_part)
     
-    html_lines.append("<!-- sp: "+same_part +" plp: "+prev_list_part+" lp: "+list_part+" -->\n")
+    #html_lines.append("<!-- sp: "+same_part +" plp: "+prev_list_part+" lp: "+list_part+" -->\n")
     if same_part != "" or prev_list_part != "":
         if prev_list_part != "":
             cur_depth += 1
@@ -241,9 +241,9 @@ def wiki_handle_lists(prev_list_part, list_part, html_lines):
     cur_depth = len(same_part)
     while len(list_part) > 0:
         if list_part[0] == '*':
-            html_lines.append((cur_depth * "\t") + "</p><ul>\n")
+            html_lines.append((cur_depth * "\t") + "<ul>\n")
         elif list_part[0] == '#':
-            html_lines.append((cur_depth * "\t") + "</p><ol>\n")
+            html_lines.append((cur_depth * "\t") + "<ol>\n")
         else:
             print "Error in list_part: "+list_part[0]+" should not appear here. please file a bug report"
             sys.exit(1)
@@ -1067,8 +1067,8 @@ class Content:
 				else:
 					print "Error in attribute part of "+self.input_file+": unknown value for showtitle option: "+value
 				self.show_item_title_from_file = True
-			elif descr_option[:16].lower() == "showtitledate ":
-				value = descr_option[16:]
+			elif descr_option[:14].lower() == "showtitledate ":
+				value = descr_option[14:]
 				if value.lower() == "true":
 					self.show_item_title_date = True
 				elif value.lower() == "false":
