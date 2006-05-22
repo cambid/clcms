@@ -65,7 +65,7 @@ class ImageCaptioner:
 		return count
 	
 	def set_top_label(self):
-		self.top_label.set_text("Image " + str(self.cur_image_nr) + " of " + str(len(self.image_files)) + " (" + str(self.get_nr_not_done()) + " not done yet)")
+		self.top_label.set_text("Image " + str(self.cur_image_nr + 1) + " of " + str(len(self.image_files)) + " (" + str(self.get_nr_not_done()) + " not done yet)")
 
 	def skip_done(self):
 		while ((self.cur_image_done()) and self.cur_image_nr < len(self.image_files) - 1):
@@ -340,7 +340,14 @@ for f in dir_files:
 				imgf.append(name)
 				imgf.append(extension)
 				imgf.append(True)
-				image_files[nr - 1] = imgf
+				if image_files[nr - 1][3]:
+					# yarr, we have a double, put in first empty spot
+					i = 0
+					while (image_files[i][0] != "empty"):
+						i = i + 1
+					image_files[i] = imgf
+				else:
+					image_files[nr - 1] = imgf
 				
 			else:
 				# find first empty
