@@ -86,10 +86,13 @@ class ImageCaptioner:
 		orig_height = pixbuf.get_height()
 		new_width = orig_width
 		new_height = orig_height
-		if orig_width > 640:
+		if orig_width > 640 and (orig_width / 640) > 0:
 			new_width = 640
-			new_height = orig_height / ((orig_width / new_width) + 1)
-		if orig_height > 640:
+			new_height = orig_height / (orig_width / new_width)
+		
+		orig_height = new_height
+		orig_width = new_width
+		if orig_height > 640 and (orig_height / 640) > 0:
 			new_height = 640
 			new_widht = orig_width / ((orig_height / new_height) + 1)
 		scaled_buf = pixbuf.scale_simple(new_width, new_height, gtk.gdk.INTERP_BILINEAR)
