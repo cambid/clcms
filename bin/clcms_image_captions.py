@@ -57,6 +57,16 @@ class ImageCaptioner:
 	def set_cur_image_done(self, done):
 		self.image_files[self.cur_image_nr][3] = done
 	
+	def get_nr_not_done(self):
+		count = 0
+		for f in image_files:
+			if not f[3]:
+				count = count + 1
+		return count
+	
+	def set_top_label(self):
+		self.top_label.set_text("Image " + str(self.cur_image_nr) + " of " + str(len(self.image_files)) + " (" + str(self.get_nr_not_done()) + " not done yet)")
+
 	def skip_done(self):
 		while ((self.cur_image_done()) and self.cur_image_nr < len(self.image_files) - 1):
 			self.cur_image_nr = self.cur_image_nr + 1
@@ -99,6 +109,8 @@ class ImageCaptioner:
 		else:
 			self.last_button.set_sensitive(True)
 			self.next_button.set_sensitive(True)
+		self.set_top_label()
+
 
 	def prev_image(self):
 		if (self.cur_image_nr > 0):
@@ -208,11 +220,14 @@ class ImageCaptioner:
 		hbox_image.pack_start(button)
 		button.connect("clicked", self.button_clicked, "next")
 		
+		label = gtk.Label("Title:")
+		label.show()
+		hbox_commands.pack_start(label, False, False, 1)
+
 		self.textfield = gtk.Entry()
 		self.textfield.show()
 		self.textfield.set_activates_default(1)
 		hbox_commands.pack_start(self.textfield)
-
 
 		button = gtk.Button()
 		button.set_label("Ok")
@@ -233,8 +248,8 @@ class ImageCaptioner:
 		hbox_commands.pack_start(button)
 		button.connect("clicked", self.button_clicked, "quit")
 		
-		label = gtk.Label('')
-		label.set_markup("Navigate:")
+		label = gtk.Label("Navigate:")
+		label.show()
 		hbox_nav.pack_start(label, False, False, 1)
 
 		self.first_button = gtk.Button(label = "_First", use_underline = True)
@@ -264,6 +279,7 @@ class ImageCaptioner:
 		
 		self.top_label = gtk.Label()
 		self.top_label.set_text("Image 0 of " + str(len(image_files)))
+		self.top_label.show()
 		hbox_status.pack_start(self.top_label)
 
 		self.show_image(self.cur_image_file())
