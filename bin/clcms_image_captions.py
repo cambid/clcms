@@ -54,6 +54,9 @@ class ImageCaptioner:
 	def cur_image_done(self):
 		return self.image_files[self.cur_image_nr][3]
 	
+	def set_cur_image_done(self, done):
+		self.image_files[self.cur_image_nr][3] = done
+	
 	def skip_done(self):
 		while ((self.cur_image_done()) and self.cur_image_nr < len(self.image_files) - 1):
 			self.cur_image_nr = self.cur_image_nr + 1
@@ -121,7 +124,7 @@ class ImageCaptioner:
 		os.rename(old_file_name, new_file_name)
 		self.set_cur_image_file(new_file_name)
 		self.set_cur_image_name(self.textfield.get_text())
-		
+		self.set_cur_image_done(True)
 		
 
 	def __init__(self, image_files):
@@ -203,7 +206,7 @@ class ImageCaptioner:
 		button.add(self.image)
 		button.show()
 		hbox_image.pack_start(button)
-		button.connect("clicked", self.button_clicked, "ok")
+		button.connect("clicked", self.button_clicked, "next")
 		
 		self.textfield = gtk.Entry()
 		self.textfield.show()
