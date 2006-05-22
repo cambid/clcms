@@ -1,5 +1,35 @@
 #!/usr/bin/env python
 
+#
+# This tool allows you to rename the image files in the current directory
+#
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# BACKUP YOUR FILES BEFORE RUNNING THIS, CHANGES ARE INSTANT!
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#
+# it works by renaming the files to <nr>.<title>.<extension>
+# which is the input format expected by clcms_create_gallery.py
+#
+# The top shows the number of images in the current directory, and the number
+# of images that do not have the output filename format yet
+#
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# BACKUP YOUR FILES BEFORE RUNNING THIS, CHANGES ARE INSTANT!
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#
+# The navigation row of button lets you navigate through the images
+# The button "Skip done" goes to the first image that does not have the above
+# filename structure
+#
+# If you change the title and press enter or click ok, the image is renamed
+# If you press delete, the image is deleted
+# If you press Rename all, ALL files are renamed and renumbered, with the
+# current file name as their title (this will fix gaps in the numbering if you
+# have deleted images)
+# 
+# Did i mention to backup your files first?
+#
+
 import os
 from os.path import join, getsize
 import stat
@@ -30,6 +60,8 @@ class ImageCaptioner:
 			self.skip_done()
 		elif (data == "delete"):
 			self.delete_image()
+		elif (data == "rename_all"):
+			self.handle_all()
 		elif (data == "quit"):
 			self.close_application(widget, None)
 		else:
@@ -142,6 +174,15 @@ class ImageCaptioner:
 		self.set_cur_image_done(True)
 		
 
+	def handle_all(self):
+		self.cur_image_nr = 0
+		while self.cur_image_nr < len(self.image_files):
+			self.textfield.set_text(self.cur_image_name())
+			self.handle_image()
+			self.cur_image_nr = self.cur_image_nr + 1
+		self.last_image()
+		#self.show_image(self.image_files[self.cur_image_nr])
+
 	def __init__(self, image_files):
 		# create the main window, and attach delete_event signal to terminating
 		# the application
@@ -242,9 +283,12 @@ class ImageCaptioner:
 		window.set_default(button)
 
 		button = gtk.Button(label = "_Delete", use_underline = True)
-		button.show();
-		hbox_commands.pack_start(button)
+		button.show(); hbox_commands.pack_start(button)
 		button.connect("clicked", self.button_clicked, "delete")
+		
+		button = gtk.Button(label = "Rename All", use_underline = False)
+		button.show(); hbox_commands.pack_start(button)
+		button.connect("clicked", self.button_clicked, "rename_all")
 		
 		button = gtk.Button(label = "_Quit", use_underline = True)
 		button.show();
@@ -300,6 +344,7 @@ image_p = re.compile("(.*)\.([a-zA-Z]+)")
 
 # image_files[] contains arrays of the form [filename, name, extension]
 image_files = []
+doubles = []
 subdirs = []
 
 dir_files.sort()
@@ -314,6 +359,7 @@ for f in dir_files:
 		    extension == "png" or
 		    extension == "PNG"):
 			image_files.append(["empty", "empty", "empty", False])
+
 
 for f in dir_files:
 	image_m = image_p.match(f)
@@ -341,15 +387,13 @@ for f in dir_files:
 				imgf.append(extension)
 				imgf.append(True)
 				if image_files[nr - 1][3]:
-					# yarr, we have a double, put in first empty spot
-					i = 0
-					while (image_files[i][0] != "empty"):
-						i = i + 1
-					image_files[i] = imgf
+					doubles.append(imgf)
 				else:
+					print "handled, place at: "+str(nr - 1)
 					image_files[nr - 1] = imgf
 				
 			else:
+				print "unhandled: "+f
 				# find first empty
 				i = 0
 				while (image_files[i][0] != "empty"):
@@ -361,6 +405,16 @@ for f in dir_files:
 				imgf.append(extension)
 				imgf.append(False)
 				image_files[i] = imgf
+
+for imgf in doubles:
+	# yarr, we have a double, put in first empty spot
+	i = 0
+	while (image_files[i][0] != "empty"):
+		i = i + 1
+	image_files[i] = imgf
+	print "Double, place at: "+str(i)
+
+#print image_files
 
 if len(image_files) == 0:
 	print "No images found in current working directory"
