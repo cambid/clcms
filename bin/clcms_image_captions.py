@@ -71,8 +71,14 @@ class ImageCaptioner:
 		pixbuf = gtk.gdk.pixbuf_new_from_file(image_file)
 		orig_width = pixbuf.get_width()
 		orig_height = pixbuf.get_height()
-		new_width = 640
-		new_height = orig_height / (orig_width / new_width)
+		new_width = orig_width
+		new_height = orig_height
+		if orig_width > 640:
+			new_width = 640
+			new_height = orig_height / ((orig_width / new_width) + 1)
+		if orig_height > 640:
+			new_height = 640
+			new_widht = orig_width / ((orig_height / new_height) + 1)
 		scaled_buf = pixbuf.scale_simple(new_width, new_height, gtk.gdk.INTERP_BILINEAR)
 		self.image.set_from_pixbuf(scaled_buf)
 		self.textfield.grab_focus()
@@ -80,12 +86,16 @@ class ImageCaptioner:
 		self.textfield.select_region(0, len(self.textfield.get_text()))
 		if (self.cur_image_nr == 0):
 			self.first_button.set_sensitive(False)
+			self.prev_button.set_sensitive(False)
 		else:
 			self.first_button.set_sensitive(True)
+			self.prev_button.set_sensitive(True)
 		if (self.cur_image_nr == len(self.image_files) - 1):
 			self.last_button.set_sensitive(False)
+			self.next_button.set_sensitive(False)
 		else:
 			self.last_button.set_sensitive(True)
+			self.next_button.set_sensitive(True)
 
 	def prev_image(self):
 		if (self.cur_image_nr > 0):
@@ -125,15 +135,18 @@ class ImageCaptioner:
 		# a horizontal box to hold the buttons
 		vbox = gtk.VBox(False, 10)
 		vbox.show()
-		hbox = gtk.HBox()
-		hbox.show()
-		hbox2 = gtk.HBox()
-		hbox2.show()
-		hbox3 = gtk.HBox()
-		hbox3.show()
-		vbox.add(hbox)
-		vbox.add(hbox2)
-		vbox.add(hbox3)
+		hbox_image = gtk.HBox()
+		hbox_image.show()
+		hbox_commands = gtk.HBox()
+		hbox_commands.show()
+		hbox_nav = gtk.HBox()
+		hbox_nav.show()
+		hbox_status = gtk.HBox()
+		hbox_status.show()
+		vbox.pack_start(hbox_status, False, False, 0)
+		vbox.pack_start(hbox_nav, False, False, 0)
+		vbox.pack_start(hbox_commands, False, False, 0)
+		vbox.pack_start(hbox_image, False, False, 0)
 		window.add(vbox)
 		
 
@@ -189,19 +202,19 @@ class ImageCaptioner:
 		button = gtk.Button()
 		button.add(self.image)
 		button.show()
-		hbox.pack_start(button)
+		hbox_image.pack_start(button)
 		button.connect("clicked", self.button_clicked, "ok")
 		
 		self.textfield = gtk.Entry()
 		self.textfield.show()
 		self.textfield.set_activates_default(1)
-		hbox2.pack_start(self.textfield)
+		hbox_commands.pack_start(self.textfield)
 
 
 		button = gtk.Button()
 		button.set_label("Ok")
 		button.show();
-		hbox2.pack_start(button)
+		hbox_commands.pack_start(button)
 		button.connect("clicked", self.button_clicked, "ok")
 #		button.connect("activate", self.button_clicked, "ok a")
 		button.set_flags(gtk.CAN_DEFAULT)
@@ -210,49 +223,53 @@ class ImageCaptioner:
 		button = gtk.Button()
 		button.set_label("Delete")
 		button.show();
-		hbox2.pack_start(button)
+		hbox_commands.pack_start(button)
 		button.connect("clicked", self.button_clicked, "delete")
 		
 		button = gtk.Button()
 		button.set_label("Quit")
 		button.show();
-		hbox2.pack_start(button)
+		hbox_commands.pack_start(button)
 		button.connect("clicked", self.button_clicked, "quit")
 		
-		label = gtk.Label()
-		label.set_text("Navigate:")
-		hbox3.pack_start(label)
+		label = gtk.Label('')
+		label.set_markup("Navigate:")
+		hbox_nav.pack_start(label, False, False, 1)
 
 		self.first_button = gtk.Button()
 		self.first_button.set_label("First")
 		self.first_button.show();
-		hbox3.pack_start(self.first_button)
+		hbox_nav.pack_start(self.first_button)
 		self.first_button.connect("clicked", self.button_clicked, "first")
 		
-		button = gtk.Button()
-		button.set_label("Prev")
-		button.show();
-		hbox3.pack_start(button)
-		button.connect("clicked", self.button_clicked, "previous")
+		self.prev_button = gtk.Button()
+		self.prev_button.set_label("Prev")
+		self.prev_button.show();
+		hbox_nav.pack_start(self.prev_button)
+		self.prev_button.connect("clicked", self.button_clicked, "previous")
 		
-		button = gtk.Button()
-		button.set_label("Next")
-		button.show();
-		hbox3.pack_start(button)
-		button.connect("clicked", self.button_clicked, "next")
+		self.next_button = gtk.Button()
+		self.next_button.set_label("Next")
+		self.next_button.show();
+		hbox_nav.pack_start(self.next_button)
+		self.next_button.connect("clicked", self.button_clicked, "next")
 		
 		self.last_button = gtk.Button()
 		self.last_button.set_label("Last")
 		self.last_button.show();
-		hbox3.pack_start(self.last_button)
+		hbox_nav.pack_start(self.last_button)
 		self.last_button.connect("clicked", self.button_clicked, "last")
 		
 		button = gtk.Button()
 		button.set_label("Skip done")
 		button.show();
-		hbox3.pack_start(button)
+		hbox_nav.pack_start(button)
 		button.connect("clicked", self.button_clicked, "skip")
 		
+		self.top_label = gtk.Label()
+		self.top_label.set_text("Image 0 of " + str(len(image_files)))
+		hbox_status.pack_start(self.top_label)
+
 		self.show_image(self.cur_image_file())
 
 
@@ -275,7 +292,13 @@ dir_files.sort()
 for f in dir_files:
 	image_m = image_p.match(f)
 	if image_m:
-		image_files.append(["empty", "empty", "empty", False])
+		name = image_m.group(1)
+		extension = image_m.group(2)
+		if (extension == "jpg" or
+		    extension == "JPG" or
+		    extension == "png" or
+		    extension == "PNG"):
+			image_files.append(["empty", "empty", "empty", False])
 
 for f in dir_files:
 	image_m = image_p.match(f)
@@ -316,6 +339,10 @@ for f in dir_files:
 				imgf.append(extension)
 				imgf.append(False)
 				image_files[i] = imgf
+
+if len(image_files) == 0:
+	print "No images found in current working directory"
+	exit()
 
 def main():
 	gtk.main()
