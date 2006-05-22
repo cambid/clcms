@@ -223,14 +223,12 @@ class ImageCaptioner:
 		button.set_flags(gtk.CAN_DEFAULT)
 		window.set_default(button)
 
-		button = gtk.Button()
-		button.set_label("Delete")
+		button = gtk.Button(label = "_Delete", use_underline = True)
 		button.show();
 		hbox_commands.pack_start(button)
 		button.connect("clicked", self.button_clicked, "delete")
 		
-		button = gtk.Button()
-		button.set_label("Quit")
+		button = gtk.Button(label = "_Quit", use_underline = True)
 		button.show();
 		hbox_commands.pack_start(button)
 		button.connect("clicked", self.button_clicked, "quit")
@@ -239,32 +237,27 @@ class ImageCaptioner:
 		label.set_markup("Navigate:")
 		hbox_nav.pack_start(label, False, False, 1)
 
-		self.first_button = gtk.Button()
-		self.first_button.set_label("First")
+		self.first_button = gtk.Button(label = "_First", use_underline = True)
 		self.first_button.show();
 		hbox_nav.pack_start(self.first_button)
 		self.first_button.connect("clicked", self.button_clicked, "first")
 		
-		self.prev_button = gtk.Button()
-		self.prev_button.set_label("Prev")
+		self.prev_button = gtk.Button(label = "_Prev", use_underline = True)
 		self.prev_button.show();
 		hbox_nav.pack_start(self.prev_button)
 		self.prev_button.connect("clicked", self.button_clicked, "previous")
 		
-		self.next_button = gtk.Button()
-		self.next_button.set_label("Next")
+		self.next_button = gtk.Button(label = "_Next", use_underline = True)
 		self.next_button.show();
 		hbox_nav.pack_start(self.next_button)
 		self.next_button.connect("clicked", self.button_clicked, "next")
 		
-		self.last_button = gtk.Button()
-		self.last_button.set_label("Last")
+		self.last_button = gtk.Button(label = "_Last", use_underline = True)
 		self.last_button.show();
 		hbox_nav.pack_start(self.last_button)
 		self.last_button.connect("clicked", self.button_clicked, "last")
 		
-		button = gtk.Button()
-		button.set_label("Skip done")
+		button = gtk.Button(label = "_Skip done", use_underline = True)
 		button.show();
 		hbox_nav.pack_start(button)
 		button.connect("clicked", self.button_clicked, "skip")
