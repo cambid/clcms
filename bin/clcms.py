@@ -317,7 +317,7 @@ system_macro_list = [
   ["menu", "menu_depth = 1\nmenu_start_depth = 0\nif len(arguments) > 0:\n\tmenu_depth = int(arguments[0])\nif len(arguments) > 1:\n\tmenu_start_depth = int(arguments[1])\nml = page.getRootPage().createMenu(page, menu_depth, menu_start_depth)\noutput = \"_menustart_\\n\"\nfor l in ml:\n\toutput += l\noutput += \"_menuend_\\n\"\n", 0],
   ["submenu", "output = \"\"\nsml = page.createAnchorMenu()\nfor l in sml:\n\toutput += l", 0],
   ["stylesheet", "output = (os.pardir + os.sep)*(page.getPageDepth())+get_option(page.options, 'stylesheet')\n", 0 ],
-  ["title", "output = page.name\n", 0 ],
+  ["title", "output = page.display_name\n", 0 ],
   ["date", "output = time.strftime(\"%Y-%m-%d\")\n", 0 ],
 #TODO:
   ["datefile", "output = time.strftime(\"%Y-%m-%d\", page.findPageDate())\n", 0],
@@ -599,7 +599,7 @@ def file_lines(file, filters = []):
     try:
         f_lines = open(file, "r")
         for l in f_lines:
-            l = l.rstrip(" \t\n");
+            l = l.rstrip(" \t\n\r");
             if filters == []:
                     lines.append(l + "\n")
             else:
@@ -715,6 +715,7 @@ class Page:
 		self.parent = parent
 		
 		self.name = name
+		self.display_name = name
 
 		# By default, the id is the input directory
 		self.id = basedir + os.sep + pagedir
@@ -860,7 +861,7 @@ class Page:
 						link += " _menuitem"+str(self.getPageDepth()+1)+"selected_"
 					link += ">"
 					#menu_lines.append(link)
-				link += c.name
+				link += c.display_name
 				if len(c.contents) > 0:
 					link += "</a>"
 				if cur_depth >= start_depth:
@@ -888,7 +889,7 @@ class Page:
 			for c in self.contents:
 				anchor_menu_lines += "_submenuitemstart_"
 				anchor_menu_lines += "<a href=\"#" + c.getAnchorName() + "\">"
-				anchor_menu_lines += c.name
+				anchor_menu_lines += c.display_name
 				anchor_menu_lines += "</a>\n"
 				if i < len(self.contents):
 					anchor_menu_lines += "_submenuitemseparator_"
@@ -1009,6 +1010,7 @@ class Content:
 		name_parts = file.split(get_option(page.options, "extension_separator"))
 		
 		self.name = name_parts[0]
+		self.display_name = name_parts[0]
 		self.id = file
 		self.id_from_file = False
 		# By default, the id is the input file
@@ -1083,6 +1085,8 @@ class Content:
 				except ValueError, e:
 					print "Error in attribute part of "+self.input_file+": bad value for sort order option: "+value
 					print e
+			elif descr_option[:13].lower() == "display-name ":
+				self.display_name = descr_option[13:]
 			#elif descr_option[:1] == "X ":
 			#	id = id
 			else:
@@ -1315,6 +1319,8 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
 						page.show_menu_item = False
 					elif l[:9] == "nosubmenu":
 						page.show_submenu = False
+					elif l[:14] == "display-name: ":
+						page.display_name = l[14:].rstrip()
 					else:
 						print "Warning: unknown option line in page.attr file"
 						print "File: " + os.getcwd()+ os.sep + "page.attr:"
