@@ -369,6 +369,8 @@ output += \"</html>\\n\"\n\
   ["menuitem5start-arg", "output = \"_menuitem5start_\\n\"\nif arguments != []:\n\toutput += arguments[0]\n", 0], 
   ["submenustart", "output = \"<div id = \\\"submenu\\\">\"\n", 0],
   ["submenuend", "output = \"</div>\"\n", 0],
+  ["yearmenustart", "output = \"<div id = \\\"submenu\\\">\"\n", 0],
+  ["yearmenuend", "output = \"</div>\"\n", 0],
   ["debug", "output = \"\"\nprint arguments[0]\n", 0 ],
   ["dumpmacros", "for m in macro_list:\n\tprint m[0]\n\tprint m[1]\n\tprint m[2]\n\tprint \"\"\noutput=\"\"\n", 0 ],
   ["submenuitemstart", "output = \"<div class=\\\"submenu_item\\\">\"\n", 0 ],
@@ -836,26 +838,27 @@ class Page:
 		page_count = 0
 		content_count = 0
 		for c in self.contents:
-			content_count += 1
-			page_lines.extend(c.toHTML())
-			if self.archive_by_count > 0 and content_count > self.archive_by_count:
-				page_lines.append("\n")
-				page_lines.append("_prevarchive_"+str(page_count+1)+"_")
-				if (page_count == 1):
-					page_lines.append("_nextarchive_")
-				elif (page_count > 1):
-					page_lines.append("_nextarchive_"+str(page_count-1)+"_")
-				page_lines.append("</div>\n")
-				page_lines.append("_footer_");
-				pages_lines.append(copy.deepcopy(page_lines))
-				page_lines = []
-				page_lines.append("_header_\n");
-				page_lines.append("<div id=\"content\">\n")
-				content_count = 0
-				page_count += 1
-			else:
-				if i > 1 and i < len(self.contents):
-					page_lines.append("_itemseparator_")
+			if c.show:
+				content_count += 1
+				page_lines.extend(c.toHTML())
+				if self.archive_by_count > 0 and content_count > self.archive_by_count:
+					page_lines.append("\n")
+					page_lines.append("_prevarchive_"+str(page_count+1)+"_")
+					if (page_count == 1):
+						page_lines.append("_nextarchive_")
+					elif (page_count > 1):
+						page_lines.append("_nextarchive_"+str(page_count-1)+"_")
+					page_lines.append("</div>\n")
+					page_lines.append("_footer_");
+					pages_lines.append(copy.deepcopy(page_lines))
+					page_lines = []
+					page_lines.append("_header_\n");
+					page_lines.append("<div id=\"content\">\n")
+					content_count = 0
+					page_count += 1
+				else:
+					if i > 1 and i < len(self.contents):
+						page_lines.append("_itemseparator_")
 			i += 1
 
 		if self.archive_by_count > 0:
@@ -941,7 +944,32 @@ class Page:
 					anchor_menu_lines += "_submenuitemseparator_"
 				i += 1
 				anchor_menu_lines += "_submenuitemend_"
-			anchor_menu_lines += "_submenuend_"		
+			anchor_menu_lines += "_submenuend_"
+		if self.archive_by_year:
+			years = []
+			year_entry_count = {}
+			for c in self.contents:
+				if not c.date.tm_year in years:
+					#print c.date.tm_year
+					years.append(c.date.tm_year)
+					year_entry_count[c.date.tm_year] = 1
+				else:
+					year_entry_count[c.date.tm_year] += 1
+			years.sort()
+			years.reverse()
+			anchor_menu_lines += "_yearmenustart_"
+			i = 1
+			for y in years:
+				anchor_menu_lines += "_submenuitemstart_"
+				anchor_menu_lines += "<a href=\"index_"+str(y)+".html\">"
+				anchor_menu_lines += str(y) + " (" + str(year_entry_count[y]) + ")"
+				anchor_menu_lines += "</a>\n"
+				if i < len(years):
+					anchor_menu_lines += "_submenuitemseparator_"
+				i += 1
+				anchor_menu_lines += "_submenuitemend_"
+			anchor_menu_lines += "_yearmenuend_"
+			print years
 		return anchor_menu_lines
 	
 	def copyFiles(self, output_directory):
@@ -968,6 +996,26 @@ class Page:
 				out_file.writelines(p)
 				out_file.close()
 				page_count += 1
+			if self.archive_by_year:
+				years = []
+				for c in self.contents:
+					if not c.date.tm_year in years:
+						years.append(c.date.tm_year)
+				for y in years:
+					file = "index_"+str(y)+".html"
+					clone = copy.deepcopy(self)
+					clone.archive_by_count = 0;
+					newcontents = []
+					for c in clone.contents:
+						if c.date.tm_year != y:
+							c.show = False
+					html_pages = clone.toHTML()
+					if len(html_pages) > 1:
+						print "ERROR YEAR ARCHIVE SHOULD ONLY HAVE 1 PAGE PER YEAR"
+					else:
+						out_file = open(out_dir + os.sep + file, "w")
+						out_file.writelines(html_pages[0])
+						out_file.close()
 		self.copyFiles(out_dir)
 		if recursive:
 			for c in self.children:
@@ -1082,6 +1130,8 @@ class Content:
 		
 		self.date = time.gmtime(os.stat(self.input_file)[stat.ST_MTIME])
 		self.date_from_file = False
+		
+		self.show = True
 		
 		lines = file_lines(file)
 		while len(lines) > 0 and lines[0][:6].lower() == "attr: ":
@@ -1375,15 +1425,8 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
 						page.show_submenu = False
 					elif l[:14] == "display-name: ":
 						page.display_name = l[14:].rstrip()
-					elif l[:16].lower() == "archive_by_year ":
-						value = l[16:]
-						if value.lower() == "yes":
-							page.archive_by_year = True
-						elif value.lower() == "no":
-							page.archive_by_year = False
-						else:
-							print "Error in attribute part of "+page.input_file+": bad value for archive_by_year option: "+value
-							
+					elif l[:15].lower() == "archive_by_year":
+						page.archive_by_year = True
 					elif l[:17].lower() == "archive_by_month ":
 						value = l[16:]
 						if value.lower() == "yes":
