@@ -377,8 +377,13 @@ output += \"</html>\\n\"\n\
   ["nextpage", "output = \"\"\nnp = page.getNextPage()\nif np:\n\toutput = \"<a href=\\\"\"+page.getBackDir()+np.getTotalOutputDir()+\"index.html\\\">\"+np.name+\"</a>\"\n", 0],
   ["prevpage", "output = \"\"\npp = page.getPreviousPage()\nif pp:\n\toutput = \"<a href=\\\"\"+page.getBackDir()+pp.getTotalOutputDir()+\"index.html\\\">\"+pp.name+\"</a>\"\n", 0],
   ["uppage", "output = \"\"\nup = page.parent\nif up:\n\toutput = \"<a href=\\\"\"+page.getBackDir()+up.getTotalOutputDir()+\"index.html\\\">\"+up.name+\"</a>\"\n", 0],  
-  ["fake", "output = \"\"\n", 0 ]
+  ["fake", "output = \"\"\n", 0 ],
+  ["prevarchive", "output = \"<div id=\\\"prevarchive\\\"><a href=\\\"index\"\nif arguments != []:\n\toutput += arguments[0]\noutput += \".html\\\">_prevarchivetext_</a></div>\"\n", 0 ],
+  ["nextarchive", "output = \"<div id=\\\"nextarchive\\\"><a href=\\\"index\"\nif arguments != []:\n\toutput += arguments[0]\noutput += \".html\\\">_nextarchivetext_</a></div>\"\n", 0 ],
+  ["prevarchivetext", "output = \"Older entries\"\n", 0 ],
+  ["nextarchivetext", "output = \"Newer entries\"\n", 0 ]
 ]
+
 
 # TODO: always set output to "" when reading new macro definitions
 
@@ -581,6 +586,9 @@ system_options = add_option(system_options, "inc_file_name = inc")
 system_options = add_option(system_options, "wiki_parse = yes")
 system_options = add_option(system_options, "show_item_title = yes")
 system_options = add_option(system_options, "show_item_title_date = no")
+system_options = add_option(system_options, "archive_by_year = no")
+system_options = add_option(system_options, "archive_by_month = no")
+system_options = add_option(system_options, "archive_by_count = 0")
 system_options = add_option(system_options, "date_format = %Y-%m-%d")
 system_options = add_option(system_options, "ignore_masks = \\.\\\\*,DEADJOE")
 system_options = add_option(system_options, "extension_separator = .")
@@ -732,6 +740,10 @@ class Page:
 		self.show_submenu = True
 		self.is_subsite = False
 		
+		self.archive_by_year = False
+		self.archive_by_month = False
+		self.archive_by_count = 0
+
 		self.recreate = False
 
 	def addContent(self, content):
@@ -815,31 +827,65 @@ class Page:
 			return self.parent.getTotalOutputDir() + self.getOutputDir() + os.sep
 		
 	def toHTML(self):
+		#page_count = 0
+		pages_lines = []
 		page_lines = []
 		page_lines.append("_header_\n");
 		page_lines.append("<div id=\"content\">\n")
 		i = 1
+		page_count = 0
+		content_count = 0
 		for c in self.contents:
+			content_count += 1
 			page_lines.extend(c.toHTML())
-			if i < len(self.contents):
-				page_lines.append("_itemseparator_")
+			if self.archive_by_count > 0 and content_count > self.archive_by_count:
+				page_lines.append("\n")
+				page_lines.append("_prevarchive_"+str(page_count+1)+"_")
+				if (page_count == 1):
+					page_lines.append("_nextarchive_")
+				elif (page_count > 1):
+					page_lines.append("_nextarchive_"+str(page_count-1)+"_")
+				page_lines.append("</div>\n")
+				page_lines.append("_footer_");
+				pages_lines.append(copy.deepcopy(page_lines))
+				page_lines = []
+				page_lines.append("_header_\n");
+				page_lines.append("<div id=\"content\">\n")
+				content_count = 0
+				page_count += 1
+			else:
+				if i > 1 and i < len(self.contents):
+					page_lines.append("_itemseparator_")
+			i += 1
+
+		if self.archive_by_count > 0:
+			#page_lines.append("_prev_archive_")
+			if (page_count == 1):
+				page_lines.append("_nextarchive_")
+			elif (page_count > 1):
+				page_lines.append("_nextarchive_"+str(page_count-1)+"_")
 		page_lines.append("</div>\n");
 		page_lines.append("_footer_");
 
-		if not no_macros:
-			macro_new_lines = []
-			do_handle_macros = True
-			for l in page_lines:
-  				if l[:14] == "_NO_MACRO_END_":
-  				    do_handle_macros = True
-  				elif l[:10] == "_NO_MACRO_":
-  				    do_handle_macros = False
-			        elif do_handle_macros:
-  				    macro_new_lines.append(handle_macros(self, l))
-  				else:
-  				    macro_new_lines.append(l)
-			page_lines = macro_new_lines
-		return page_lines
+		pages_lines.append(page_lines)
+		
+		pages_lines2 = []
+		for page_lines in pages_lines:
+			if not no_macros:
+				macro_new_lines = []
+				do_handle_macros = True
+				for l in page_lines:
+					if l[:14] == "_NO_MACRO_END_":
+					    do_handle_macros = True
+					elif l[:10] == "_NO_MACRO_":
+					    do_handle_macros = False
+					elif do_handle_macros:
+					    macro_new_lines.append(handle_macros(self, l))
+					else:
+					    macro_new_lines.append(l)
+				page_lines = macro_new_lines
+				pages_lines2.append(page_lines)
+		return pages_lines2
 	
 	def getBackDir(self):
 		return (os.pardir + os.sep)*(self.getPageDepth())
@@ -911,9 +957,17 @@ class Page:
 		if self.recreate:
 			if verbosity >= 1:
 				print "Creating page '"+self.name+"'"
-			out_file = open(out_dir + os.sep + "index.html", "w")
-			out_file.writelines(self.toHTML())
-			out_file.close()
+			html_pages = self.toHTML()
+			page_count = 0;
+			for p in html_pages:
+				if page_count > 0:
+					file = "index"+str(page_count)+".html"
+				else:
+					file = "index.html"
+				out_file = open(out_dir + os.sep + file, "w")
+				out_file.writelines(p)
+				out_file.close()
+				page_count += 1
 		self.copyFiles(out_dir)
 		if recursive:
 			for c in self.children:
@@ -1028,7 +1082,7 @@ class Content:
 		
 		self.date = time.gmtime(os.stat(self.input_file)[stat.ST_MTIME])
 		self.date_from_file = False
-
+		
 		lines = file_lines(file)
 		while len(lines) > 0 and lines[0][:6].lower() == "attr: ":
 
@@ -1321,6 +1375,32 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
 						page.show_submenu = False
 					elif l[:14] == "display-name: ":
 						page.display_name = l[14:].rstrip()
+					elif l[:16].lower() == "archive_by_year ":
+						value = l[16:]
+						if value.lower() == "yes":
+							page.archive_by_year = True
+						elif value.lower() == "no":
+							page.archive_by_year = False
+						else:
+							print "Error in attribute part of "+page.input_file+": bad value for archive_by_year option: "+value
+							
+					elif l[:17].lower() == "archive_by_month ":
+						value = l[16:]
+						if value.lower() == "yes":
+							page.archive_by_month = True
+						elif value.lower() == "no":
+							page.archive_by_month = False
+						else:
+							print "Error in attribute part of "+page.input_file+": bad value for archive_by_month option: "+value
+							
+					elif l[:18].lower() == "archive_by_count: ":
+						value = l[18:]
+						try:
+							page.archive_by_count = int(l[17:])
+							#print "Sort order for "+page.input_file+":", sort_order
+						except ValueError, e:
+							print "Error in attribute part of "+page.input_file+": bad value for archive_by_count option: "+value
+							print e
 					else:
 						print "Warning: unknown option line in page.attr file"
 						print "File: " + os.getcwd()+ os.sep + "page.attr:"
@@ -1381,6 +1461,7 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
         wiki_parse = get_option(options, "wiki_parse") == 'yes'
         show_item_title = get_option(options, "show_item_title") == 'yes'
         show_item_title_date = get_option(options, "show_item_title_date") == 'yes'
+        archive_by_count = get_option(options, "archive_by_count")
 
 	for df in dir_files:
 		file_name_parts = df.split(get_option(options, "extension_separator"));

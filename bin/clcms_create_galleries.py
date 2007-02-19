@@ -26,7 +26,7 @@ import re
 import commands
 
 in_dir = "galleries"
-out_dir = "/tmp/newsite/in/Galleries"
+out_dir = "out"
 root_dir = os.getcwd()
 
 thumbnail_size = "64x64"
@@ -80,9 +80,11 @@ for d in dir_files:
 
 				output_file = cur_output_dir + os.sep + i
 				cur_file_name = output_file.replace(" ", "\\ ")
+				cur_file_name = cur_file_name.replace("&", "\\&")
 				thumbnail_file = image_file_m.group(1) + "." + image_file_m.group(2) + "_small." + image_file_m.group(3)
 				thumbnail_abs = cur_output_dir + os.sep + thumbnail_file
 				cur_thumbnail_name = thumbnail_abs.replace(" ", "\\ ")
+				cur_thumbnail_name = cur_thumbnail_name.replace("&", "\\&")
 				
 				shutil.copy2(i, cur_output_dir)
 				
