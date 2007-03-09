@@ -383,7 +383,9 @@ output += \"</html>\\n\"\n\
   ["prevarchive", "output = \"<div id=\\\"prevarchive\\\"><a href=\\\"index\"\nif arguments != []:\n\toutput += arguments[0]\noutput += \".html\\\">_prevarchivetext_</a></div>\"\n", 0 ],
   ["nextarchive", "output = \"<div id=\\\"nextarchive\\\"><a href=\\\"index\"\nif arguments != []:\n\toutput += arguments[0]\noutput += \".html\\\">_nextarchivetext_</a></div>\"\n", 0 ],
   ["prevarchivetext", "output = \"Older entries\"\n", 0 ],
-  ["nextarchivetext", "output = \"Newer entries\"\n", 0 ]
+  ["nextarchivetext", "output = \"Newer entries\"\n", 0 ],
+  ["printablelink", "output = \"<div id=\\\"print_link\\\"<a href=\\\"index_print.html\\\">_printlinktext_</a></div>\"\n", 0],
+  ["printlinktext", "output = \"Printable version\"\n", 0 ]
 ]
 
 
@@ -742,9 +744,14 @@ class Page:
 		self.show_submenu = True
 		self.is_subsite = False
 		
+		self.show_header = True
+		self.show_separator = True
+		
 		self.archive_by_year = False
 		self.archive_by_month = False
 		self.archive_by_count = 0
+
+		self.make_printable = False
 
 		self.recreate = False
 
@@ -832,7 +839,10 @@ class Page:
 		#page_count = 0
 		pages_lines = []
 		page_lines = []
-		page_lines.append("_header_\n");
+		if self.show_header:
+			page_lines.append("_header_\n")
+		if self.make_printable:
+			page_lines.append("_printablelink_\n")
 		page_lines.append("<div id=\"content\">\n")
 		i = 1
 		page_count = 0
@@ -857,7 +867,7 @@ class Page:
 					content_count = 0
 					page_count += 1
 				else:
-					if i > 1 and i < len(self.contents):
+					if self.show_separator and i > 0 and i < len(self.contents):
 						page_lines.append("_itemseparator_")
 			i += 1
 
@@ -868,7 +878,8 @@ class Page:
 			elif (page_count > 1):
 				page_lines.append("_nextarchive_"+str(page_count-1)+"_")
 		page_lines.append("</div>\n");
-		page_lines.append("_footer_");
+		if self.show_header:
+			page_lines.append("_footer_");
 
 		pages_lines.append(page_lines)
 		
@@ -1016,6 +1027,17 @@ class Page:
 						out_file = open(out_dir + os.sep + file, "w")
 						out_file.writelines(html_pages[0])
 						out_file.close()
+			if self.make_printable:
+				file = "index_print.html"
+				clone = copy.deepcopy(self)
+				clone.make_printable = False
+				clone.show_header = False
+				clone.show_separator = False
+				clone.show_submenu = False
+				html_pages = clone.toHTML()
+				out_file = open(out_dir + os.sep + file, "w")
+				out_file.writelines(html_pages[0])
+				out_file.close()
 		self.copyFiles(out_dir)
 		if recursive:
 			for c in self.children:
@@ -1444,6 +1466,8 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
 						except ValueError, e:
 							print "Error in attribute part of "+page.input_file+": bad value for archive_by_count option: "+value
 							print e
+					elif l[:14].lower() == "make_printable":
+						page.make_printable = True
 					else:
 						print "Warning: unknown option line in page.attr file"
 						print "File: " + os.getcwd()+ os.sep + "page.attr:"
