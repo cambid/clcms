@@ -384,7 +384,7 @@ output += \"</html>\\n\"\n\
   ["nextarchive", "output = \"<div id=\\\"nextarchive\\\"><a href=\\\"index\"\nif arguments != []:\n\toutput += arguments[0]\noutput += \".html\\\">_nextarchivetext_</a></div>\"\n", 0 ],
   ["prevarchivetext", "output = \"Older entries\"\n", 0 ],
   ["nextarchivetext", "output = \"Newer entries\"\n", 0 ],
-  ["printablelink", "output = \"<div id=\\\"print_link\\\"<a href=\\\"index_print.html\\\">_printlinktext_</a></div>\"\n", 0],
+  ["printablelink", "output = \"<div id=\\\"print_link\\\"><a href=\\\"index_print.html\\\">_printlinktext_</a></div>\"\n", 0],
   ["printlinktext", "output = \"Printable version\"\n", 0 ]
 ]
 
