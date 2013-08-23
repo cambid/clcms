@@ -166,7 +166,7 @@ def link_wiki_to_html(line, page):
 	    	img_html += " width = \"" + width + "\""
 	    if frame:
 	        img_html += " border = \"1\""
-	    img_html += html + "/>"
+	    img_html += html + ">"
 	    if thumb:
 	        img_html = "<a href=\"" + image + "\"" + html + ">" + img_html + "</a>"
 	    
@@ -282,7 +282,7 @@ def wiki_to_html(wiki_lines, page = None):
             if line[:10] == "_NO_WIKI_\n":
 	        no_wiki = True
 	    else:
-	        # in lists, single line breaks are <br />, but not end of lists
+	        # in lists, single line breaks are <br>, but not end of lists
 	        list_m = list_p.match(line)
 	        if list_m:
 	            wiki_handle_lists(prev_list_part, list_m.group(1), html_lines)
@@ -294,7 +294,7 @@ def wiki_to_html(wiki_lines, page = None):
 			    wiki_handle_lists(prev_list_part, "", html_lines)
 			    prev_list_part = ""
 		    elif line == "" and prev_list_part != "":
-	                html_lines.append("<br/>\n")
+	                html_lines.append("<br>\n")
 	        html_lines.append(wiki_to_html_simple(line, page))
 	        
 	i += 1
@@ -321,8 +321,8 @@ system_macro_list = [
   ["date", "output = time.strftime(\"%Y-%m-%d\")\n", 0 ],
 #TODO:
   ["datefile", "output = time.strftime(\"%Y-%m-%d\", page.findPageDate())\n", 0],
-  ["itemseparator", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\" />\"", 0 ],
-  ["submenuitemseparator", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\" />\"", 0 ],
+  ["itemseparator", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\">\"", 0 ],
+  ["submenuitemseparator", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\">\"", 0 ],
   ["header", "\
 output = \"\"\n\
 output += \"<!DOCTYPE html PUBLIC \\\"-//W3C//DTD HTML 4.01 Transitional//EN\\\" \\\"http://www.w3.org/TR/html4/loose.dtd\\\">\\n\"\n\
