@@ -20,14 +20,12 @@
 # For the complete license, see the LICENSE file in this distribution
 
 import os
-from os.path import join, getsize
 import stat
 import shutil
 import time
 import re
 import sys
 import code
-import traceback
 import copy
 
 version = "0.6"
