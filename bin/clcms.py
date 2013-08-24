@@ -8,12 +8,12 @@
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
 # of the License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
@@ -32,7 +32,7 @@ import traceback
 import copy
 
 version = "0.6"
-verbosity = 1;
+verbosity = 1
 
 no_macros = False
 force_output = False
@@ -42,10 +42,10 @@ store_dates = True
 
 # is there a built-in function for this?
 def copy_list(l):
-	result = []
-	for li in l:
-		result.append(li)
-	return result
+    result = []
+    for li in l:
+        result.append(li)
+    return result
 
 #
 # Wiki style parser
@@ -73,16 +73,16 @@ def bold_wiki_to_html(line):
     line_p=re.compile('(\'\'\'.{1,}?\'\'\')')
     result=line_p.search(line)
     while result:
-          line=line_p.sub("<b>" +line[result.start()+3:result.end()-3] +"</b>",line,1)
-          result=line_p.search(line)
+        line=line_p.sub("<b>" +line[result.start()+3:result.end()-3] +"</b>",line,1)
+        result=line_p.search(line)
     return line
 
 def italic_wiki_to_html(line):
     line_p=re.compile('(\'\'.{1,}?\'\')')
     result=line_p.search(line)
     while result:
-          line=line_p.sub("<i>" +line[result.start()+2:result.end()-2] +"</i>",line,1)
-          result=line_p.search(line)
+        line=line_p.sub("<i>" +line[result.start()+2:result.end()-2] +"</i>",line,1)
+        result=line_p.search(line)
     return line
 
 def heading_wiki_to_html(line):
@@ -92,13 +92,13 @@ def heading_wiki_to_html(line):
         text = result.group(1)
         heading_level = 0
         while len(text) > 1 and text[0] == '=' and text[-1] == '=':
-        	heading_level += 1
-        	text = text[1:-1]
-	line = "</p><h" + str(heading_level) + ">"
-	text = text.lstrip(" \t")
-	text = text.rstrip(" \t")
-	line += text
-	line += "</h" + str(heading_level) + "><p>"
+            heading_level += 1
+            text = text[1:-1]
+        line = "</p><h" + str(heading_level) + ">"
+        text = text.lstrip(" \t")
+        text = text.rstrip(" \t")
+        line += text
+        line += "</h" + str(heading_level) + "><p>"
     return line
 
 def link_wiki_to_html(line, page):
@@ -112,64 +112,64 @@ def link_wiki_to_html(line, page):
         while nesting_level > 0 and cur_pos < len(line):
             if line[cur_pos:cur_pos + 2] == ']]':
                 nesting_level -= 1
-	    elif line[cur_pos:cur_pos + 2] == '[[':
-	        nesting_level += 1
+            elif line[cur_pos:cur_pos + 2] == '[[':
+                nesting_level += 1
             cur_pos += 1
-	if nesting_level > 0:
-	    print "Link nesting error in line:"
-	    print line
-	    sys.exit(3)
-	is_image = False
-    	parts = line[open_pos + 2:cur_pos - 1].split("][");
+        if nesting_level > 0:
+            print "Link nesting error in line:"
+            print line
+            sys.exit(3)
+        is_image = False
+        parts = line[open_pos + 2:cur_pos - 1].split("][")
         url = parts[0]
         name = ""
         html = ""
-        if len(parts) > 1:
-	        name = parts[1]
-	if len(parts) > 2:
-		html = " " + parts[2]
-	if url[:6] == 'Image:':
-	    # this is an image
-	    url = url[6:]
-	    parts = url.split('|')
-	    image = parts[0]
-	    alt = image
-	    width = ""
-	    thumb = False
-	    frame = False
-	    position = ""
-	    if len(parts) > 0:
-	        # last part is alt/caption
-	        alt = parts[-1]
-	        parts = parts[1:-1]
+        if len(parts) > 1: 
+            name = parts[1]
+        if len(parts) > 2:
+            html = " " + parts[2]
+        if url[:6] == 'Image:':
+            # this is an image
+            url = url[6:]
+            parts = url.split('|')
+            image = parts[0]
+            alt = image
+            width = ""
+            thumb = False
+            frame = False
+            position = ""
+            if len(parts) > 0:
+                # last part is alt/caption
+                alt = parts[-1]
+                parts = parts[1:-1]
                 for part in parts:
                     if part[-2:] == "px":
-                    	width = part
-		    elif part == "thumb":
-		        thumb = True
-		    elif part == "frame":
-		        frame = True
-		    elif part == "left" or part == "right" or part == "center":
-		        if position:
-		            print "Error in image link: "+line
-		            print "Position specified more than once"
-		        position = part
-	            else:
-	                print "Error in image link: "+line
-	                print "Unknown argument: "+part
-	    
-	    img_html = "<img src=\"" + image + "\" alt=\"" + alt + "\""
-	    # argument html
-	    if name != "": 
-	    	html = " " + name
-	    if width:
-	    	img_html += " width = \"" + width + "\""
-	    if frame:
-	        img_html += " border = \"1\""
-	    img_html += html + ">"
-	    if thumb:
-	        img_html = "<a href=\"" + image + "\"" + html + ">" + img_html + "</a>"
-	    
+                        width = part
+                    elif part == "thumb":
+                        thumb = True
+                    elif part == "frame":
+                        frame = True
+                    elif part == "left" or part == "right" or part == "center":
+                        if position:
+                            print "Error in image link: "+line
+                            print "Position specified more than once"
+                        position = part
+                    else:
+                        print "Error in image link: "+line
+                        print "Unknown argument: "+part
+            
+            img_html = "<img src=\"" + image + "\" alt=\"" + alt + "\""
+            # argument html
+            if name != "": 
+                html = " " + name
+            if width:
+                img_html += " width = \"" + width + "\""
+            if frame:
+                img_html += " border = \"1\""
+            img_html += html + ">"
+            if thumb:
+                img_html = "<a href=\"" + image + "\"" + html + ">" + img_html + "</a>"
+            
             line = line[:open_pos] + img_html + line[cur_pos + 1:]
             is_image = True
         elif url[:1] == ':':
@@ -192,7 +192,7 @@ def link_wiki_to_html(line, page):
 def wiki_to_html_simple(line, page):
     # if line starts with __, do not do rest
     if line[:2] == "__":
-    	line = "<pre>"+escapes_wiki_to_html(line[2:])+"</pre>"
+        line = "<pre>"+escapes_wiki_to_html(line[2:])+"</pre>"
     else:
         line = escapes_wiki_to_html(line)
         line = bold_wiki_to_html(line)
@@ -207,25 +207,25 @@ def wiki_handle_lists(prev_list_part, list_part, html_lines):
     #html_lines.append("<!-- plp: "+prev_list_part+" lp: "+list_part+" -->\n")
     # for html code layout
     cur_depth = 0
-    
+
     if list_part != "":
         new_item = True
-    
+
     while len(prev_list_part) > 0 and len(list_part) > 0 \
           and prev_list_part[0] == list_part[0]:
         same_part = same_part + list_part[0]
         prev_list_part = prev_list_part[1:]
         list_part = list_part[1:]
-    
+
     cur_depth = len(same_part)
-    
+
     #html_lines.append("<!-- sp: "+same_part +" plp: "+prev_list_part+" lp: "+list_part+" -->\n")
     if same_part != "" or prev_list_part != "":
         if prev_list_part != "":
             cur_depth += 1
-        html_lines.append((cur_depth * "\t") + "</li>\n");
+        html_lines.append((cur_depth * "\t") + "</li>\n")
 
-    # go back in lists 
+    # go back in lists
     cur_depth = len(same_part)
     while len(prev_list_part) > 0:
         if prev_list_part[-1] == '*':
@@ -280,24 +280,24 @@ def wiki_to_html(wiki_lines, page = None):
                 html_lines.append(line)
         else:
             if line[:10] == "_NO_WIKI_\n":
-	        no_wiki = True
-	    else:
-	        # in lists, single line breaks are <br>, but not end of lists
-	        list_m = list_p.match(line)
-	        if list_m:
-	            wiki_handle_lists(prev_list_part, list_m.group(1), html_lines)
-	            prev_list_part = list_m.group(1)
-	            line = list_m.group(2)
-	        else:
-	            if line == "" and prev_line == "":
-			if prev_list_part != "":
-			    wiki_handle_lists(prev_list_part, "", html_lines)
-			    prev_list_part = ""
-		    elif line == "" and prev_list_part != "":
-	                html_lines.append("<br>\n")
-	        html_lines.append(wiki_to_html_simple(line, page))
-	        
-	i += 1
+                no_wiki = True
+            else:
+                # in lists, single line breaks are <br>, but not end of lists
+                list_m = list_p.match(line)
+                if list_m:
+                    wiki_handle_lists(prev_list_part, list_m.group(1), html_lines)
+                    prev_list_part = list_m.group(1)
+                    line = list_m.group(2)
+                else:
+                    if line == "" and prev_line == "":
+                        if prev_list_part != "":
+                            wiki_handle_lists(prev_list_part, "", html_lines)
+                            prev_list_part = ""
+                    elif line == "" and prev_list_part != "":
+                        html_lines.append("<br>\n")
+                html_lines.append(wiki_to_html_simple(line, page))
+                
+        i += 1
     if prev_list_part != "":
         wiki_handle_lists(prev_list_part, "", html_lines)
         prev_list_part = ""
@@ -395,7 +395,7 @@ def handle_macro(macro_name, macro_source, input_line, page):
     result_line = input_line
     macro_p = re.compile("(?:_"+macro_name+")((?:_[a-zA-Z0-9]+|_\(.*\))*)_")
 
-    #macro_p = re.compile("_"+macro_name+"_");
+    #macro_p = re.compile("_"+macro_name+"_")
     macro_m = macro_p.search(input_line)
     if macro_m:
         ip = code.InteractiveInterpreter()
@@ -403,24 +403,24 @@ def handle_macro(macro_name, macro_source, input_line, page):
 
         arguments = []
         if macro_m.lastindex != None:
-        	macro_arg_str = macro_m.group(1)
-        	macro_arg_p = re.compile("_(\(.*\)|[a-zA-Z0-9]+)")
-        	macro_arg_m = macro_arg_p.search(macro_arg_str)
-        	while macro_arg_m:
-        		macro_arg_val = macro_arg_str[macro_arg_m.start() + 1:macro_arg_m.end()]
-        		if len(macro_arg_val) > 1 and macro_arg_val[0] == '(' and macro_arg_val[-1] == ')':
-        			macro_arg_val = macro_arg_val[1:-1]
-        		macro_arg_str = macro_arg_str[macro_arg_m.end():]
-        		macro_arg_m = macro_arg_p.search(macro_arg_str)
-        		arguments.append(macro_arg_val)
+            macro_arg_str = macro_m.group(1)
+            macro_arg_p = re.compile("_(\(.*\)|[a-zA-Z0-9]+)")
+            macro_arg_m = macro_arg_p.search(macro_arg_str)
+            while macro_arg_m:
+                macro_arg_val = macro_arg_str[macro_arg_m.start() + 1:macro_arg_m.end()]
+                if len(macro_arg_val) > 1 and macro_arg_val[0] == '(' and macro_arg_val[-1] == ')':
+                    macro_arg_val = macro_arg_val[1:-1]
+                macro_arg_str = macro_arg_str[macro_arg_m.end():]
+                macro_arg_m = macro_arg_p.search(macro_arg_str)
+                arguments.append(macro_arg_val)
         if (verbosity >= 4):
-		print "Line: "+input_line
-		print "Match: "+input_line[macro_m.start():macro_m.end()]
-	        print "Macro: "+macro_name
-	        print "number of arguments: ",
-	        print len(arguments)
-		print "arguments: ",
-		print arguments
+            print "Line: "+input_line
+            print "Match: "+input_line[macro_m.start():macro_m.end()]
+            print "Macro: "+macro_name
+            print "number of arguments: ",
+            print len(arguments)
+            print "arguments: ",
+            print arguments
 
         # keep for error message
         orig_macro_source = macro_source
@@ -463,14 +463,14 @@ def handle_macro(macro_name, macro_source, input_line, page):
                 print "Warning: Bad macro: "+macro_name
                 print "In line: "+input_line
                 output = ""
-	    result_line = input_line[:macro_m.start()]
-	    if show_macro_names:
-	        result_line += "<!-- macro " + macro_name + " start -->"
-	        #result_line = input_line[:macro_m.start()] + output + input_line[macro_m.end():]
-	    result_line += output
-	    if show_macro_names:
-	        result_line += "<!-- macro " + macro_name + " end -->"
-	    result_line += input_line[macro_m.end():]
+            result_line = input_line[:macro_m.start()]
+            if show_macro_names:
+                result_line += "<!-- macro " + macro_name + " start -->"
+                #result_line = input_line[:macro_m.start()] + output + input_line[macro_m.end():]
+            result_line += output
+            if show_macro_names:
+                result_line += "<!-- macro " + macro_name + " end -->"
+            result_line += input_line[macro_m.end():]
         else:
             print "Warning: Bad macro: "+macro_name
         return result_line
@@ -487,14 +487,14 @@ def handle_macros(page, input_line):
         for mo in page.macros:
             cur_line = handle_macro(mo[0], mo[1], cur_line, page)
             if cur_line != orig_line:
-            	if verbosity >= 5:
-            		print "Macro substitution: "
-            		print "<<<<<<<<<<<<<<<<<<BEFORE<<<<<<<<<<<<<<<"
-            		print orig_line
-            		print ">>>>>>>>>>>>>>>>>>AFTER>>>>>>>>>>>>>>>>"
-            		print cur_line
+                if verbosity >= 5:
+                    print "Macro substitution: "
+                    print "<<<<<<<<<<<<<<<<<<BEFORE<<<<<<<<<<<<<<<"
+                    print orig_line
+                    print ">>>>>>>>>>>>>>>>>>AFTER>>>>>>>>>>>>>>>>"
+                    print cur_line
                 #if mo[2] > macro_last_modified:
-		    #print "MACRO CHANGED!"
+                    #print "MACRO CHANGED!"
                 #    macro_last_modified = mo[2]
                 break
         i += 1
@@ -511,68 +511,68 @@ def handle_macros(page, input_line):
 #
 
 def add_option(options, option):
-	# todo: sort uniques?
-	options.insert(0, option.replace('\n', ''))
-	return options
+    # todo: sort uniques?
+    options.insert(0, option.replace('\n', ''))
+    return options
 
 def add_options(options, optionsa):
-	for o in optionsa:
-		options = add_option(options, o)
-	return options
+    for o in optionsa:
+        options = add_option(options, o)
+    return options
 
 def have_option(options, option_name):
-	p = re.compile("^\\s*" + option_name + "\\s*=\\s*");
-	for o in options:
-		m = p.match(o)
-		if m:
-			return True
-        return False
+    p = re.compile("^\\s*" + option_name + "\\s*=\\s*")
+    for o in options:
+        m = p.match(o)
+        if m:
+            return True
+    return False
 
 def get_option(options, option_name):
-	p = re.compile("^\\s*" + option_name + "\\s*=\\s*");
-	for o in options:
-		m = p.match(o)
-		if m:
-			return o[m.end():].rstrip("\n\r\t ")
-	print "Error: get_option() called for unknown option: "+option_name
-	print "Current directory: " + os.getcwd()
-	print options
-	(a,b,c) = sys.exc_info()
-	raise NameError, "get_option() called for unknown option: " + option_name
-	return ""
-	
+    p = re.compile("^\\s*" + option_name + "\\s*=\\s*")
+    for o in options:
+        m = p.match(o)
+        if m:
+            return o[m.end():].rstrip("\n\r\t ")
+    print "Error: get_option() called for unknown option: "+option_name
+    print "Current directory: " + os.getcwd()
+    print options
+    (a,b,c) = sys.exc_info()
+    raise NameError, "get_option() called for unknown option: " + option_name
+    return ""
+
 def get_options(options, option_name):
-	p = re.compile("^\\s*" + option_name + "\\s*=\\s*");
-	for o in options:
-		m = p.match(o)
-		if m:
-                    result = o[m.end():].split(',')
-                    if result != [ '' ]:
-                        return result
-                    else:
-                        return []
-	print "Error: get_options() called for unknown option: "+option_name
-	print "Current directory: " + os.getcwd()
-	(a,b,c) = sys.exc_info()
-	raise NameError, "get_option() called for unknown option: " + option_name
-	return ""
+    p = re.compile("^\\s*" + option_name + "\\s*=\\s*")
+    for o in options:
+        m = p.match(o)
+        if m:
+            result = o[m.end():].split(',')
+            if result != [ '' ]:
+                return result
+            else:
+                return []
+    print "Error: get_options() called for unknown option: "+option_name
+    print "Current directory: " + os.getcwd()
+    (a,b,c) = sys.exc_info()
+    raise NameError, "get_option() called for unknown option: " + option_name
+    return ""
 
 def get_option_dir(options, option_name):
-	p = re.compile("^\\s*" + option_name + "\\s*=\\s*");
-	d = ""
-	for o in options:
-		m = p.match(o)
-		if m:
-			d = o[m.end():].rstrip("\n\r\t ")
-                        if d[:1] != os.sep:
-                            d = os.getcwd()+os.sep+d
-                        return d
-        print "Error: unknown option name: " + option_name
-	print "Current directory: " + os.getcwd()
-	(a,b,c) = sys.exc_info()
-	raise NameError, "get_option_dir() called for unknown option: " + option_name
-	return ""
-	
+    p = re.compile("^\\s*" + option_name + "\\s*=\\s*")
+    d = ""
+    for o in options:
+        m = p.match(o)
+        if m:
+            d = o[m.end():].rstrip("\n\r\t ")
+            if d[:1] != os.sep:
+                d = os.getcwd()+os.sep+d
+            return d
+    print "Error: unknown option name: " + option_name
+    print "Current directory: " + os.getcwd()
+    (a,b,c) = sys.exc_info()
+    raise NameError, "get_option_dir() called for unknown option: " + option_name
+    return ""
+
 
 # default options
 system_options = []
@@ -611,15 +611,15 @@ def file_lines(file, filters = []):
     try:
         f_lines = open(file, "r")
         for l in f_lines:
-            l = l.rstrip(" \t\n\r");
+            l = l.rstrip(" \t\n\r")
             if filters == []:
-                    lines.append(l + "\n")
+                lines.append(l + "\n")
             else:
-                    for filter in filters:
-                            p = re.compile(filter)
-                            m = p.search(l)
-                            if m:
-                                    lines.append(l + "\n")
+                for filter in filters:
+                    p = re.compile(filter)
+                    m = p.search(l)
+                    if m:
+                        lines.append(l + "\n")
     except IOError, msg:
         print "Error reading file: ",
         print msg
@@ -656,31 +656,31 @@ def file_extension(filename, default = ""):
 #
 def sort_dir_files(a, b):
     try:
-      if a[0] > b[0]:
-        return 1
-      elif a[0] < b[0]:
-        return -1
-      else:
-        # sort timestamps in reverse order
-        if a[1] > b[1]:
-          return -1
-        elif a[1] < b[1]:
-          return 1
-        else:
-          if a[2] > b[2]:
+        if a[0] > b[0]:
             return 1
-          elif a[2] < b[2]:
+        elif a[0] < b[0]:
             return -1
-          else:
-            return 0
+        else:
+            # sort timestamps in reverse order
+            if a[1] > b[1]:
+                return -1
+            elif a[1] < b[1]:
+                return 1
+            else:
+                if a[2] > b[2]:
+                    return 1
+                elif a[2] < b[2]:
+                    return -1
+                else:
+                    return 0
     except e:
-      print e
-      return 0
+        print e
+        return 0
 
 # returns the sorting order number of the file.
 # ie the number after the first . (or specified spearator)
 def file_sort_number(options, filename):
-    file_name_parts = filename.split(get_option(options, "extension_separator"));
+    file_name_parts = filename.split(get_option(options, "extension_separator"))
     result = 999
     if len(file_name_parts) > 1 and file_name_parts[1].isdigit():
         result = int(file_name_parts[1])
@@ -692,7 +692,7 @@ def file_sort_number(options, filename):
 def get_dir_files(options, dir, ignore_masks, invert = False):
     dirfiles = []
     if os.path.isdir(dir):
-    	orig_path = os.getcwd()
+        orig_path = os.getcwd()
         os.chdir(dir)
         files = os.listdir(".")
         files = map( lambda f: (file_sort_number(options, f), os.stat(f)[stat.ST_MTIME], f), files )
@@ -706,584 +706,584 @@ def get_dir_files(options, dir, ignore_masks, invert = False):
                 file_m = file_p.match(f)
                 if file_m:
                     matches = True
-	    if matches and invert:
-	        dirfiles.append(f)
-	    elif not matches and not invert:
-	    	dirfiles.append(f)
+            if matches and invert:
+                dirfiles.append(f)
+            elif not matches and not invert:
+                dirfiles.append(f)
         os.chdir(orig_path)
     return dirfiles
 
 def print_indentation(depth):
-	print "  "*depth,
-    
+    print "  "*depth,
+
 
 class Page:
-	"A page object"
+    "A page object"
 
-	def __init__(self, name, basedir, pagedir, parent = None):
-		#print "Add page", dir
-		self.input_dir = basedir
-		self.page_dir = pagedir
-		self.parent = parent
-		
-		self.name = name
-		self.display_name = name
+    def __init__(self, name, basedir, pagedir, parent = None):
+        #print "Add page", dir
+        self.input_dir = basedir
+        self.page_dir = pagedir
+        self.parent = parent
 
-		# By default, the id is the input directory
-		self.id = basedir + os.sep + pagedir
-		self.sort_order = -1
+        self.name = name
+        self.display_name = name
 
-		self.contents = []
-		self.files = []
-		self.children = []
-		
-		self.macros = []
-		self.options = []
-		
-		self.show_menu_item = True
-		self.show_submenu = True
-		self.is_subsite = False
-		
-		self.show_header = True
-		self.show_separator = True
-		
-		self.archive_by_year = False
-		self.archive_by_month = False
-		self.archive_by_count = 0
+        # By default, the id is the input directory
+        self.id = basedir + os.sep + pagedir
+        self.sort_order = -1
 
-		self.make_printable = False
+        self.contents = []
+        self.files = []
+        self.children = []
 
-		self.recreate = False
+        self.macros = []
+        self.options = []
 
-	def addContent(self, content):
-		#print "Adding",content.name, "to page", self.name
-		self.contents.append(content)
-	
-	def addFile(self, file):
-		self.files.append(file)
-	
-	def addChild(self, child):
-		self.children.append(child)
+        self.show_menu_item = True
+        self.show_submenu = True
+        self.is_subsite = False
 
-	def getPageDepth(self):
-		if self.parent == None:
-			return 0
-		else:
-			return 1 + self.parent.getPageDepth()
-	
-	def isParent(self, page):
-		if page.parent == None:
-			return False
-		elif page.parent == self:
-			return True
-		else:
-			return self.isParent(page.parent)
-	
-	def getRootPage(self):
-		if self.parent == None:
-			return self
-		else:
-			return self.parent.getRootPage()
+        self.show_header = True
+        self.show_separator = True
 
-	def printOverview(self, depth = 0):
-		print_indentation(depth)
-		print self.name
-		print_indentation(depth+1)
-		print "Contents:"
-		for c in self.contents:
-			c.printOverview(depth+2)
-		print_indentation(depth+1)
-		print "Files:"
-		for f in self.files:
-			f.printOverview(depth+2)
-		print_indentation(depth+1)
-		print len(self.children), "Children:"
-		for c in self.children:
-			c.printOverview(depth+2)
-	
-	def printAll(self, max_depth = -1):
-		print "-----------PAGE-------------"
-		print "Name:", self.name
-		print "id:", self.id
-		print "input dir:", self.input_dir
-		print "sort order: ",self.sort_order
-		print "contents:"
-		for c in self.contents:
-			c.printAll()
-		print "files:"
-		for f in self.files:
-			f.printAll()
-		# print macros?
-		# print options?
-		for c in self.children:
-			if max_depth > 0:
-				c.printAll(max_depth - 1)
-			elif max_depth == -1:
-				c.printAll(-1)
-	
-	def getOutputDir(self):
-		#dir_parts = self.page_dir.split(get_option(self.options, "extension_separator"))
-		#return escape_url(dir_parts[0])
-		return escape_url(self.page_dir)
-	
-	def getTotalOutputDir(self):
-		if self.parent == None:
-			if not self.is_subsite and self.name != "":
-				return self.name + os.sep
-			else:
-				return ""
-		else:
-			return self.parent.getTotalOutputDir() + self.getOutputDir() + os.sep
-		
-	def toHTML(self):
-		#page_count = 0
-		pages_lines = []
-		page_lines = []
-		if self.show_header:
-			page_lines.append("_header_\n")
-		if self.make_printable:
-			page_lines.append("_printablelink_\n")
-		page_lines.append("<div id=\"content\">\n")
-		i = 1
-		page_count = 0
-		content_count = 0
-		for c in self.contents:
-			if c.show:
-				content_count += 1
-				page_lines.extend(c.toHTML())
-				if self.archive_by_count > 0 and content_count > self.archive_by_count:
-					page_lines.append("\n")
-					page_lines.append("_prevarchive_"+str(page_count+1)+"_")
-					if (page_count == 1):
-						page_lines.append("_nextarchive_")
-					elif (page_count > 1):
-						page_lines.append("_nextarchive_"+str(page_count-1)+"_")
-					page_lines.append("</div>\n")
-					page_lines.append("_footer_");
-					pages_lines.append(copy.deepcopy(page_lines))
-					page_lines = []
-					page_lines.append("_header_\n");
-					page_lines.append("<div id=\"content\">\n")
-					content_count = 0
-					page_count += 1
-				else:
-					if self.show_separator and i > 0 and i < len(self.contents):
-						page_lines.append("_itemseparator_")
-			i += 1
+        self.archive_by_year = False
+        self.archive_by_month = False
+        self.archive_by_count = 0
 
-		if self.archive_by_count > 0:
-			#page_lines.append("_prev_archive_")
-			if (page_count == 1):
-				page_lines.append("_nextarchive_")
-			elif (page_count > 1):
-				page_lines.append("_nextarchive_"+str(page_count-1)+"_")
-		page_lines.append("</div>\n");
-		if self.show_header:
-			page_lines.append("_footer_");
+        self.make_printable = False
 
-		pages_lines.append(page_lines)
-		
-		pages_lines2 = []
-		for page_lines in pages_lines:
-			if not no_macros:
-				macro_new_lines = []
-				do_handle_macros = True
-				for l in page_lines:
-					if l[:14] == "_NO_MACRO_END_":
-					    do_handle_macros = True
-					elif l[:10] == "_NO_MACRO_":
-					    do_handle_macros = False
-					elif do_handle_macros:
-					    macro_new_lines.append(handle_macros(self, l))
-					else:
-					    macro_new_lines.append(l)
-				page_lines = macro_new_lines
-				pages_lines2.append(page_lines)
-		return pages_lines2
-	
-	def getBackDir(self):
-		return (os.pardir + os.sep)*(self.getPageDepth())
-		
-	def createMenu(self, calling_page, depth, start_depth = 0):
-		cur_depth = self.getPageDepth()
-		menu_lines = []
-		#menu_lines.append("menu for level "+ str(self.getPageDepth()) + " ("+self.name+") has " + str(len(self.children)) + "children\n")
-		back_dir = ""
-		if calling_page.getPageDepth() > 0:
-			back_dir =  calling_page.getBackDir()
-		for c in self.children:
-			if c.show_menu_item:
-				link = ""
-				if len(c.contents) > 0:
-					#link = "<a href=\""+(os.pardir + os.sep)*(calling_page.getPageDepth()) + os.pardir + c.getTotalOutputDir() + os.sep + "index.html\""
-					link = "<a href=\""+ back_dir + c.getTotalOutputDir() + "index.html\""
-					if c == calling_page or c.isParent(calling_page):
-						link += " _menuitem"+str(self.getPageDepth()+1)+"selected_"
-					link += ">"
-					#menu_lines.append(link)
-				link += c.display_name
-				if len(c.contents) > 0:
-					link += "</a>"
-				if cur_depth >= start_depth:
-					if start_depth > 0 and cur_depth <= calling_page.getPageDepth():
-						if self.isParent(calling_page) or self == calling_page:
-							menu_lines.append("_menuitem"+str(cur_depth+1)+"start-arg_("+link+")_\n")
-					else:
-						menu_lines.append("_menuitem"+str(cur_depth+1)+"start-arg_("+link+")_\n")
-				if depth > 1:
-					if c.is_subsite:
-						cc = copy.deepcopy(c)
-						cc.parent = self
-						menu_lines.extend(cc.createMenu(calling_page, depth - 1, start_depth))
-					else:
-						menu_lines.extend(c.createMenu(calling_page, depth - 1, start_depth))
-				if cur_depth >= start_depth:
-						menu_lines.append("_menuitem"+str(cur_depth+1)+"end_\n")
-		return menu_lines
-	
-	def createAnchorMenu(self):
-		anchor_menu_lines = []
-		if get_option(self.options, "show_submenu") == 'yes' and len(self.contents) > 1:
-			anchor_menu_lines += "_submenustart_"
-			i = 1
-			for c in self.contents:
-				anchor_menu_lines += "_submenuitemstart_"
-				anchor_menu_lines += "<a href=\"#" + c.getAnchorName() + "\">"
-				anchor_menu_lines += c.display_name
-				anchor_menu_lines += "</a>\n"
-				if i < len(self.contents):
-					anchor_menu_lines += "_submenuitemseparator_"
-				i += 1
-				anchor_menu_lines += "_submenuitemend_"
-			anchor_menu_lines += "_submenuend_"
-		if self.archive_by_year:
-			years = []
-			year_entry_count = {}
-			for c in self.contents:
-				if not c.date.tm_year in years:
-					#print c.date.tm_year
-					years.append(c.date.tm_year)
-					year_entry_count[c.date.tm_year] = 1
-				else:
-					year_entry_count[c.date.tm_year] += 1
-			years.sort()
-			years.reverse()
-			anchor_menu_lines += "_yearmenustart_"
-			i = 1
-			for y in years:
-				anchor_menu_lines += "_submenuitemstart_"
-				anchor_menu_lines += "<a href=\"index_"+str(y)+".html\">"
-				anchor_menu_lines += str(y) + " (" + str(year_entry_count[y]) + ")"
-				anchor_menu_lines += "</a>\n"
-				if i < len(years):
-					anchor_menu_lines += "_submenuitemseparator_"
-				i += 1
-				anchor_menu_lines += "_submenuitemend_"
-			anchor_menu_lines += "_yearmenuend_"
-			print years
-		return anchor_menu_lines
-	
-	def copyFiles(self, output_directory):
-		# copies to output_directory argument, does NOT append its own subdir itself
-		for f in self.files:
-			shutil.copy(f.input_file, output_directory)
-	
-	def createPage(self, output_directory, recursive):
-		out_dir = output_directory + os.sep + self.getOutputDir()
-		#print "out_dir: "+out_dir
-		if  not os.path.isdir(out_dir):
-		        os.mkdir(out_dir)
-		if self.recreate:
-			if verbosity >= 1:
-				print "Creating page '"+self.name+"'"
-			html_pages = self.toHTML()
-			page_count = 0;
-			for p in html_pages:
-				if page_count > 0:
-					file = "index"+str(page_count)+".html"
-				else:
-					file = "index.html"
-				out_file = open(out_dir + os.sep + file, "w")
-				out_file.writelines(p)
-				out_file.close()
-				page_count += 1
-			if self.archive_by_year:
-				years = []
-				for c in self.contents:
-					if not c.date.tm_year in years:
-						years.append(c.date.tm_year)
-				for y in years:
-					file = "index_"+str(y)+".html"
-					clone = copy.deepcopy(self)
-					clone.archive_by_count = 0;
-					newcontents = []
-					for c in clone.contents:
-						if c.date.tm_year != y:
-							c.show = False
-					html_pages = clone.toHTML()
-					if len(html_pages) > 1:
-						print "ERROR YEAR ARCHIVE SHOULD ONLY HAVE 1 PAGE PER YEAR"
-					else:
-						out_file = open(out_dir + os.sep + file, "w")
-						out_file.writelines(html_pages[0])
-						out_file.close()
-			if self.make_printable:
-				file = "index_print.html"
-				clone = copy.deepcopy(self)
-				clone.make_printable = False
-				clone.show_header = False
-				clone.show_separator = False
-				clone.show_submenu = False
-				html_pages = clone.toHTML()
-				out_file = open(out_dir + os.sep + file, "w")
-				out_file.writelines(html_pages[0])
-				out_file.close()
-		self.copyFiles(out_dir)
-		if recursive:
-			for c in self.children:
-				c.createPage(out_dir, recursive)
-	
-	def prepare(self, output_directory):
-		# todo: add update checks here too?
-		# how about file/page dates?
-		# walk through the tree, and update times and sort orders
-		out_time = 0
-		out_dir = output_directory + os.sep + self.getOutputDir()
-		#if os.path.isdir(out_dir):
-		if os.path.exists(out_dir + os.sep + "index.html"):
-			out_time = time.gmtime(os.stat(out_dir + os.sep + "index.html")[stat.ST_MTIME])
-		in_time = self.findPageDate()
-		self.children.sort(compare_pages)
-		self.contents.sort(compare_contents)
-		if in_time > out_time or force_output:
-			self.recreate = True
-		for c in self.children:
-			c.prepare(out_dir)
+        self.recreate = False
 
-	def findPageDate(self):
-		# searches this page and its contents for the last modified date
-		# todo: add macro changes? (need seperate class?)
-		# todo: store it so we can reuse it ;)
-		last_date = time.gmtime(os.stat(self.input_dir)[stat.ST_MTIME])
-		for c in self.contents:
-			cld = time.gmtime(os.stat(c.input_file)[stat.ST_MTIME])
-			if cld > last_date:
-				last_date = cld
-		return last_date
-	
-	def findPageByID(self, id):
-		if not self:
-			return None
-		if self.id == id:
-			return self
-		else:
-			for c in self.children:
-				p = c.findPageByID(id)
-				if p:
-					return p
-			return None
+    def addContent(self, content):
+        #print "Adding",content.name, "to page", self.name
+        self.contents.append(content)
 
-	# Returns the first page after this one that has content
-	# if return_children is true (default) then the first child
-	# (if any) is returned, otherwise it's first sibling
-	# Returns None if this is the last page
-	def getNextPage(self, return_children = True):
-		next_page = None
-		if return_children and len(self.children) > 0:
-			next_page = self.children[0]
-		elif self.parent:
-			lp = None
-			for p in self.parent.children:
-				if lp == self:
-					next_page = p
-				lp = p
-			if not next_page:
-				next_page = self.parent.getNextPage(False)
-		if next_page and len(next_page.contents) == 0:
-			return next_page.getNextPage(return_children)
-		else:
-			return next_page
-			
-	# Returns the last page before this one that has content
-	# if return_children is true (default) then the last child
-	# (if any) is returned, otherwise it's last sibling
-	# Returns None if this is the first page
-	def getPreviousPage(self, return_children = True):
-		prev_page = None
-		if self.parent:
-			lp = None
-			for p in self.parent.children:
-				if p == self:
-					prev_page = lp
-				lp = p
-		if not prev_page:
-			prev_page = self.parent
-		else:
-			while return_children and len(prev_page.children) > 0:
-				prev_page = prev_page.children[-1]
-		if prev_page and len(prev_page.contents) == 0:
-			return prev_page.getPreviousPage(return_children)
-		else:
-			return prev_page
+    def addFile(self, file):
+        self.files.append(file)
+
+    def addChild(self, child):
+        self.children.append(child)
+
+    def getPageDepth(self):
+        if self.parent == None:
+            return 0
+        else:
+            return 1 + self.parent.getPageDepth()
+
+    def isParent(self, page):
+        if page.parent == None:
+            return False
+        elif page.parent == self:
+            return True
+        else:
+            return self.isParent(page.parent)
+
+    def getRootPage(self):
+        if self.parent == None:
+            return self
+        else:
+            return self.parent.getRootPage()
+
+    def printOverview(self, depth = 0):
+        print_indentation(depth)
+        print self.name
+        print_indentation(depth+1)
+        print "Contents:"
+        for c in self.contents:
+            c.printOverview(depth+2)
+        print_indentation(depth+1)
+        print "Files:"
+        for f in self.files:
+            f.printOverview(depth+2)
+        print_indentation(depth+1)
+        print len(self.children), "Children:"
+        for c in self.children:
+            c.printOverview(depth+2)
+
+    def printAll(self, max_depth = -1):
+        print "-----------PAGE-------------"
+        print "Name:", self.name
+        print "id:", self.id
+        print "input dir:", self.input_dir
+        print "sort order: ",self.sort_order
+        print "contents:"
+        for c in self.contents:
+            c.printAll()
+        print "files:"
+        for f in self.files:
+            f.printAll()
+        # print macros?
+        # print options?
+        for c in self.children:
+            if max_depth > 0:
+                c.printAll(max_depth - 1)
+            elif max_depth == -1:
+                c.printAll(-1)
+
+    def getOutputDir(self):
+        #dir_parts = self.page_dir.split(get_option(self.options, "extension_separator"))
+        #return escape_url(dir_parts[0])
+        return escape_url(self.page_dir)
+
+    def getTotalOutputDir(self):
+        if self.parent == None:
+            if not self.is_subsite and self.name != "":
+                return self.name + os.sep
+            else:
+                return ""
+        else:
+            return self.parent.getTotalOutputDir() + self.getOutputDir() + os.sep
+
+    def toHTML(self):
+        #page_count = 0
+        pages_lines = []
+        page_lines = []
+        if self.show_header:
+            page_lines.append("_header_\n")
+        if self.make_printable:
+            page_lines.append("_printablelink_\n")
+        page_lines.append("<div id=\"content\">\n")
+        i = 1
+        page_count = 0
+        content_count = 0
+        for c in self.contents:
+            if c.show:
+                content_count += 1
+                page_lines.extend(c.toHTML())
+                if self.archive_by_count > 0 and content_count > self.archive_by_count:
+                    page_lines.append("\n")
+                    page_lines.append("_prevarchive_"+str(page_count+1)+"_")
+                    if (page_count == 1):
+                        page_lines.append("_nextarchive_")
+                    elif (page_count > 1):
+                        page_lines.append("_nextarchive_"+str(page_count-1)+"_")
+                    page_lines.append("</div>\n")
+                    page_lines.append("_footer_")
+                    pages_lines.append(copy.deepcopy(page_lines))
+                    page_lines = []
+                    page_lines.append("_header_\n")
+                    page_lines.append("<div id=\"content\">\n")
+                    content_count = 0
+                    page_count += 1
+                else:
+                    if self.show_separator and i > 0 and i < len(self.contents):
+                        page_lines.append("_itemseparator_")
+            i += 1
+
+        if self.archive_by_count > 0:
+            #page_lines.append("_prev_archive_")
+            if (page_count == 1):
+                page_lines.append("_nextarchive_")
+            elif (page_count > 1):
+                page_lines.append("_nextarchive_"+str(page_count-1)+"_")
+        page_lines.append("</div>\n")
+        if self.show_header:
+            page_lines.append("_footer_")
+
+        pages_lines.append(page_lines)
+
+        pages_lines2 = []
+        for page_lines in pages_lines:
+            if not no_macros:
+                macro_new_lines = []
+                do_handle_macros = True
+                for l in page_lines:
+                    if l[:14] == "_NO_MACRO_END_":
+                        do_handle_macros = True
+                    elif l[:10] == "_NO_MACRO_":
+                        do_handle_macros = False
+                    elif do_handle_macros:
+                        macro_new_lines.append(handle_macros(self, l))
+                    else:
+                        macro_new_lines.append(l)
+                page_lines = macro_new_lines
+                pages_lines2.append(page_lines)
+        return pages_lines2
+
+    def getBackDir(self):
+        return (os.pardir + os.sep)*(self.getPageDepth())
+
+    def createMenu(self, calling_page, depth, start_depth = 0):
+        cur_depth = self.getPageDepth()
+        menu_lines = []
+        #menu_lines.append("menu for level "+ str(self.getPageDepth()) + " ("+self.name+") has " + str(len(self.children)) + "children\n")
+        back_dir = ""
+        if calling_page.getPageDepth() > 0:
+            back_dir =  calling_page.getBackDir()
+        for c in self.children:
+            if c.show_menu_item:
+                link = ""
+                if len(c.contents) > 0:
+                    #link = "<a href=\""+(os.pardir + os.sep)*(calling_page.getPageDepth()) + os.pardir + c.getTotalOutputDir() + os.sep + "index.html\""
+                    link = "<a href=\""+ back_dir + c.getTotalOutputDir() + "index.html\""
+                    if c == calling_page or c.isParent(calling_page):
+                        link += " _menuitem"+str(self.getPageDepth()+1)+"selected_"
+                    link += ">"
+                    #menu_lines.append(link)
+                link += c.display_name
+                if len(c.contents) > 0:
+                    link += "</a>"
+                if cur_depth >= start_depth:
+                    if start_depth > 0 and cur_depth <= calling_page.getPageDepth():
+                        if self.isParent(calling_page) or self == calling_page:
+                            menu_lines.append("_menuitem"+str(cur_depth+1)+"start-arg_("+link+")_\n")
+                    else:
+                        menu_lines.append("_menuitem"+str(cur_depth+1)+"start-arg_("+link+")_\n")
+                if depth > 1:
+                    if c.is_subsite:
+                        cc = copy.deepcopy(c)
+                        cc.parent = self
+                        menu_lines.extend(cc.createMenu(calling_page, depth - 1, start_depth))
+                    else:
+                        menu_lines.extend(c.createMenu(calling_page, depth - 1, start_depth))
+                if cur_depth >= start_depth:
+                    menu_lines.append("_menuitem"+str(cur_depth+1)+"end_\n")
+        return menu_lines
+
+    def createAnchorMenu(self):
+        anchor_menu_lines = []
+        if get_option(self.options, "show_submenu") == 'yes' and len(self.contents) > 1:
+            anchor_menu_lines += "_submenustart_"
+            i = 1
+            for c in self.contents:
+                anchor_menu_lines += "_submenuitemstart_"
+                anchor_menu_lines += "<a href=\"#" + c.getAnchorName() + "\">"
+                anchor_menu_lines += c.display_name
+                anchor_menu_lines += "</a>\n"
+                if i < len(self.contents):
+                    anchor_menu_lines += "_submenuitemseparator_"
+                i += 1
+                anchor_menu_lines += "_submenuitemend_"
+            anchor_menu_lines += "_submenuend_"
+        if self.archive_by_year:
+            years = []
+            year_entry_count = {}
+            for c in self.contents:
+                if not c.date.tm_year in years:
+                    #print c.date.tm_year
+                    years.append(c.date.tm_year)
+                    year_entry_count[c.date.tm_year] = 1
+                else:
+                    year_entry_count[c.date.tm_year] += 1
+            years.sort()
+            years.reverse()
+            anchor_menu_lines += "_yearmenustart_"
+            i = 1
+            for y in years:
+                anchor_menu_lines += "_submenuitemstart_"
+                anchor_menu_lines += "<a href=\"index_"+str(y)+".html\">"
+                anchor_menu_lines += str(y) + " (" + str(year_entry_count[y]) + ")"
+                anchor_menu_lines += "</a>\n"
+                if i < len(years):
+                    anchor_menu_lines += "_submenuitemseparator_"
+                i += 1
+                anchor_menu_lines += "_submenuitemend_"
+            anchor_menu_lines += "_yearmenuend_"
+            print years
+        return anchor_menu_lines
+
+    def copyFiles(self, output_directory):
+        # copies to output_directory argument, does NOT append its own subdir itself
+        for f in self.files:
+            shutil.copy(f.input_file, output_directory)
+
+    def createPage(self, output_directory, recursive):
+        out_dir = output_directory + os.sep + self.getOutputDir()
+        #print "out_dir: "+out_dir
+        if  not os.path.isdir(out_dir):
+            os.mkdir(out_dir)
+        if self.recreate:
+            if verbosity >= 1:
+                print "Creating page '"+self.name+"'"
+            html_pages = self.toHTML()
+            page_count = 0
+            for p in html_pages:
+                if page_count > 0:
+                    file = "index"+str(page_count)+".html"
+                else:
+                    file = "index.html"
+                out_file = open(out_dir + os.sep + file, "w")
+                out_file.writelines(p)
+                out_file.close()
+                page_count += 1
+            if self.archive_by_year:
+                years = []
+                for c in self.contents:
+                    if not c.date.tm_year in years:
+                        years.append(c.date.tm_year)
+                for y in years:
+                    file = "index_"+str(y)+".html"
+                    clone = copy.deepcopy(self)
+                    clone.archive_by_count = 0
+                    newcontents = []
+                    for c in clone.contents:
+                        if c.date.tm_year != y:
+                            c.show = False
+                    html_pages = clone.toHTML()
+                    if len(html_pages) > 1:
+                        print "ERROR YEAR ARCHIVE SHOULD ONLY HAVE 1 PAGE PER YEAR"
+                    else:
+                        out_file = open(out_dir + os.sep + file, "w")
+                        out_file.writelines(html_pages[0])
+                        out_file.close()
+            if self.make_printable:
+                file = "index_print.html"
+                clone = copy.deepcopy(self)
+                clone.make_printable = False
+                clone.show_header = False
+                clone.show_separator = False
+                clone.show_submenu = False
+                html_pages = clone.toHTML()
+                out_file = open(out_dir + os.sep + file, "w")
+                out_file.writelines(html_pages[0])
+                out_file.close()
+        self.copyFiles(out_dir)
+        if recursive:
+            for c in self.children:
+                c.createPage(out_dir, recursive)
+
+    def prepare(self, output_directory):
+        # todo: add update checks here too?
+        # how about file/page dates?
+        # walk through the tree, and update times and sort orders
+        out_time = 0
+        out_dir = output_directory + os.sep + self.getOutputDir()
+        #if os.path.isdir(out_dir):
+        if os.path.exists(out_dir + os.sep + "index.html"):
+            out_time = time.gmtime(os.stat(out_dir + os.sep + "index.html")[stat.ST_MTIME])
+        in_time = self.findPageDate()
+        self.children.sort(compare_pages)
+        self.contents.sort(compare_contents)
+        if in_time > out_time or force_output:
+            self.recreate = True
+        for c in self.children:
+            c.prepare(out_dir)
+
+    def findPageDate(self):
+        # searches this page and its contents for the last modified date
+        # todo: add macro changes? (need seperate class?)
+        # todo: store it so we can reuse it ;)
+        last_date = time.gmtime(os.stat(self.input_dir)[stat.ST_MTIME])
+        for c in self.contents:
+            cld = time.gmtime(os.stat(c.input_file)[stat.ST_MTIME])
+            if cld > last_date:
+                last_date = cld
+        return last_date
+
+    def findPageByID(self, id):
+        if not self:
+            return None
+        if self.id == id:
+            return self
+        else:
+            for c in self.children:
+                p = c.findPageByID(id)
+                if p:
+                    return p
+            return None
+
+    # Returns the first page after this one that has content
+    # if return_children is true (default) then the first child
+    # (if any) is returned, otherwise it's first sibling
+    # Returns None if this is the last page
+    def getNextPage(self, return_children = True):
+        next_page = None
+        if return_children and len(self.children) > 0:
+            next_page = self.children[0]
+        elif self.parent:
+            lp = None
+            for p in self.parent.children:
+                if lp == self:
+                    next_page = p
+                lp = p
+            if not next_page:
+                next_page = self.parent.getNextPage(False)
+        if next_page and len(next_page.contents) == 0:
+            return next_page.getNextPage(return_children)
+        else:
+            return next_page
+
+    # Returns the last page before this one that has content
+    # if return_children is true (default) then the last child
+    # (if any) is returned, otherwise it's last sibling
+    # Returns None if this is the first page
+    def getPreviousPage(self, return_children = True):
+        prev_page = None
+        if self.parent:
+            lp = None
+            for p in self.parent.children:
+                if p == self:
+                    prev_page = lp
+                lp = p
+        if not prev_page:
+            prev_page = self.parent
+        else:
+            while return_children and len(prev_page.children) > 0:
+                prev_page = prev_page.children[-1]
+        if prev_page and len(prev_page.contents) == 0:
+            return prev_page.getPreviousPage(return_children)
+        else:
+            return prev_page
 
 class Content:
-	"A page content object"
-	def __init__(self, page, file):
-		self.input_file = page.input_dir + os.sep + file
+    "A page content object"
+    def __init__(self, page, file):
+        self.input_file = page.input_dir + os.sep + file
 
-		name_parts = file.split(get_option(page.options, "extension_separator"))
-		
-		self.name = name_parts[0]
-		self.display_name = name_parts[0]
-		self.id = file
-		self.id_from_file = False
-		# By default, the id is the input file
+        name_parts = file.split(get_option(page.options, "extension_separator"))
 
-		self.sort_order = -1
+        self.name = name_parts[0]
+        self.display_name = name_parts[0]
+        self.id = file
+        self.id_from_file = False
+        # By default, the id is the input file
 
-		self.parse_wiki = True
-		self.parse_wiki_from_file = False
+        self.sort_order = -1
 
-		self.show_item_title = True
-		self.show_item_title_from_file = False
-		
-		self.show_item_title_date = False
-		self.show_item_title_date_from_file = False
-		
-		self.date = time.gmtime(os.stat(self.input_file)[stat.ST_MTIME])
-		self.date_from_file = False
-		
-		self.show = True
-		
-		lines = file_lines(file)
-		while len(lines) > 0 and lines[0][:6].lower() == "attr: ":
+        self.parse_wiki = True
+        self.parse_wiki_from_file = False
 
-			descr_option = lines[0][6:].rstrip("\n\t ")
+        self.show_item_title = True
+        self.show_item_title_from_file = False
 
-			if descr_option[:3] == "id ":
-				self.id = descr_option[3:]
-				#print "Set id to '"+id+"'"
-				self.id_from_file = True
-			elif descr_option[:5].lower() == "date ":
-				# try several formats
-				try:
-					self.date = time.strptime(descr_option[5:], "%Y-%m-%d %H:%M:%S")
-				except:
-					try:
-						self.date = time.strptime(descr_option[5:], "%Y-%m-%d")
-					except:
-						print "Bad date in attribute line in file: " + self.input_file
-						print "Line: " + lines[0]
-						print "Format should be either \"YYYY-MM-DD\" or \"YYYY-MM-DD HH:mm:ss\"."
-						sys.exit(3)
-				self.date_from_file = True
-			elif descr_option[:5].lower() == "wiki ":
-				value = descr_option[5:]
-				if value.lower() == "true":
-					self.parse_wiki = True
-				elif value.lower() == "false":
-					self.parse_wiki = False
-				else:
-					print "Error in attribute part of "+self.input_file+": unknown value for wiki option: "+value
-				self.parse_wiki_from_file = True
-			elif descr_option[:10].lower() == "showtitle ":
-				value = descr_option[10:]
-				if value.lower() == "true":
-					self.show_item_title = True
-				elif value.lower() == "false":
-					self.show_item_title = False
-				else:
-					print "Error in attribute part of "+self.input_file+": unknown value for showtitle option: "+value
-				self.show_item_title_from_file = True
-			elif descr_option[:14].lower() == "showtitledate ":
-				value = descr_option[14:]
-				if value.lower() == "true":
-					self.show_item_title_date = True
-				elif value.lower() == "false":
-					self.show_item_title_date = False
-				else:
-					print "Error in attribute part of "+self.input_file+": unknown value for titledate option: "+value
-				self.show_item_title_date_from_file = True
-			elif descr_option[:11].lower() == "sort order ":
-				try:
-					self.sort_order = int(descr_option[11:])
-					#print "Sort order for "+self.input_file+":", sort_order
-				except ValueError, e:
-					print "Error in attribute part of "+self.input_file+": bad value for sort order option: "+value
-					print e
-			elif descr_option[:13].lower() == "display-name ":
-				self.display_name = descr_option[13:]
-			#elif descr_option[:1] == "X ":
-			#	id = id
-			else:
-				print "Error in attribute part of "+self.input_file+": unknown option "+descr_option
-				sys.exit(4);
-			lines = lines[1:]
-			
-		# set date if not set yet
-		if not inhibit_output and (not self.date_from_file or not self.id_from_file):
-			# read file and write again
-			flines = file_lines(self.input_file)
-			outfile = open(self.input_file, "w")
-			if not self.id_from_file:
-				outfile.write("attr: id " + self.id + "\n")
-			if not self.date_from_file:
-				outfile.write("attr: date " + time.strftime("%Y-%m-%d %H:%M:%S", self.date) + "\n");
-			for fl in flines:
-				outfile.write(fl)
-			outfile.close()
+        self.show_item_title_date = False
+        self.show_item_title_date_from_file = False
 
-		# parent page
-		self.page = page
-	
-	def printOverview(self, depth = 0):
-		print_indentation(depth)
-		print self.name
-	
-	def getAnchorName(self):
-		return escape_url(self.name)
-	
-	def printAll(self):
-		print "name:", self.name
-		print "id:", os.getcwd() + os.sep + self.id
-		print "sort order:", self.sort_order
-		print "input file: ", self.input_file
+        self.date = time.gmtime(os.stat(self.input_file)[stat.ST_MTIME])
+        self.date_from_file = False
 
-	def toHTML(self):
-		page_lines = []
-		flines = file_lines(self.input_file)
-		# strip desc lines
-		while len(flines) > 0 and flines[0][:6].lower() == "attr: ":
-			flines = flines[1:]
-		page_lines.append("<a id=\"" + self.getAnchorName() + "\"></a>\n")
-		if self.show_item_title or self.show_item_title_date:
-			title_line = "<h3>"
-			if self.show_item_title_date:
-				title_line += time.strftime(get_option(self.page.options, "date_format"), self.date)
-			if self.show_item_title:
-				title_line += self.name
-			title_line += "</h3>\n"
-			page_lines.append(title_line)
-		if self.parse_wiki:
-			page_lines.extend(wiki_to_html(flines, self.page))
-		else:
-			page_lines.extend(flines)
-		return page_lines
+        self.show = True
+
+        lines = file_lines(file)
+        while len(lines) > 0 and lines[0][:6].lower() == "attr: ":
+
+            descr_option = lines[0][6:].rstrip("\n\t ")
+
+            if descr_option[:3] == "id ":
+                self.id = descr_option[3:]
+                #print "Set id to '"+id+"'"
+                self.id_from_file = True
+            elif descr_option[:5].lower() == "date ":
+                # try several formats
+                try:
+                    self.date = time.strptime(descr_option[5:], "%Y-%m-%d %H:%M:%S")
+                except:
+                    try:
+                        self.date = time.strptime(descr_option[5:], "%Y-%m-%d")
+                    except:
+                        print "Bad date in attribute line in file: " + self.input_file
+                        print "Line: " + lines[0]
+                        print "Format should be either \"YYYY-MM-DD\" or \"YYYY-MM-DD HH:mm:ss\"."
+                        sys.exit(3)
+                self.date_from_file = True
+            elif descr_option[:5].lower() == "wiki ":
+                value = descr_option[5:]
+                if value.lower() == "true":
+                    self.parse_wiki = True
+                elif value.lower() == "false":
+                    self.parse_wiki = False
+                else:
+                    print "Error in attribute part of "+self.input_file+": unknown value for wiki option: "+value
+                self.parse_wiki_from_file = True
+            elif descr_option[:10].lower() == "showtitle ":
+                value = descr_option[10:]
+                if value.lower() == "true":
+                    self.show_item_title = True
+                elif value.lower() == "false":
+                    self.show_item_title = False
+                else:
+                    print "Error in attribute part of "+self.input_file+": unknown value for showtitle option: "+value
+                self.show_item_title_from_file = True
+            elif descr_option[:14].lower() == "showtitledate ":
+                value = descr_option[14:]
+                if value.lower() == "true":
+                    self.show_item_title_date = True
+                elif value.lower() == "false":
+                    self.show_item_title_date = False
+                else:
+                    print "Error in attribute part of "+self.input_file+": unknown value for titledate option: "+value
+                self.show_item_title_date_from_file = True
+            elif descr_option[:11].lower() == "sort order ":
+                try:
+                    self.sort_order = int(descr_option[11:])
+                    #print "Sort order for "+self.input_file+":", sort_order
+                except ValueError, e:
+                    print "Error in attribute part of "+self.input_file+": bad value for sort order option: "+value
+                    print e
+            elif descr_option[:13].lower() == "display-name ":
+                self.display_name = descr_option[13:]
+            #elif descr_option[:1] == "X ":
+            #       id = id
+            else:
+                print "Error in attribute part of "+self.input_file+": unknown option "+descr_option
+                sys.exit(4)
+            lines = lines[1:]
+
+        # set date if not set yet
+        if not inhibit_output and (not self.date_from_file or not self.id_from_file):
+            # read file and write again
+            flines = file_lines(self.input_file)
+            outfile = open(self.input_file, "w")
+            if not self.id_from_file:
+                outfile.write("attr: id " + self.id + "\n")
+            if not self.date_from_file:
+                outfile.write("attr: date " + time.strftime("%Y-%m-%d %H:%M:%S", self.date) + "\n")
+            for fl in flines:
+                outfile.write(fl)
+            outfile.close()
+
+        # parent page
+        self.page = page
+
+    def printOverview(self, depth = 0):
+        print_indentation(depth)
+        print self.name
+
+    def getAnchorName(self):
+        return escape_url(self.name)
+
+    def printAll(self):
+        print "name:", self.name
+        print "id:", os.getcwd() + os.sep + self.id
+        print "sort order:", self.sort_order
+        print "input file: ", self.input_file
+
+    def toHTML(self):
+        page_lines = []
+        flines = file_lines(self.input_file)
+        # strip desc lines
+        while len(flines) > 0 and flines[0][:6].lower() == "attr: ":
+            flines = flines[1:]
+        page_lines.append("<a id=\"" + self.getAnchorName() + "\"></a>\n")
+        if self.show_item_title or self.show_item_title_date:
+            title_line = "<h3>"
+            if self.show_item_title_date:
+                title_line += time.strftime(get_option(self.page.options, "date_format"), self.date)
+            if self.show_item_title:
+                title_line += self.name
+            title_line += "</h3>\n"
+            page_lines.append(title_line)
+        if self.parse_wiki:
+            page_lines.extend(wiki_to_html(flines, self.page))
+        else:
+            page_lines.extend(flines)
+        return page_lines
 
 class File:
-	"A file object"
-	def __init__(self, file):
-		self.input_file = os.getcwd() + os.sep + file
-		# By default, the id is the input file
-		self.id = os.getcwd() + os.sep + file
-	
-	def printOverview(self, depth = 0):
-		print_indentation(depth)
-		print self.input_file
-	
-	def printAll(self):
-		print "id:", self.id
-		print "file:", self.input_file
+    "A file object"
+    def __init__(self, file):
+        self.input_file = os.getcwd() + os.sep + file
+        # By default, the id is the input file
+        self.id = os.getcwd() + os.sep + file
+
+    def printOverview(self, depth = 0):
+        print_indentation(depth)
+        print self.input_file
+
+    def printAll(self):
+        print "id:", self.id
+        print "file:", self.input_file
 
 #
 # 'compares' pages based on their sort order, then on the last modified date of
@@ -1291,392 +1291,384 @@ class File:
 #
 # pages with a sort order come before those without (ie. have value -1)
 def compare_pages(a, b):
-	if a.sort_order == -1 and b.sort_order > -1:
-		return 1
-	elif a.sort_order > -1 and b.sort_order == -1:
-		return -1
-	elif a.sort_order > b.sort_order:
-		return 1
-	elif a.sort_order < b.sort_order:
-		return -1
-	else:
-		if os.stat(a.input_dir)[stat.ST_MTIME] > os.stat(b.input_dir)[stat.ST_MTIME]:
-			return 1
-		elif os.stat(a.input_dir)[stat.ST_MTIME] < os.stat(b.input_dir)[stat.ST_MTIME]:
-			return -1
-		else:
-			return 0
+    if a.sort_order == -1 and b.sort_order > -1:
+        return 1
+    elif a.sort_order > -1 and b.sort_order == -1:
+        return -1
+    elif a.sort_order > b.sort_order:
+        return 1
+    elif a.sort_order < b.sort_order:
+        return -1
+    else:
+        if os.stat(a.input_dir)[stat.ST_MTIME] > os.stat(b.input_dir)[stat.ST_MTIME]:
+            return 1
+        elif os.stat(a.input_dir)[stat.ST_MTIME] < os.stat(b.input_dir)[stat.ST_MTIME]:
+            return -1
+        else:
+            return 0
 
-#
-# 'compares' page content items based on their sort order, then on the 
+# 'compares' page content items based on their sort order, then on the
 # last modified date of their input files (backwards)
 #
 # contents with a sort order come before those without (ie. have value -1)
 def compare_contents(a, b):
-	if a.sort_order == -1 and b.sort_order > -1:
-		return 1
-	elif a.sort_order > -1 and b.sort_order == -1:
-		return -1
-	elif a.sort_order > b.sort_order:
-		return 1
-	elif a.sort_order < b.sort_order:
-		return -1
-	else:
-		if a.date > b.date:
-			return -1
-		elif a.date < b.date:
-			return 1
-		else:
-			return 0
-
-		
-
+    if a.sort_order == -1 and b.sort_order > -1:
+        return 1
+    elif a.sort_order > -1 and b.sort_order == -1:
+        return -1
+    elif a.sort_order > b.sort_order:
+        return 1
+    elif a.sort_order < b.sort_order:
+        return -1
+    else:
+        if a.date > b.date:
+            return -1
+        elif a.date < b.date:
+            return 1
+        else:
+            return 0
 
 def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur_depth):
-	page = None
-	page_dir_parts = page_dir.split(get_option(default_options, "extension_separator"))
-	page = Page(page_dir_parts[0], os.getcwd(), page_dir)
-	#print "NEW PAGE!!!!!!!!!!!!!!!!"
-	#page.printOverview()
-	#print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-	
-	options = []
-	options.extend(default_options)
-	macro_list = []
-	macro_list.extend(default_macro_list)
+    page = None
+    page_dir_parts = page_dir.split(get_option(default_options, "extension_separator"))
+    page = Page(page_dir_parts[0], os.getcwd(), page_dir)
+    #print "NEW PAGE!!!!!!!!!!!!!!!!"
+    #page.printOverview()
+    #print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 
-	dir_files = get_dir_files(options, ".", get_options(options, "ignore_masks"))
-	# store every file that has not been handled yet in a temp list
-	# (removing elements from a list you're iterating over is a bad idea
-	dir_files2 = []
+    options = []
+    options.extend(default_options)
+    macro_list = []
+    macro_list.extend(default_macro_list)
 
-	#
-	# I use seperate loops for this, because the results of each
-	# could have influence on the processing of others
-	#
+    dir_files = get_dir_files(options, ".", get_options(options, "ignore_masks"))
+    # store every file that has not been handled yet in a temp list
+    # (removing elements from a list you're iterating over is a bad idea
+    dir_files2 = []
 
-	#
-	# Read setup files
-	# TODO: recursive function?
-	for df in dir_files:
-		file_name_parts = df.split(get_option(options, "extension_separator"))
-		if file_name_parts[-1] == get_option(options, "setup_file_name"):
-			# if it is a directory, read the .setup, .inc and .macro
-			# files in it as if they were in this directory
-			# no subirectories are handled and no root_dir change is recognized
-			if verbosity >= 3:
-				print "Found setup dir: " + os.getcwd() + os.sep + df
-			if os.path.isdir(df):
-				setup_orig_dir = os.getcwd()
-				os.chdir(df)
-				setup_dir_files = get_dir_files(options, ".", get_options(options, "ignore_masks"))
-				for df2 in setup_dir_files:
-					setup_file_name_parts2 = df2.split(get_option(options, "extension_separator"));
-					if setup_file_name_parts2[-1] == get_option(options, "setup_file_name"):
-						new_options = file_lines(df, ['^[^#].* *= *.+'])
-						for o in new_options:
-							options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
-					elif setup_file_name_parts2[-1] == get_option(options, "inc_file_name"):
-						macro_name = file_base_name(df2)
-						macro_lines = file_lines(df2, [])
-						moc = "output = \"\"\n"
-						for l in macro_lines:
-							if l == macro_lines[-1]:
-								moc += "output += \""+escape_html(l.rstrip())+"\"\n"
-							else:
-								moc += "output += \""+escape_html(l.rstrip())+"\\n\"\n"
-						# TODO ADD MACRO FILE TIME
-						mo = [macro_name, moc, os.stat(df2)[stat.ST_MTIME]]
-						macro_list.insert(0, mo)
-					elif setup_file_name_parts2[-1] == get_option(options, "macro_file_name"):
-						# TODO: this is same as below, refactor
-						macro_name = file_base_name(df2)
-						macro_lines = file_lines(df2, [])
-						moc = ""
-						for l in macro_lines:
-							moc += l
-						# TODO ADD MACRO FILE TIME
-						mo = [macro_name, moc, os.stat(df2)[stat.ST_MTIME]]
-						macro_list.insert(0, mo)
-					else:
-						print "NOT SETUP INC OR MACRO: "+df2	
-					
-				os.chdir(setup_orig_dir)
-			else:
-				# If root_dir and in_dir are changed, this is a subsite
-				new_options = file_lines(df, ['^[^#].* *= *.+'])
-				if have_option(new_options, "root_dir") and \
-				   have_option(new_options, "in_dir"):
-					if verbosity >= 2:
-						print "Found subsite in " + os.getcwd() + os.sep + df
-					root_dir = get_option_dir(options, "root_dir")
-					in_dir = get_option_dir(options, "in_dir")
-					return_dir = os.getcwd()
-					os.chdir(in_dir)
-					s_options = copy.deepcopy(system_options)
-					s_macro_list = copy.deepcopy(system_macro_list)
-					for o in new_options:
-						s_options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
-						#create_pages(root_dir, in_dir, out_dir, options, macro_list, 0)
-					subsite_page = build_page_tree(in_dir, page_dir, s_options, s_macro_list, 0)
-					os.chdir(return_dir)
-					#page.addChild(subsite_page)
-					subsite_page.is_subsite = True
-					return subsite_page
-				else:
-					for o in new_options:
-						options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
-		else:
-			dir_files2.append(df)
-	dir_files = dir_files2
-	dir_files2 = []
+    #
+    # I use seperate loops for this, because the results of each
+    # could have influence on the processing of others
+    #
 
-	page.options = options
+    #
+    # Read setup files
+    # TODO: recursive function?
+    for df in dir_files:
+        file_name_parts = df.split(get_option(options, "extension_separator"))
+        if file_name_parts[-1] == get_option(options, "setup_file_name"):
+            # if it is a directory, read the .setup, .inc and .macro
+            # files in it as if they were in this directory
+            # no subirectories are handled and no root_dir change is recognized
+            if verbosity >= 3:
+                print "Found setup dir: " + os.getcwd() + os.sep + df
+            if os.path.isdir(df):
+                setup_orig_dir = os.getcwd()
+                os.chdir(df)
+                setup_dir_files = get_dir_files(options, ".", get_options(options, "ignore_masks"))
+                for df2 in setup_dir_files:
+                    setup_file_name_parts2 = df2.split(get_option(options, "extension_separator"))
+                    if setup_file_name_parts2[-1] == get_option(options, "setup_file_name"):
+                        new_options = file_lines(df, ['^[^#].* *= *.+'])
+                        for o in new_options:
+                            options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
+                    elif setup_file_name_parts2[-1] == get_option(options, "inc_file_name"):
+                        macro_name = file_base_name(df2)
+                        macro_lines = file_lines(df2, [])
+                        moc = "output = \"\"\n"
+                        for l in macro_lines:
+                            if l == macro_lines[-1]:
+                                moc += "output += \""+escape_html(l.rstrip())+"\"\n"
+                            else:
+                                moc += "output += \""+escape_html(l.rstrip())+"\\n\"\n"
+                        # TODO ADD MACRO FILE TIME
+                        mo = [macro_name, moc, os.stat(df2)[stat.ST_MTIME]]
+                        macro_list.insert(0, mo)
+                    elif setup_file_name_parts2[-1] == get_option(options, "macro_file_name"):
+                        # TODO: this is same as below, refactor
+                        macro_name = file_base_name(df2)
+                        macro_lines = file_lines(df2, [])
+                        moc = ""
+                        for l in macro_lines:
+                            moc += l
+                        # TODO ADD MACRO FILE TIME
+                        mo = [macro_name, moc, os.stat(df2)[stat.ST_MTIME]]
+                        macro_list.insert(0, mo)
+                    else:
+                        print "NOT SETUP INC OR MACRO: "+df2
 
-	for df in dir_files:
-		if df == "page.attr":
-			for l in file_lines(df):
-				if l.rstrip() != "":
-					if l[:4] == "id: ":
-						page.id = l[4:].rstrip()
-					elif l[:12] == "sort order: ":
-						page.sort_order = int(l[12:].rstrip())
-					elif l[:6] == "nomenu":
-						page.show_menu_item = False
-					elif l[:9] == "nosubmenu":
-						page.show_submenu = False
-					elif l[:14] == "display-name: ":
-						page.display_name = l[14:].rstrip()
-					elif l[:15].lower() == "archive_by_year":
-						page.archive_by_year = True
-					elif l[:17].lower() == "archive_by_month ":
-						value = l[16:]
-						if value.lower() == "yes":
-							page.archive_by_month = True
-						elif value.lower() == "no":
-							page.archive_by_month = False
-						else:
-							print "Error in attribute part of "+page.input_file+": bad value for archive_by_month option: "+value
-							
-					elif l[:18].lower() == "archive_by_count: ":
-						value = l[18:]
-						try:
-							page.archive_by_count = int(l[17:])
-							#print "Sort order for "+page.input_file+":", sort_order
-						except ValueError, e:
-							print "Error in attribute part of "+page.input_file+": bad value for archive_by_count option: "+value
-							print e
-					elif l[:14].lower() == "make_printable":
-						page.make_printable = True
-					else:
-						print "Warning: unknown option line in page.attr file"
-						print "File: " + os.getcwd()+ os.sep + "page.attr:"
-						print l
-		else:
-			dir_files2.append(df)
-	dir_files = dir_files2
-	dir_files2 = []
-
-	#
-	# Read Macro files
-	# 
-	for df in dir_files:
-		file_name_parts = df.split(get_option(options, "extension_separator"));
-		if file_name_parts[-1] == get_option(options, "macro_file_name"):
-			macro_name = file_base_name(df)
-			macro_lines = file_lines(df, [])
-			moc = ""
-			for l in macro_lines:
-				moc += l
-				# TODO ADD MACRO FILE TIME
-				mo = [macro_name, moc, os.stat(df)[stat.ST_MTIME]]
-			macro_list.insert(0, mo)
-		else:
-			dir_files2.append(df)
-	dir_files = dir_files2
-	dir_files2 = []
-
-
-	#
-	# Read inc files
-	#
-	# inc files are handles like macro's, but only contain string data,
-	# and will not be executed
-	for df in dir_files:
-		file_name_parts = df.split(get_option(options, "extension_separator"));
-		if file_name_parts[-1] == get_option(options, "inc_file_name"):
-			macro_name = file_base_name(df)
-			macro_lines = file_lines(df, [])
-			moc = "output = \"\"\n"
-			for l in macro_lines:
-				moc += "output += \""+escape_html(l)+"\"\n"
-				#moc += "output += \""+l+"\"\n"
-				# TODO ADD MACRO FILE TIME
-			mo = [macro_name, moc, os.stat(df)[stat.ST_MTIME]]
-			macro_list.insert(0, mo)
-		else:
-			dir_files2.append(df)
-	dir_files = dir_files2
-	dir_files2 = []
-
-	page.macros = macro_list
-	
-	#
-	# add .page content
-	#
-	# check options for here
-        wiki_parse = get_option(options, "wiki_parse") == 'yes'
-        show_item_title = get_option(options, "show_item_title") == 'yes'
-        show_item_title_date = get_option(options, "show_item_title_date") == 'yes'
-        archive_by_count = get_option(options, "archive_by_count")
-
-	for df in dir_files:
-		file_name_parts = df.split(get_option(options, "extension_separator"));
-		if file_name_parts[-1] == get_option(options, "page_file_name"):
-                        # add to current page
-                        content = Content(page, df)
-
-			# check extension options
-			# EXTENSION OPTIONS ARE DEPRECATED!
-			# files can contain descr lines
-			# (ie lines starting with attr:
-			#   followed by an options:
-			#   sort_order <int>: place of item on page
-			#   wiki <bool>: use wiki engine or not
-			#   title <bool>: show title or not
-			#   item_date <date>: if not entered, clcms will add this!
-			#                     time the item was first made (todo :) )
-			#    
-			for option_name in file_name_parts[1:-1]:
-				print "Extension options are deprecated!"
-				print "This file should probably be updated: "+df
-				sys.exit(2);
-		                if option_name == "nowiki":
-				    wiki_parse = False
-				elif option_name == "wiki":
-				    wiki_parse = True
-				elif option_name == "title":
-				    show_item_title = True
-				elif option_name == "notitle":
-				     show_item_title = False
-				elif option_name.isdigit():
-					content.sort_order = int(option_name)
-			lines = file_lines(df)
-			if not content.parse_wiki_from_file:
-				content.parse_wiki = wiki_parse
-			if not content.show_item_title_from_file:
-				content.show_item_title = show_item_title
-			if not content.show_item_title_date_from_file:
-				content.show_item_title_date = show_item_title_date
-                        page.addContent(content)
+                os.chdir(setup_orig_dir)
+            else:
+                # If root_dir and in_dir are changed, this is a subsite
+                new_options = file_lines(df, ['^[^#].* *= *.+'])
+                if have_option(new_options, "root_dir") and \
+                   have_option(new_options, "in_dir"):
+                    if verbosity >= 2:
+                        print "Found subsite in " + os.getcwd() + os.sep + df
+                    root_dir = get_option_dir(options, "root_dir")
+                    in_dir = get_option_dir(options, "in_dir")
+                    return_dir = os.getcwd()
+                    os.chdir(in_dir)
+                    s_options = copy.deepcopy(system_options)
+                    s_macro_list = copy.deepcopy(system_macro_list)
+                    for o in new_options:
+                        s_options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
+                        #create_pages(root_dir, in_dir, out_dir, options, macro_list, 0)
+                    subsite_page = build_page_tree(in_dir, page_dir, s_options, s_macro_list, 0)
+                    os.chdir(return_dir)
+                    #page.addChild(subsite_page)
+                    subsite_page.is_subsite = True
+                    return subsite_page
                 else:
-                        #print "FILEEXT: "+file_name_parts[-1]
-                        dir_files2.append(df)
-        dir_files = dir_files2
-        dir_files2 = []
+                    for o in new_options:
+                        options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
+        else:
+            dir_files2.append(df)
+    dir_files = dir_files2
+    dir_files2 = []
+
+    page.options = options
+
+    for df in dir_files:
+        if df == "page.attr":
+            for l in file_lines(df):
+                if l.rstrip() != "":
+                    if l[:4] == "id: ":
+                        page.id = l[4:].rstrip()
+                    elif l[:12] == "sort order: ":
+                        page.sort_order = int(l[12:].rstrip())
+                    elif l[:6] == "nomenu":
+                        page.show_menu_item = False
+                    elif l[:9] == "nosubmenu":
+                        page.show_submenu = False
+                    elif l[:14] == "display-name: ":
+                        page.display_name = l[14:].rstrip()
+                    elif l[:15].lower() == "archive_by_year":
+                        page.archive_by_year = True
+                    elif l[:17].lower() == "archive_by_month ":
+                        value = l[16:]
+                        if value.lower() == "yes":
+                            page.archive_by_month = True
+                        elif value.lower() == "no":
+                            page.archive_by_month = False
+                        else:
+                            print "Error in attribute part of "+page.input_file+": bad value for archive_by_month option: "+value
+
+                    elif l[:18].lower() == "archive_by_count: ":
+                        value = l[18:]
+                        try:
+                            page.archive_by_count = int(l[17:])
+                            #print "Sort order for "+page.input_file+":", sort_order
+                        except ValueError, e:
+                            print "Error in attribute part of "+page.input_file+": bad value for archive_by_count option: "+value
+                            print e
+                    elif l[:14].lower() == "make_printable":
+                        page.make_printable = True
+                    else:
+                        print "Warning: unknown option line in page.attr file"
+                        print "File: " + os.getcwd()+ os.sep + "page.attr:"
+                        print l
+        else:
+            dir_files2.append(df)
+    dir_files = dir_files2
+    dir_files2 = []
+
+    #
+    # Read Macro files
+    #
+    for df in dir_files:
+        file_name_parts = df.split(get_option(options, "extension_separator"))
+        if file_name_parts[-1] == get_option(options, "macro_file_name"):
+            macro_name = file_base_name(df)
+            macro_lines = file_lines(df, [])
+            moc = ""
+            for l in macro_lines:
+                moc += l
+                # TODO ADD MACRO FILE TIME
+                mo = [macro_name, moc, os.stat(df)[stat.ST_MTIME]]
+            macro_list.insert(0, mo)
+        else:
+            dir_files2.append(df)
+    dir_files = dir_files2
+    dir_files2 = []
 
 
-	# 
-	# Read directories
-	#
-	for df in dir_files:
-		if os.path.isdir(df):
-			if verbosity >= 3:
-				print "Reading page from directory: " + os.getcwd() + os.sep + df
-			# stoppage checkage action
-			#handle_dir = True
-			#file_name_parts = df.split(get_option(options, "extension_separator"))
-			#sort_order = -1
-			#for fp in file_name_parts[1:]:
-			#	if fp == "stop":
-			#		if verbosity >= 2:
-			#			print "Stop at dir: "+df
-			#		handle_dir = False
-			#	elif fp.isdigit():
-			#		sort_order = int(fp)
-			#if handle_dir:
-			sub_page_orig_dir = os.getcwd()
-			os.chdir(df)
-			#print "Entering directory " + os.getcwd()
-			child_page = build_page_tree(root_dir, df, options, macro_list, cur_depth+1)
-			if child_page.is_subsite == False:
-				child_page.parent = page
-			#if child_page.sort_order >= 0:
-			#	if sort_order >= 0:
-			#		print "Warning, sort order for page '"+child_page.name+"' specified twice, taking order from directory name"
-			#		child_page.sort_order = sort_order
-			#else:
-			#	child_page.sort_order = sort_order
-			
-			page.addChild(child_page)
-				#create_pages(root_dir, in_dir, out_dir + os.sep + file_base_name(df), options, macro_list, cur_dir_depth + 1)
-				#os.chdir(os.pardir)
-			os.chdir(sub_page_orig_dir)
-		else:
-			dir_files2.append(df)
-	dir_files = dir_files2
-	dir_files2 = []
+    #
+    # Read inc files
+    #
+    # inc files are handles like macro's, but only contain string data,
+    # and will not be executed
+    for df in dir_files:
+        file_name_parts = df.split(get_option(options, "extension_separator"))
+        if file_name_parts[-1] == get_option(options, "inc_file_name"):
+            macro_name = file_base_name(df)
+            macro_lines = file_lines(df, [])
+            moc = "output = \"\"\n"
+            for l in macro_lines:
+                moc += "output += \""+escape_html(l)+"\"\n"
+                #moc += "output += \""+l+"\"\n"
+                # TODO ADD MACRO FILE TIME
+            mo = [macro_name, moc, os.stat(df)[stat.ST_MTIME]]
+            macro_list.insert(0, mo)
+        else:
+            dir_files2.append(df)
+    dir_files = dir_files2
+    dir_files2 = []
 
-	#
-	# Copy rest
-	#
-	for df in dir_files:
-		file = File(df)
-		page.addFile(file)
+    page.macros = macro_list
 
-	return page
+    # add .page content
+    #
+    # check options for here
+    wiki_parse = get_option(options, "wiki_parse") == 'yes'
+    show_item_title = get_option(options, "show_item_title") == 'yes'
+    show_item_title_date = get_option(options, "show_item_title_date") == 'yes'
+    archive_by_count = get_option(options, "archive_by_count")
+
+    for df in dir_files:
+        file_name_parts = df.split(get_option(options, "extension_separator"))
+        if file_name_parts[-1] == get_option(options, "page_file_name"):
+            # add to current page
+            content = Content(page, df)
+
+            # check extension options
+            # EXTENSION OPTIONS ARE DEPRECATED!
+            # files can contain descr lines
+            # (ie lines starting with attr:
+            #   followed by an options:
+            #   sort_order <int>: place of item on page
+            #   wiki <bool>: use wiki engine or not
+            #   title <bool>: show title or not
+            #   item_date <date>: if not entered, clcms will add this!
+            #             time the item was first made (todo :) )
+            for option_name in file_name_parts[1:-1]:
+                print "Extension options are deprecated!"
+                print "This file should probably be updated: "+df
+                sys.exit(2)
+                if option_name == "nowiki":
+                    wiki_parse = False
+                elif option_name == "wiki":
+                    wiki_parse = True
+                elif option_name == "title":
+                    show_item_title = True
+                elif option_name == "notitle":
+                    show_item_title = False
+                elif option_name.isdigit():
+                    content.sort_order = int(option_name)
+            lines = file_lines(df)
+            if not content.parse_wiki_from_file:
+                content.parse_wiki = wiki_parse
+            if not content.show_item_title_from_file:
+                content.show_item_title = show_item_title
+            if not content.show_item_title_date_from_file:
+                content.show_item_title_date = show_item_title_date
+            page.addContent(content)
+        else:
+            #print "FILEEXT: "+file_name_parts[-1]
+            dir_files2.append(df)
+    dir_files = dir_files2
+    dir_files2 = []
+
+    # Read directories
+    #
+    for df in dir_files:
+        if os.path.isdir(df):
+            if verbosity >= 3:
+                print "Reading page from directory: " + os.getcwd() + os.sep + df
+            # stoppage checkage action
+            #handle_dir = True
+            #file_name_parts = df.split(get_option(options, "extension_separator"))
+            #sort_order = -1
+            #for fp in file_name_parts[1:]:
+            #       if fp == "stop":
+            #           if verbosity >= 2:
+            #               print "Stop at dir: "+df
+            #           handle_dir = False
+            #       elif fp.isdigit():
+            #           sort_order = int(fp)
+            #if handle_dir:
+            sub_page_orig_dir = os.getcwd()
+            os.chdir(df)
+            #print "Entering directory " + os.getcwd()
+            child_page = build_page_tree(root_dir, df, options, macro_list, cur_depth+1)
+            if child_page.is_subsite == False:
+                child_page.parent = page
+            #if child_page.sort_order >= 0:
+            #       if sort_order >= 0:
+            #           print "Warning, sort order for page '"+child_page.name+"' specified twice, taking order from directory name"
+            #           child_page.sort_order = sort_order
+            #else:
+            #       child_page.sort_order = sort_order
+
+            page.addChild(child_page)
+                #create_pages(root_dir, in_dir, out_dir + os.sep + file_base_name(df), options, macro_list, cur_dir_depth + 1)
+                #os.chdir(os.pardir)
+            os.chdir(sub_page_orig_dir)
+        else:
+            dir_files2.append(df)
+    dir_files = dir_files2
+    dir_files2 = []
+
+    #
+    # Copy rest
+    #
+    for df in dir_files:
+        file = File(df)
+        page.addFile(file)
+
+    return page
 
 def print_usage():
-	print "Usage: clcms.py [OPTIONS]"
-	print "Options:"
-    	print "-c or --write-config:\t\tprint the default options to stdout"
-	print "-f or --force-output:\t\tforce creation of all pages even if their"
-	print "\t\t\t\tsources are not changed"
-	print "-h or --help:\t\t\tshow this help"
-	print "-i or --inhibit-output\t\tinhibit creation for all pages"
-	print "\t\t\t\t(ie. do a test run)"
-    	print "-n or --no-macros\t\tdo not evaluate macros"
-    	print "-m or --macro-names\t\tSurround macro expansions with the name names"
-    	#print "-s <file>\t\t\tJust wiki-parse <file> and print output to\n\t\t\t\tstdout\n";
-	print "-v <lvl> or --verbosity <lvl>\tset verbosity: 0 for no output, 5 for a lot"
-	
+    print "Usage: clcms.py [OPTIONS]"
+    print "Options:"
+    print "-c or --write-config:\t\tprint the default options to stdout"
+    print "-f or --force-output:\t\tforce creation of all pages even if their"
+    print "\t\t\t\tsources are not changed"
+    print "-h or --help:\t\t\tshow this help"
+    print "-i or --inhibit-output\t\tinhibit creation for all pages"
+    print "\t\t\t\t(ie. do a test run)"
+    print "-n or --no-macros\t\tdo not evaluate macros"
+    print "-m or --macro-names\t\tSurround macro expansions with the name names"
+    #print "-s <file>\t\t\tJust wiki-parse <file> and print output to\n\t\t\t\tstdout\n"
+    print "-v <lvl> or --verbosity <lvl>\tset verbosity: 0 for no output, 5 for a lot"
+
 
 #
 #Initializer, argument parsing, and main loop call
-# 
+#
 
 # parse arguments
 if len(sys.argv) > 1:
     i = 1
     while i < len(sys.argv):
     #for arg in sys.argv[1:]:
-    	arg = sys.argv[i]
-    	if arg == "-c" or arg == "--write-config":
-    		for l in system_options:
-    			print l
-		sys.exit(0)
-	elif arg == "-f" or arg == "--force-output":
-		force_output = True
-	elif arg == "-h" or arg == "--help":
-		print_usage()
-		sys.exit(0)
-	elif arg == "-i" or arg == "--inhibit-output":
-		inhibit_output = True
-    	elif arg == "-n" or arg == "--no-macros":
-    		no_macros = True
-    	elif arg == "-m" or arg == "--macro-names":
-    		show_macro_names = True
-	elif arg == "-v" or arg == "--verbosity":
-		if (i < len(sys.argv)):
-			i = i + 1
-			verbosity = int(sys.argv[i])
-		else:
-			print "-v requires argument"
-			sys.exit(1)
+        arg = sys.argv[i]
+        if arg == "-c" or arg == "--write-config":
+            for l in system_options:
+                print l
+            sys.exit(0)
+        elif arg == "-f" or arg == "--force-output":
+            force_output = True
+        elif arg == "-h" or arg == "--help":
+            print_usage()
+            sys.exit(0)
+        elif arg == "-i" or arg == "--inhibit-output":
+            inhibit_output = True
+        elif arg == "-n" or arg == "--no-macros":
+            no_macros = True
+        elif arg == "-m" or arg == "--macro-names":
+            show_macro_names = True
+        elif arg == "-v" or arg == "--verbosity":
+            if (i < len(sys.argv)):
+                i = i + 1
+                verbosity = int(sys.argv[i])
+            else:
+                print "-v requires argument"
+                sys.exit(1)
         else:
-        	print "Unknown argument: "+arg
-    	        sys.exit(1)
-    	i = i + 1
+            print "Unknown argument: "+arg
+            sys.exit(1)
+        i = i + 1
 
 # read setup in current dir
 base_options = copy.deepcopy(system_options)
@@ -1686,29 +1678,29 @@ for df in os.listdir("."):
     if file_name_parts[-1] == get_option(base_options, "setup_file_name"):
         #options.extend(file_lines(df, ['^[^#].* *= *.+']))
         if verbosity >= 2:
-        	print "Found .setup file in current directory: "+df
+            print "Found .setup file in current directory: "+df
         if not os.path.isdir(df):
             for o in file_lines(df, ['^[^#].* *= *.+']):
                 base_options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
 
 # sanity checks on arguments
 if inhibit_output and force_output:
-	print "inhibit-output and force-output cannot be used at the same time. Aborting."
-	sys.exit(1)
+    print "inhibit-output and force-output cannot be used at the same time. Aborting."
+    sys.exit(1)
 
 in_dir = get_option_dir(base_options, "in_dir")
 root_dir = get_option_dir(base_options, "root_dir")
 out_dir = get_option_dir(base_options, "out_dir")
 
 if not os.path.isdir(in_dir):
-	print "No such directory: " + in_dir
-	sys.exit(1)
+    print "No such directory: " + in_dir
+    sys.exit(1)
 if verbosity >= 1:
-	print "Content directory: " + in_dir
-	if inhibit_output:
-		print "Inhibiting output."
-	else:
-		print "Output directory: " + out_dir
+    print "Content directory: " + in_dir
+    if inhibit_output:
+        print "Inhibiting output."
+    else:
+        print "Output directory: " + out_dir
 os.chdir(in_dir)
 
 # Read pages rfom input directory tree
@@ -1719,14 +1711,13 @@ site.prepare(out_dir)
 
 # Create output directory and HTML pages
 if not inhibit_output:
-	os.chdir(root_dir)
-	if not os.path.isdir(out_dir) and not inhibit_output:
-		os.mkdir(out_dir)
-	site.createPage(out_dir, True)
+    os.chdir(root_dir)
+    if not os.path.isdir(out_dir) and not inhibit_output:
+        os.mkdir(out_dir)
+    site.createPage(out_dir, True)
 
 if verbosity >= 5:
-	site.printAll(2)
+    site.printAll(2)
 elif verbosity >= 2:
-	site.printOverview()
-
+    site.printOverview()
 
