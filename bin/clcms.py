@@ -156,7 +156,7 @@ def link_wiki_to_html(line, page):
                     else:
                         print "Error in image link: "+line
                         print "Unknown argument: "+part
-            
+
             img_html = "<img src=\"" + image + "\" alt=\"" + alt + "\""
             # argument html
             if name != "": 
@@ -168,7 +168,7 @@ def link_wiki_to_html(line, page):
             img_html += html + ">"
             if thumb:
                 img_html = "<a href=\"" + image + "\"" + html + ">" + img_html + "</a>"
-            
+
             line = line[:open_pos] + img_html + line[cur_pos + 1:]
             is_image = True
         elif url[:1] == ':':
@@ -261,9 +261,9 @@ def wiki_to_html(wiki_lines, page = None):
     list_p = re.compile('^([#*]+) (.*)$')
     prev_list_part = ""
     line = ""
-    
+
     while i < len(wiki_lines):
-        
+
         prev_line = line
         line = wiki_lines[i]
         line = line.lstrip("\n\t ")
@@ -295,7 +295,7 @@ def wiki_to_html(wiki_lines, page = None):
                     elif line == "" and prev_list_part != "":
                         html_lines.append("<br>\n")
                 html_lines.append(wiki_to_html_simple(line, page))
-                
+
         i += 1
     if prev_list_part != "":
         wiki_handle_lists(prev_list_part, "", html_lines)
@@ -428,7 +428,7 @@ def handle_macro(macro_name, macro_source, input_line, page):
         macro_source = "for zcxcvad in [\"vasdferqerqewr\"]:\n"
         for ml in macro_lines:
             macro_source += "\t" + ml + "\n"
-        
+
         try:
             co = code.compile_command(macro_source)
         except SyntaxError, msg:
@@ -474,13 +474,13 @@ def handle_macro(macro_name, macro_source, input_line, page):
             print "Warning: Bad macro: "+macro_name
         return result_line
     return result_line
-    
+
 def handle_macros(page, input_line):
     orig_input_line = input_line
     cur_line = input_line
     orig_line = ""
     i = 0
-    
+
     while orig_line != cur_line:
         orig_line = cur_line
         for mo in page.macros:
@@ -1719,4 +1719,3 @@ if verbosity >= 5:
     site.printAll(2)
 elif verbosity >= 2:
     site.printOverview()
-
