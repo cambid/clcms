@@ -1426,42 +1426,40 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
     for df in dir_files:
         if df == "page.attr":
             for l in file_lines(df):
-                if l.rstrip() != "":
+                l = l.rstrip()
+                if l != "":
                     if l[:4] == "id: ":
-                        page.id = l[4:].rstrip()
+                        page.id = l[4:]
                     elif l[:12] == "sort order: ":
-                        page.sort_order = int(l[12:].rstrip())
+                        page.sort_order = int(l[12:])
                     elif l[:6] == "nomenu":
                         page.show_menu_item = False
                     elif l[:9] == "nosubmenu":
                         page.show_submenu = False
                     elif l[:14] == "display-name: ":
-                        page.display_name = l[14:].rstrip()
+                        page.display_name = l[14:]
                     elif l[:15].lower() == "archive_by_year":
                         page.archive_by_year = True
-                    elif l[:17].lower() == "archive_by_month ":
+                    elif l[:17].lower() == "archive_by_month:":
                         value = l[16:]
                         if value.lower() == "yes":
                             page.archive_by_month = True
                         elif value.lower() == "no":
                             page.archive_by_month = False
                         else:
-                            print "Error in attribute part of "+page.input_file+": bad value for archive_by_month option: "+value
+                            print("Error in attribute part of %s: bad value for archive_by_month option: %s" %(page.name,value))
 
                     elif l[:18].lower() == "archive_by_count: ":
                         value = l[18:]
                         try:
                             page.archive_by_count = int(l[17:])
-                            #print "Sort order for "+page.input_file+":", sort_order
                         except ValueError, e:
-                            print "Error in attribute part of "+page.input_file+": bad value for archive_by_count option: "+value
-                            print e
+                            print("Error in attribute part of %s: bad value for archive_by_count option: %s:%s" %(page.name,value,e))
                     elif l[:14].lower() == "make_printable":
                         page.make_printable = True
                     else:
                         print "Warning: unknown option line in page.attr file"
                         print "File: " + os.getcwd()+ os.sep + "page.attr:"
-                        print l
         else:
             dir_files2.append(df)
     dir_files = dir_files2
