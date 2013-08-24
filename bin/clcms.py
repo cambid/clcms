@@ -67,19 +67,19 @@ def escapes_wiki_to_html(line):
     return line
 
 def bold_wiki_to_html(line):
-    line_p=re.compile('(\'\'\'.{1,}?\'\'\')')
-    result=line_p.search(line)
+    line_p = re.compile('(\'\'\'.{1,}?\'\'\')')
+    result = line_p.search(line)
     while result:
-        line=line_p.sub("<b>" +line[result.start()+3:result.end()-3] +"</b>",line,1)
-        result=line_p.search(line)
+        line = line_p.sub("<b>" +line[result.start()+3:result.end()-3] +"</b>", line, 1)
+        result = line_p.search(line)
     return line
 
 def italic_wiki_to_html(line):
-    line_p=re.compile('(\'\'.{1,}?\'\')')
-    result=line_p.search(line)
+    line_p = re.compile('(\'\'.{1,}?\'\')')
+    result = line_p.search(line)
     while result:
-        line=line_p.sub("<i>" +line[result.start()+2:result.end()-2] +"</i>",line,1)
-        result=line_p.search(line)
+        line = line_p.sub("<i>" +line[result.start()+2:result.end()-2] +"</i>", line, 1)
+        result = line_p.search(line)
     return line
 
 def heading_wiki_to_html(line):
@@ -801,7 +801,7 @@ class Page:
         print "Name:", self.name
         print "id:", self.id
         print "input dir:", self.input_dir
-        print "sort order: ",self.sort_order
+        print "sort order: ", self.sort_order
         print "contents:"
         for c in self.contents:
             c.printAll()
