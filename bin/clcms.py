@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2005  Jelte Jansen
-#
-# e-mail: Tjebbe@kanariepiet.com
+# Copyright (C) 2005 - 2013 Jelte Jansen <Tjebbe@kanariepiet.com>
+# Copyright (C) 2013 - Jan Fader <jan.fader@web.de>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
