@@ -1629,86 +1629,100 @@ def print_usage():
 #Initializer, argument parsing, and main loop call
 #
 
-# parse arguments
-if len(sys.argv) > 1:
-    i = 1
-    while i < len(sys.argv):
-    #for arg in sys.argv[1:]:
-        arg = sys.argv[i]
-        if arg == "-c" or arg == "--write-config":
-            for l in system_options:
-                print l
-            sys.exit(0)
-        elif arg == "-f" or arg == "--force-output":
-            force_output = True
-        elif arg == "-h" or arg == "--help":
-            print_usage()
-            sys.exit(0)
-        elif arg == "-i" or arg == "--inhibit-output":
-            inhibit_output = True
-        elif arg == "-n" or arg == "--no-macros":
-            no_macros = True
-        elif arg == "-m" or arg == "--macro-names":
-            show_macro_names = True
-        elif arg == "-v" or arg == "--verbosity":
-            if (i < len(sys.argv)):
-                i = i + 1
-                verbosity = int(sys.argv[i])
+def main():
+    verbosity = 1
+
+    no_macros = False
+    force_output = False
+    inhibit_output = False
+    show_macro_names = False
+    store_dates = True
+
+    # parse arguments
+    if len(sys.argv) > 1:
+        i = 1
+        while i < len(sys.argv):
+        #for arg in sys.argv[1:]:
+            arg = sys.argv[i]
+            if arg == "-c" or arg == "--write-config":
+                for l in system_options:
+                    print l
+                sys.exit(0)
+            elif arg == "-f" or arg == "--force-output":
+                force_output = True
+            elif arg == "-h" or arg == "--help":
+                print_usage()
+                sys.exit(0)
+            elif arg == "-i" or arg == "--inhibit-output":
+                inhibit_output = True
+            elif arg == "-n" or arg == "--no-macros":
+                no_macros = True
+            elif arg == "-m" or arg == "--macro-names":
+                show_macro_names = True
+            elif arg == "-v" or arg == "--verbosity":
+                if (i < len(sys.argv)):
+                    i = i + 1
+                    verbosity = int(sys.argv[i])
+                else:
+                    print "-v requires argument"
+                    sys.exit(1)
             else:
-                print "-v requires argument"
+                print "Unknown argument: "+arg
                 sys.exit(1)
+            i = i + 1
+
+    # read setup in current dir
+    base_options = copy.deepcopy(system_options)
+
+    for df in os.listdir("."):
+        file_name_parts = df.split(get_option(base_options, "extension_separator"))
+        if file_name_parts[-1] == get_option(base_options, "setup_file_name"):
+            #options.extend(file_lines(df, ['^[^#].* *= *.+']))
+            if verbosity >= 2:
+                print "Found .setup file in current directory: "+df
+            if not os.path.isdir(df):
+                for o in file_lines(df, ['^[^#].* *= *.+']):
+                    base_options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
+
+    # sanity checks on arguments
+    if inhibit_output and force_output:
+        print "inhibit-output and force-output cannot be used at the same time. Aborting."
+        sys.exit(1)
+
+    in_dir = get_option_dir(base_options, "in_dir")
+    root_dir = get_option_dir(base_options, "root_dir")
+    out_dir = get_option_dir(base_options, "out_dir")
+
+    if not os.path.isdir(in_dir):
+        print "No such directory: " + in_dir
+        sys.exit(1)
+    if verbosity >= 1:
+        print "Content directory: " + in_dir
+        if inhibit_output:
+            print "Inhibiting output."
         else:
-            print "Unknown argument: "+arg
-            sys.exit(1)
-        i = i + 1
+            print "Output directory: " + out_dir
+    os.chdir(in_dir)
 
-# read setup in current dir
-base_options = copy.deepcopy(system_options)
+    # Read pages rfom input directory tree
+    site = build_page_tree(root_dir, "", base_options, system_macro_list, 0)
 
-for df in os.listdir("."):
-    file_name_parts = df.split(get_option(base_options, "extension_separator"))
-    if file_name_parts[-1] == get_option(base_options, "setup_file_name"):
-        #options.extend(file_lines(df, ['^[^#].* *= *.+']))
-        if verbosity >= 2:
-            print "Found .setup file in current directory: "+df
-        if not os.path.isdir(df):
-            for o in file_lines(df, ['^[^#].* *= *.+']):
-                base_options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
+    # Check sorting and updates
+    site.prepare(out_dir)
 
-# sanity checks on arguments
-if inhibit_output and force_output:
-    print "inhibit-output and force-output cannot be used at the same time. Aborting."
-    sys.exit(1)
+    # Create output directory and HTML pages
+    if not inhibit_output:
+        os.chdir(root_dir)
+        if not os.path.isdir(out_dir) and not inhibit_output:
+            os.mkdir(out_dir)
+        site.createPage(out_dir, True)
 
-in_dir = get_option_dir(base_options, "in_dir")
-root_dir = get_option_dir(base_options, "root_dir")
-out_dir = get_option_dir(base_options, "out_dir")
+    if verbosity >= 5:
+        site.printAll(2)
+    elif verbosity >= 2:
+        site.printOverview()
 
-if not os.path.isdir(in_dir):
-    print "No such directory: " + in_dir
-    sys.exit(1)
-if verbosity >= 1:
-    print "Content directory: " + in_dir
-    if inhibit_output:
-        print "Inhibiting output."
-    else:
-        print "Output directory: " + out_dir
-os.chdir(in_dir)
-
-# Read pages rfom input directory tree
-site = build_page_tree(root_dir, "", base_options, system_macro_list, 0)
-
-# Check sorting and updates
-site.prepare(out_dir)
-
-# Create output directory and HTML pages
-if not inhibit_output:
-    os.chdir(root_dir)
-    if not os.path.isdir(out_dir) and not inhibit_output:
-        os.mkdir(out_dir)
-    site.createPage(out_dir, True)
-
-if verbosity >= 5:
-    site.printAll(2)
-elif verbosity >= 2:
-    site.printOverview()
+# --- direct call --------
+if __name__ == "__main__":
+    main()
+# ------------------------
