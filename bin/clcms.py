@@ -1447,14 +1447,14 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
                         elif value.lower() == "no":
                             page.archive_by_month = False
                         else:
-                            print("Error in attribute part of %s: bad value for archive_by_month option: %s" %(page.name,value))
+                            print("Error in attribute part of %s: bad value for archive_by_month option: %s" %(page.name, value))
 
                     elif l[:18].lower() == "archive_by_count: ":
                         value = l[18:]
                         try:
                             page.archive_by_count = int(l[17:])
                         except ValueError, e:
-                            print("Error in attribute part of %s: bad value for archive_by_count option: %s:%s" %(page.name,value,e))
+                            print("Error in attribute part of %s: bad value for archive_by_count option: %s:%s" %(page.name, value, e))
                     elif l[:14].lower() == "make_printable":
                         page.make_printable = True
                     else:
