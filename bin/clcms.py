@@ -620,7 +620,6 @@ def file_lines(file, filters = []):
         print msg
         print "Current directory: " + os.getcwd()
         raise IOError, msg
-        sys.exit(1)
     return lines
 
 
