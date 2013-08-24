@@ -449,7 +449,7 @@ def handle_macro(macro_name, macro_source, input_line, page):
             except IndexError, msg:
                 print "Error parsing macro: "+macro_name
                 print "(Matching on: '" + macro_m.group() + "')"
-                print "For page: "+page_name
+                print "For page: "+page.name
                 print "In directory: "+in_dir
                 print "Input line: "+input_line,
                 print "Error: ",
