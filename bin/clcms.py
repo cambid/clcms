@@ -115,8 +115,8 @@ def link_wiki_to_html(line, page):
                 nesting_level += 1
             cur_pos += 1
         if nesting_level > 0:
-            print "Link nesting error in line:"
-            print line
+            print("Link nesting error in line:")
+            print(line)
             sys.exit(3)
         is_image = False
         parts = line[open_pos + 2:cur_pos - 1].split("][")
@@ -150,12 +150,12 @@ def link_wiki_to_html(line, page):
                         frame = True
                     elif part == "left" or part == "right" or part == "center":
                         if position:
-                            print "Error in image link: "+line
-                            print "Position specified more than once"
+                            print("Error in image link: %s" %(line))
+                            print("Position specified more than once")
                         position = part
                     else:
-                        print "Error in image link: "+line
-                        print "Unknown argument: "+part
+                        print("Error in image link: %s" %(line))
+                        print("Unknown argument: %s" %(part))
 
             img_html = "<img src=\"" + image + "\" alt=\"" + alt + "\""
             # argument html
@@ -413,13 +413,11 @@ def handle_macro(macro_name, macro_source, input_line, page):
                 macro_arg_m = macro_arg_p.search(macro_arg_str)
                 arguments.append(macro_arg_val)
         if (verbosity >= 4):
-            print "Line: "+input_line
-            print "Match: "+input_line[macro_m.start():macro_m.end()]
-            print "Macro: "+macro_name
-            print "number of arguments: ",
-            print len(arguments)
-            print "arguments: ",
-            print arguments
+            print("Line: %s" %(input_line))
+            print("Match: "+input_line[macro_m.start():macro_m.end()])
+            print("Macro: "+macro_name)
+            print("number of arguments: %i" %(len(arguments)))
+            print("arguments: %s" %(arguments))
 
         # keep for error message
         orig_macro_source = macro_source
