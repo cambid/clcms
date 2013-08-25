@@ -37,13 +37,6 @@ inhibit_output = False
 show_macro_names = False
 store_dates = True
 
-# is there a built-in function for this?
-def copy_list(l):
-    result = []
-    for li in l:
-        result.append(li)
-    return result
-
 #
 # Wiki style parser
 #
