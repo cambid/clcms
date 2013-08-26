@@ -49,6 +49,12 @@ store_dates = True
 def escape_url(url):
     """
     escapes an url
+    >>> escape_url("ABCDE FGHIJ KLMNO")
+    'ABCDE_FGHIJ_KLMNO'
+    >>> escape_url("ABCDEFGHIJ KLMNO")
+    'ABCDEFGHIJ_KLMNO'
+    >>> escape_url("ABCDEFGHIJKLMNO")
+    'ABCDEFGHIJKLMNO'
     """
     url = url.replace(' ', '_')
     return url
@@ -213,6 +219,9 @@ def wiki_to_html_simple(line, page):
     return line + "\n"
 
 def wiki_handle_lists(prev_list_part, list_part, html_lines):
+    """
+    converts ordered and unordered lists into html
+    """
     same_part = ""
     new_item = False
     #html_lines.append("<!-- plp: "+prev_list_part+" lp: "+list_part+" -->\n")
@@ -399,9 +408,12 @@ output += \"</html>\\n\"\n\
 ]
 
 
-# TODO: always set output to "" when reading new macro definitions
 
 def handle_macro(macro_name, macro_source, input_line, page):
+    """
+    converts a single macro into the corresponding html
+    TODO: always set output to "" when reading new macro definitions
+    """
     result_line = input_line
     macro_p = re.compile("(?:_"+macro_name+")((?:_[a-zA-Z0-9]+|_\\(.*\\))*)_")
 
