@@ -604,9 +604,8 @@ def file_lines(file, filters = []):
                     if m:
                         lines.append(l + "\n")
     except IOError, msg:
-        print "Error reading file: ",
-        print msg
-        print "Current directory: " + os.getcwd()
+        print("Error reading file: %s" %(msg))
+        print("Current directory: %s" %(os.getcwd))
         raise IOError(msg)
     return lines
 
@@ -1633,7 +1632,7 @@ def main():
             arg = sys.argv[i]
             if arg == "-c" or arg == "--write-config":
                 for l in system_options:
-                    print l
+                    print(l)
                 sys.exit(0)
             elif arg == "-f" or arg == "--force-output":
                 force_output = True
@@ -1651,10 +1650,10 @@ def main():
                     i = i + 1
                     verbosity = int(sys.argv[i])
                 else:
-                    print "-v requires argument"
+                    print("-v requires argument")
                     sys.exit(1)
             else:
-                print "Unknown argument: "+arg
+                print("Unknown argument: %s" %(arg))
                 sys.exit(1)
             i = i + 1
 
@@ -1666,14 +1665,14 @@ def main():
         if file_name_parts[-1] == get_option(base_options, "setup_file_name"):
             #options.extend(file_lines(df, ['^[^#].* *= *.+']))
             if verbosity >= 2:
-                print "Found .setup file in current directory: "+df
+                print("Found .setup file in current directory: %s" %(df))
             if not os.path.isdir(df):
                 for o in file_lines(df, ['^[^#].* *= *.+']):
                     base_options.insert(0, o.lstrip("\t ").rstrip("\n\r\t "))
 
     # sanity checks on arguments
     if inhibit_output and force_output:
-        print "inhibit-output and force-output cannot be used at the same time. Aborting."
+        print("inhibit-output and force-output cannot be used at the same time. Aborting.")
         sys.exit(1)
 
     in_dir = get_option_dir(base_options, "in_dir")
@@ -1681,14 +1680,14 @@ def main():
     out_dir = get_option_dir(base_options, "out_dir")
 
     if not os.path.isdir(in_dir):
-        print "No such directory: " + in_dir
+        print("No such directory: %s" %(in_dir))
         sys.exit(1)
     if verbosity >= 1:
-        print "Content directory: " + in_dir
+        print("Content directory: %s" %(in_dir))
         if inhibit_output:
-            print "Inhibiting output."
+            print("Inhibiting output.")
         else:
-            print "Output directory: " + out_dir
+            print("Output directory: %s" %(out_dir))
     os.chdir(in_dir)
 
     # Read pages rfom input directory tree
