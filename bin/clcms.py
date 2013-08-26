@@ -47,6 +47,9 @@ store_dates = True
 # TODO: make this a general parser (i'd like it to work a lot better
 # than for instance Twiki...)
 def escape_url(url):
+    """
+    escapes an url
+    """
     url = url.replace(' ', '_')
     return url
 
@@ -247,7 +250,6 @@ def wiki_to_html(wiki_lines, page = None):
     html_lines = []
     i = 0
     no_wiki = False
-    whitespace_p = re.compile('^\\s*\n$')
     html_lines.append("<p>\n")
     list_p = re.compile('^([#*]+) (.*)$')
     prev_list_part = ""
@@ -388,7 +390,6 @@ def handle_macro(macro_name, macro_source, input_line, page):
     #macro_p = re.compile("_"+macro_name+"_")
     macro_m = macro_p.search(input_line)
     if macro_m:
-        ip = code.InteractiveInterpreter()
         output = "<badmacro>"
 
         arguments = []
@@ -999,7 +1000,6 @@ class Page:
                     file = "index_"+str(y)+".html"
                     clone = copy.deepcopy(self)
                     clone.archive_by_count = 0
-                    newcontents = []
                     for c in clone.contents:
                         if c.date.tm_year != y:
                             c.show = False
