@@ -114,7 +114,7 @@ def link_wiki_to_html(line, page):
         url = parts[0]
         name = ""
         html = ""
-        if len(parts) > 1: 
+        if len(parts) > 1:
             name = parts[1]
         if len(parts) > 2:
             html = " " + parts[2]
@@ -150,7 +150,7 @@ def link_wiki_to_html(line, page):
 
             img_html = "<img src=\"" + image + "\" alt=\"" + alt + "\""
             # argument html
-            if name != "": 
+            if name != "":
                 html = " " + name
             if width:
                 img_html += " width = \"" + width + "\""
@@ -300,7 +300,7 @@ def wiki_to_html(wiki_lines, page = None):
 #
 
 # The macro list is a list of lists of which the first object is the
-# macro name (for instance "MENU" for the macro _MENU_) and the 
+# macro name (for instance "MENU" for the macro _MENU_) and the
 # second object is a source string that will be executed
 # a macro function is supposed to return a string
 system_macro_list = [
@@ -352,11 +352,11 @@ output += \"</html>\\n\"\n\
   ["menuitem5start", "output = \"\"\n", 0 ],
   ["menuitem5end", "output = \"\"\n", 0 ],
   ["menuitem5selected", "output = \"\"\n", 0 ],
-  ["menuitem1start-arg", "output = \"_menuitem1start_\\n\"\nif arguments != []:\n\toutput += arguments[0]\n", 0], 
-  ["menuitem2start-arg", "output = \"_menuitem2start_\\n\"\nif arguments != []:\n\toutput += arguments[0]\n", 0], 
-  ["menuitem3start-arg", "output = \"_menuitem3start_\\n\"\nif arguments != []:\n\toutput += arguments[0]\n", 0], 
-  ["menuitem4start-arg", "output = \"_menuitem4start_\\n\"\nif arguments != []:\n\toutput += arguments[0]\n", 0], 
-  ["menuitem5start-arg", "output = \"_menuitem5start_\\n\"\nif arguments != []:\n\toutput += arguments[0]\n", 0], 
+  ["menuitem1start-arg", "output = \"_menuitem1start_\\n\"\nif arguments != []:\n\toutput += arguments[0]\n", 0],
+  ["menuitem2start-arg", "output = \"_menuitem2start_\\n\"\nif arguments != []:\n\toutput += arguments[0]\n", 0],
+  ["menuitem3start-arg", "output = \"_menuitem3start_\\n\"\nif arguments != []:\n\toutput += arguments[0]\n", 0],
+  ["menuitem4start-arg", "output = \"_menuitem4start_\\n\"\nif arguments != []:\n\toutput += arguments[0]\n", 0],
+  ["menuitem5start-arg", "output = \"_menuitem5start_\\n\"\nif arguments != []:\n\toutput += arguments[0]\n", 0],
   ["submenustart", "output = \"<div id = \\\"submenu\\\">\"\n", 0],
   ["submenuend", "output = \"</div>\"\n", 0],
   ["yearmenustart", "output = \"<div id = \\\"submenu\\\">\"\n", 0],
@@ -368,7 +368,7 @@ output += \"</html>\\n\"\n\
   ["backdir", "output = page.getBackDir()\n", 0 ],
   ["nextpage", "output = \"\"\nnp = page.getNextPage()\nif np:\n\toutput = \"<a href=\\\"\"+page.getBackDir()+np.getTotalOutputDir()+\"index.html\\\">\"+np.name+\"</a>\"\n", 0],
   ["prevpage", "output = \"\"\npp = page.getPreviousPage()\nif pp:\n\toutput = \"<a href=\\\"\"+page.getBackDir()+pp.getTotalOutputDir()+\"index.html\\\">\"+pp.name+\"</a>\"\n", 0],
-  ["uppage", "output = \"\"\nup = page.parent\nif up:\n\toutput = \"<a href=\\\"\"+page.getBackDir()+up.getTotalOutputDir()+\"index.html\\\">\"+up.name+\"</a>\"\n", 0],  
+  ["uppage", "output = \"\"\nup = page.parent\nif up:\n\toutput = \"<a href=\\\"\"+page.getBackDir()+up.getTotalOutputDir()+\"index.html\\\">\"+up.name+\"</a>\"\n", 0],
   ["fake", "output = \"\"\n", 0 ],
   ["prevarchive", "output = \"<div id=\\\"prevarchive\\\"><a href=\\\"index\"\nif arguments != []:\n\toutput += arguments[0]\noutput += \".html\\\">_prevarchivetext_</a></div>\"\n", 0 ],
   ["nextarchive", "output = \"<div id=\\\"nextarchive\\\"><a href=\\\"index\"\nif arguments != []:\n\toutput += arguments[0]\noutput += \".html\\\">_nextarchivetext_</a></div>\"\n", 0 ],
@@ -525,9 +525,8 @@ def get_option(options, option_name):
     print "Error: get_option() called for unknown option: "+option_name
     print "Current directory: " + os.getcwd()
     print options
-    (a,b,c) = sys.exc_info()
-    raise NameError, "get_option() called for unknown option: " + option_name
-    return ""
+    (a, b, c) = sys.exc_info()
+    raise NameError("get_option() called for unknown option: %s" %(option_name))
 
 def get_options(options, option_name):
     p = re.compile("^\\s*" + option_name + "\\s*=\\s*")
@@ -541,9 +540,8 @@ def get_options(options, option_name):
                 return []
     print "Error: get_options() called for unknown option: "+option_name
     print "Current directory: " + os.getcwd()
-    (a,b,c) = sys.exc_info()
-    raise NameError, "get_option() called for unknown option: " + option_name
-    return ""
+    (a, b, c) = sys.exc_info()
+    raise NameError("get_option() called for unknown option: %s" %(option_name))
 
 def get_option_dir(options, option_name):
     p = re.compile("^\\s*" + option_name + "\\s*=\\s*")
@@ -557,10 +555,8 @@ def get_option_dir(options, option_name):
             return d
     print "Error: unknown option name: " + option_name
     print "Current directory: " + os.getcwd()
-    (a,b,c) = sys.exc_info()
-    raise NameError, "get_option_dir() called for unknown option: " + option_name
-    return ""
-
+    (a, b, c) = sys.exc_info()
+    raise NameError("get_option_dir() called for unknown option: %s" %(option_name))
 
 # default options
 system_options = []
@@ -612,7 +608,7 @@ def file_lines(file, filters = []):
         print "Error reading file: ",
         print msg
         print "Current directory: " + os.getcwd()
-        raise IOError, msg
+        raise IOError(msg)
     return lines
 
 
