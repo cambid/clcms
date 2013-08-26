@@ -653,12 +653,12 @@ def file_extension(filename, default = ""):
     else:
         return default
 
-#
-# sorter function for get_dir_files
-# Sorts by file number, then reversed last modified date
-# items must be of the form [indexnr, timestamp, name]
-#
 def sort_dir_files(a, b):
+    """
+    sorter function for get_dir_files
+    sorts by file number, then reversed last modified date
+    items must be of the form [indexnr, timestamp, name]
+    """
     try:
         if a[0] > b[0]:
             return 1
@@ -681,9 +681,11 @@ def sort_dir_files(a, b):
         print e
         return 0
 
-# returns the sorting order number of the file.
-# ie the number after the first . (or specified spearator)
 def file_sort_number(options, filename):
+    """
+    returns the sorting order number of the file.
+    ie the number after the first . (or specified spearator)
+    """
     file_name_parts = filename.split(get_option(options, "extension_separator"))
     result = 999
     if len(file_name_parts) > 1 and file_name_parts[1].isdigit():
@@ -1622,6 +1624,10 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
     return page
 
 def print_usage():
+    """
+    prints the usage of clcms.py
+    """
+
     print "Usage: clcms.py [OPTIONS]"
     print "Options:"
     print "-c or --write-config:\t\tprint the default options to stdout"
