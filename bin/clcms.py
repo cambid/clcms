@@ -589,17 +589,20 @@ system_options = add_option(system_options, "create_pages = yes")
 
 # if filter contain any re's, only lines matching any of them are
 # returned. If filter is empty, all lines are returned
-def file_lines(file, filters = []):
+def file_lines(readfile, filters = []):
+    """
+    read file and filter lines
+    """
     lines = []
     try:
-        f_lines = open(file, "r")
+        f_lines = open(readfile, "r")
         for l in f_lines:
             l = l.rstrip(" \t\n\r")
             if filters == []:
                 lines.append(l + "\n")
             else:
-                for filter in filters:
-                    p = re.compile(filter)
+                for searchfilter in filters:
+                    p = re.compile(searchfilter)
                     m = p.search(l)
                     if m:
                         lines.append(l + "\n")
@@ -610,19 +613,21 @@ def file_lines(file, filters = []):
     return lines
 
 
-#
-# Returns the filename up to the first dot
-#
 def file_base_name(filename):
+    """
+    returns the given filename up to the first dot
+    """
     try:
         result = filename[:filename.index(".")]
     except:
         result = filename
     return result
 
-# returns the filename extension (without the .)
-# optional value default is returned if there is no extension
 def file_extension(filename, default = ""):
+    """
+    returns the filename extension (without the .)
+    optional value default is returned if there is no extension
+    """
     p = re.compile("\\..+$")
     m = p.search(filename)
     if m:
