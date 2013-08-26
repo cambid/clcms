@@ -422,16 +422,14 @@ def handle_macro(macro_name, macro_source, input_line, page):
         try:
             co = code.compile_command(macro_source)
         except SyntaxError, msg:
-            print "Syntax error in macro: " + macro_name
-            print "(Matching on: '" + macro_m.group() + "')"
-            print "For page: "+page.name
-            print "In directory: "+in_dir
-            print "Input line: "+input_line,
-            print "Error: ",
-            print msg
-            print "Maybe the macro expects an argument?"
-            print "Macro code:"
-            print orig_macro_source
+            print("Syntax error in macro: %s" %(macro_name))
+            print("(Matching on: '%s')" %(macro_m.group()))
+            print("For page: %s" %(page.name))
+            print("In directory: %s" %(in_dir))
+            print("Input line: %s" %(input_line))
+            print("Error: %s" %(msg))
+            print("Maybe the macro expects an argument?")
+            print("Macro code: %s" %(orig_macro_source))
             sys.exit(4)
         if co != None:
             try:
@@ -449,8 +447,8 @@ def handle_macro(macro_name, macro_source, input_line, page):
                 print orig_macro_source
                 sys.exit(2)
             if output == "<badmacro>":
-                print "Warning: Bad macro: "+macro_name
-                print "In line: "+input_line
+                print("Warning: Bad macro: %s" %(macro_name))
+                print("In line: " %(input_line))
                 output = ""
             result_line = input_line[:macro_m.start()]
             if show_macro_names:
@@ -740,7 +738,7 @@ class Page:
         self.recreate = False
 
     def addContent(self, content):
-        #print "Adding",content.name, "to page", self.name
+        #print("Adding %s to page %s" %(content.name,self.name))
         self.contents.append(content)
 
     def addFile(self, file):
