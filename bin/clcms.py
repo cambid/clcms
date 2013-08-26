@@ -54,15 +54,24 @@ def escape_url(url):
     return url
 
 def escape_html(line):
+    """
+    escape lines to html
+    """
     line = line.replace('"', '\\"')
     return line.rstrip("\r\n\t")
 
 def escapes_wiki_to_html(line):
+    """
+    escapes greather and smaller signs to html-syntax
+    """
     line = line.replace("<<", "&lt;")
     line = line.replace(">>", "&gt;")
     return line
 
 def bold_wiki_to_html(line):
+    """
+    convert bold-syntax ''' to <b>
+    """
     line_p = re.compile('(\'\'\'.{1,}?\'\'\')')
     result = line_p.search(line)
     while result:
@@ -71,6 +80,9 @@ def bold_wiki_to_html(line):
     return line
 
 def italic_wiki_to_html(line):
+    """
+    convert italic-syntax '' to <i>
+    """
     line_p = re.compile('(\'\'.{1,}?\'\')')
     result = line_p.search(line)
     while result:
@@ -79,6 +91,9 @@ def italic_wiki_to_html(line):
     return line
 
 def heading_wiki_to_html(line):
+    """
+    convert heading-syntax '' to <h?>
+    """
     line_p = re.compile('(==.{1,}==)')
     result = line_p.search(line)
     if result:
@@ -95,6 +110,9 @@ def heading_wiki_to_html(line):
     return line
 
 def link_wiki_to_html(line, page):
+    """
+    convert link-syntax '' to <a>
+    """
     # we need to be able to do nested expressions
     # if you want to include an image in a link
     # so regexps won't work
@@ -672,14 +690,16 @@ def file_sort_number(options, filename):
         result = int(file_name_parts[1])
     return result
 
-# returns a list of filenames in the directory,
-# excluding all re matches from ignore_masks
-# sorted by extension, then by last modified date
-def get_dir_files(options, dir, ignore_masks, invert = False):
+def get_dir_files(options, directory, ignore_masks, invert = False):
+    """
+    returns a list of filenames in the directory,
+    excluding all re matches from ignore_masks
+    sorted by extension, then by last modified date
+    """
     dirfiles = []
-    if os.path.isdir(dir):
+    if os.path.isdir(directory):
         orig_path = os.getcwd()
-        os.chdir(dir)
+        os.chdir(directory)
         files = os.listdir(".")
         files = map( lambda f: (file_sort_number(options, f), os.stat(f)[stat.ST_MTIME], f), files )
         files.sort(sort_dir_files)
@@ -745,8 +765,8 @@ class Page:
         #print("Adding %s to page %s" %(content.name,self.name))
         self.contents.append(content)
 
-    def addFile(self, file):
-        self.files.append(file)
+    def addFile(self, appendfile):
+        self.files.append(appendfile)
 
     def addChild(self, child):
         self.children.append(child)
