@@ -247,7 +247,7 @@ def wiki_to_html(wiki_lines, page = None):
     html_lines = []
     i = 0
     no_wiki = False
-    whitespace_p = re.compile('^\s*\n$')
+    whitespace_p = re.compile('^\\s*\n$')
     html_lines.append("<p>\n")
     list_p = re.compile('^([#*]+) (.*)$')
     prev_list_part = ""
@@ -383,7 +383,7 @@ output += \"</html>\\n\"\n\
 
 def handle_macro(macro_name, macro_source, input_line, page):
     result_line = input_line
-    macro_p = re.compile("(?:_"+macro_name+")((?:_[a-zA-Z0-9]+|_\(.*\))*)_")
+    macro_p = re.compile("(?:_"+macro_name+")((?:_[a-zA-Z0-9]+|_\\(.*\\))*)_")
 
     #macro_p = re.compile("_"+macro_name+"_")
     macro_m = macro_p.search(input_line)
@@ -394,7 +394,7 @@ def handle_macro(macro_name, macro_source, input_line, page):
         arguments = []
         if macro_m.lastindex != None:
             macro_arg_str = macro_m.group(1)
-            macro_arg_p = re.compile("_(\(.*\)|[a-zA-Z0-9]+)")
+            macro_arg_p = re.compile("_(\\(.*\\)|[a-zA-Z0-9]+)")
             macro_arg_m = macro_arg_p.search(macro_arg_str)
             while macro_arg_m:
                 macro_arg_val = macro_arg_str[macro_arg_m.start() + 1:macro_arg_m.end()]
