@@ -194,7 +194,7 @@ def link_wiki_to_html(line, page):
             if page:
                 targetPage = page.getRootPage().findPageByID(url[1:])
                 if not targetPage:
-                    print "Page with ID '"+url[1:]+"' not found (referenced in " + page.getTotalOutputDir() + "). Quitting."
+                    print("Page with ID '%s' not found (referenced in '%s'). Quitting." %(url[1:], page.getTotalOutputDir()))
                     sys.exit(1)
                 if name == "":
                     name = targetPage.name
@@ -253,7 +253,7 @@ def wiki_handle_lists(prev_list_part, list_part, html_lines):
         elif prev_list_part[-1] == '#':
             html_lines.append((cur_depth * "\t") + "</ol><p>\n")
         else:
-            print "Error in prev_list_part: "+prev_list_part[0]+" should not appear here. please file a bug report"
+            print("Error in prev_list_part: %s should not appear here. please file a bug report" %(prev_list_part[0]))
             sys.exit(1)
         prev_list_part = prev_list_part[:-1]
         cur_depth += 1
@@ -265,7 +265,7 @@ def wiki_handle_lists(prev_list_part, list_part, html_lines):
         elif list_part[0] == '#':
             html_lines.append((cur_depth * "\t") + "<ol>\n")
         else:
-            print "Error in list_part: "+list_part[0]+" should not appear here. please file a bug report"
+            print("Error in list_part: %s should not appear here. please file a bug report" %(list_part[0]))
             sys.exit(1)
         list_part = list_part[1:]
         cur_depth += 1
@@ -451,7 +451,7 @@ def handle_macro(macro_name, macro_source, input_line, page):
 
         try:
             co = code.compile_command(macro_source)
-        except SyntaxError, msg:
+        except SyntaxError as msg:
             print("Syntax error in macro: %s" %(macro_name))
             print("(Matching on: '%s')" %(macro_m.group()))
             print("For page: %s" %(page.name))
@@ -463,18 +463,16 @@ def handle_macro(macro_name, macro_source, input_line, page):
             sys.exit(4)
         if co != None:
             try:
-                exec co
-            except IndexError, msg:
-                print "Error parsing macro: "+macro_name
-                print "(Matching on: '" + macro_m.group() + "')"
-                print "For page: "+page.name
-                print "In directory: "+in_dir
-                print "Input line: "+input_line,
-                print "Error: ",
-                print msg
-                print "Maybe the macro expects an argument?"
-                print "Macro code:"
-                print orig_macro_source
+                exec(co)
+            except IndexError as msg:
+                print("Error parsing macro: %s" %(macro_name))
+                print("(Matching on: '%s')" %(macro_m.group()))
+                print("For page: %s" %(page.name))
+                print("In directory: %s" %(in_dir))
+                print("Input line: %s" %(input_line))
+                print("Error: %s" %(msg))
+                print("Maybe the macro expects an argument?")
+                print("Macro code: %s" %(orig_macro_source))
                 sys.exit(2)
             if output == "<badmacro>":
                 print("Warning: Bad macro: %s" %(macro_name))
@@ -489,7 +487,7 @@ def handle_macro(macro_name, macro_source, input_line, page):
                 result_line += "<!-- macro " + macro_name + " end -->"
             result_line += input_line[macro_m.end():]
         else:
-            print "Warning: Bad macro: "+macro_name
+            print("Warning: Bad macro: %s" %(macro_name))
         return result_line
     return result_line
 
@@ -505,21 +503,20 @@ def handle_macros(page, input_line):
             cur_line = handle_macro(mo[0], mo[1], cur_line, page)
             if cur_line != orig_line:
                 if verbosity >= 5:
-                    print "Macro substitution: "
-                    print "<<<<<<<<<<<<<<<<<<BEFORE<<<<<<<<<<<<<<<"
-                    print orig_line
-                    print ">>>>>>>>>>>>>>>>>>AFTER>>>>>>>>>>>>>>>>"
-                    print cur_line
+                    print("Macro substitution: ")
+                    print("<<<<<<<<<<<<<<<<<<BEFORE<<<<<<<<<<<<<<<")
+                    print(orig_line)
+                    print(">>>>>>>>>>>>>>>>>>AFTER>>>>>>>>>>>>>>>>")
+                    print(cur_line)
                 #if mo[2] > macro_last_modified:
                     #print "MACRO CHANGED!"
                 #    macro_last_modified = mo[2]
                 break
         i += 1
         if (i > 1000):
-            print "Error, loop detected in macro. I have done 1000 macro expansions on the line:"
-            print orig_input_line
-            print "And it is still not done. Aborting. Your output may be incomplete."
-            print "Last macro tried: "+mo[0]
+            print("Error, loop detected in macro. I have done 1000 macro expansions on the line: %s" %(orig_input_line))
+            print("And it is still not done. Aborting. Your output may be incomplete.")
+            print("Last macro tried: %s" %(mo[0]))
             sys.exit(1)
     return cur_line
 
@@ -551,9 +548,9 @@ def get_option(options, option_name):
         m = p.match(o)
         if m:
             return o[m.end():].rstrip("\n\r\t ")
-    print "Error: get_option() called for unknown option: "+option_name
-    print "Current directory: " + os.getcwd()
-    print options
+    print("Error: get_option() called for unknown option: %s" %(option_name))
+    print("Current directory: %s" %(os.getcwd()))
+    print(options)
     (a, b, c) = sys.exc_info()
     raise NameError("get_option() called for unknown option: %s" %(option_name))
 
@@ -567,8 +564,8 @@ def get_options(options, option_name):
                 return result
             else:
                 return []
-    print "Error: get_options() called for unknown option: "+option_name
-    print "Current directory: " + os.getcwd()
+    print("Error: get_option() called for unknown option: %s" %(option_name))
+    print("Current directory: %s" %(os.getcwd()))
     (a, b, c) = sys.exc_info()
     raise NameError("get_option() called for unknown option: %s" %(option_name))
 
@@ -582,8 +579,8 @@ def get_option_dir(options, option_name):
             if d[:1] != os.sep:
                 d = os.getcwd()+os.sep+d
             return d
-    print "Error: unknown option name: " + option_name
-    print "Current directory: " + os.getcwd()
+    print("Error: unknown option name: %s" %(option_name))
+    print("Current directory: %s" %(os.getcwd()))
     (a, b, c) = sys.exc_info()
     raise NameError("get_option_dir() called for unknown option: %s" %(option_name))
 
@@ -636,7 +633,7 @@ def file_lines(readfile, filters = []):
                     m = p.search(l)
                     if m:
                         lines.append(l + "\n")
-    except IOError, msg:
+    except IOError as msg:
         print("Error reading file: %s" %(msg))
         print("Current directory: %s" %(os.getcwd))
         raise IOError(msg)
@@ -690,7 +687,7 @@ def sort_dir_files(a, b):
                 else:
                     return 0
     except e:
-        print e
+        print(e)
         return 0
 
 def file_sort_number(options, filename):
@@ -734,7 +731,7 @@ def get_dir_files(options, directory, ignore_masks, invert = False):
     return dirfiles
 
 def print_indentation(depth):
-    print "  "*depth,
+    print("  " *depth)
 
 
 class Page:
@@ -807,30 +804,30 @@ class Page:
 
     def printOverview(self, depth = 0):
         print_indentation(depth)
-        print self.name
+        print(self.name)
         print_indentation(depth+1)
-        print "Contents:"
+        print("Contents:")
         for c in self.contents:
             c.printOverview(depth+2)
         print_indentation(depth+1)
-        print "Files:"
+        print("Files:")
         for f in self.files:
             f.printOverview(depth+2)
         print_indentation(depth+1)
-        print len(self.children), "Children:"
+        print("%i Children:" %(len(self.children)))
         for c in self.children:
             c.printOverview(depth+2)
 
     def printAll(self, max_depth = -1):
-        print "-----------PAGE-------------"
-        print "Name:", self.name
-        print "id:", self.id
-        print "input dir:", self.input_dir
-        print "sort order: ", self.sort_order
-        print "contents:"
+        print("-----------PAGE-------------")
+        print("Name: %s" %(self.name))
+        print("id: %s" %(self.id))
+        print("input dir: %s" %(self.input_dir))
+        print("sort order: %s" %(self.sort_order))
+        print("contents:")
         for c in self.contents:
             c.printAll()
-        print "files:"
+        print("files:")
         for f in self.files:
             f.printAll()
         # print macros?
@@ -1000,7 +997,7 @@ class Page:
                 i += 1
                 anchor_menu_lines += "_submenuitemend_"
             anchor_menu_lines += "_yearmenuend_"
-            print years
+            print(years)
         return anchor_menu_lines
 
     def copyFiles(self, output_directory):
@@ -1015,7 +1012,7 @@ class Page:
             os.mkdir(out_dir)
         if self.recreate:
             if verbosity >= 1:
-                print "Creating page '"+self.name+"'"
+                print("Creating page '%s'" %(self.name))
             html_pages = self.toHTML()
             page_count = 0
             for p in html_pages:
@@ -1041,7 +1038,7 @@ class Page:
                             c.show = False
                     html_pages = clone.toHTML()
                     if len(html_pages) > 1:
-                        print "ERROR YEAR ARCHIVE SHOULD ONLY HAVE 1 PAGE PER YEAR"
+                        print("ERROR YEAR ARCHIVE SHOULD ONLY HAVE 1 PAGE PER YEAR")
                     else:
                         out_file = open(out_dir + os.sep + file, "w")
                         out_file.writelines(html_pages[0])
@@ -1191,9 +1188,9 @@ class Content:
                     try:
                         self.date = time.strptime(descr_option[5:], "%Y-%m-%d")
                     except:
-                        print "Bad date in attribute line in file: " + self.input_file
-                        print "Line: " + lines[0]
-                        print "Format should be either \"YYYY-MM-DD\" or \"YYYY-MM-DD HH:mm:ss\"."
+                        print("Bad date in attribute line in file: %s" %(self.input_file))
+                        print("Line: %s" %(lines[0]))
+                        print("Format should be either \"YYYY-MM-DD\" or \"YYYY-MM-DD HH:mm:ss\".")
                         sys.exit(3)
                 self.date_from_file = True
             elif descr_option[:5].lower() == "wiki ":
@@ -1203,7 +1200,7 @@ class Content:
                 elif value.lower() == "false":
                     self.parse_wiki = False
                 else:
-                    print "Error in attribute part of "+self.input_file+": unknown value for wiki option: "+value
+                    print("Error in attribute part of %s: unknown value for wiki option: %s" %(self.input_file, value))
                 self.parse_wiki_from_file = True
             elif descr_option[:10].lower() == "showtitle ":
                 value = descr_option[10:]
@@ -1212,7 +1209,7 @@ class Content:
                 elif value.lower() == "false":
                     self.show_item_title = False
                 else:
-                    print "Error in attribute part of "+self.input_file+": unknown value for showtitle option: "+value
+                    print("Error in attribute part of %s: unknown value for wiki option: %s" %(self.input_file, value))
                 self.show_item_title_from_file = True
             elif descr_option[:14].lower() == "showtitledate ":
                 value = descr_option[14:]
@@ -1221,21 +1218,21 @@ class Content:
                 elif value.lower() == "false":
                     self.show_item_title_date = False
                 else:
-                    print "Error in attribute part of "+self.input_file+": unknown value for titledate option: "+value
+                    print("Error in attribute part of %s: unknown value for wiki option: %s" %(self.input_file, value))
                 self.show_item_title_date_from_file = True
             elif descr_option[:11].lower() == "sort order ":
                 try:
                     self.sort_order = int(descr_option[11:])
                     #print "Sort order for "+self.input_file+":", sort_order
-                except ValueError, e:
-                    print "Error in attribute part of "+self.input_file+": bad value for sort order option: "+value
-                    print e
+                except ValueError as e:
+                    print("Error in attribute part of %s: unknown value for wiki option: %s" %(self.input_file, value))
+                    print(e)
             elif descr_option[:13].lower() == "display-name ":
                 self.display_name = descr_option[13:]
             #elif descr_option[:1] == "X ":
             #       id = id
             else:
-                print "Error in attribute part of "+self.input_file+": unknown option "+descr_option
+                print("Error in attribute part of %s: unknown value for wiki option: %s" %(self.input_file, value))
                 sys.exit(4)
             lines = lines[1:]
 
@@ -1257,16 +1254,16 @@ class Content:
 
     def printOverview(self, depth = 0):
         print_indentation(depth)
-        print self.name
+        print(self.name)
 
     def getAnchorName(self):
         return escape_url(self.name)
 
     def printAll(self):
-        print "name:", self.name
-        print "id:", os.getcwd() + os.sep + self.id
-        print "sort order:", self.sort_order
-        print "input file: ", self.input_file
+        print("name: %s" %(self.name))
+        print("id: %s%s%s" %(os.getcwd(), os.sep, self.id))
+        print("sort order: %s" %(self.sort_order))
+        print("input file: %s" %(self.input_file))
 
     def toHTML(self):
         page_lines = []
@@ -1298,11 +1295,11 @@ class File:
 
     def printOverview(self, depth = 0):
         print_indentation(depth)
-        print self.input_file
+        print(self.input_file)
 
     def printAll(self):
-        print "id:", self.id
-        print "file:", self.input_file
+        print("id: %s" %(self.id))
+        print("file: %s" %(self.input_file))
 
 #
 # 'compares' pages based on their sort order, then on the last modified date of
@@ -1380,7 +1377,7 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
             # files in it as if they were in this directory
             # no subirectories are handled and no root_dir change is recognized
             if verbosity >= 3:
-                print "Found setup dir: " + os.getcwd() + os.sep + df
+                print("Found setup dir: %s%s%s" %(os.getcwd(), os.sep, df))
             if os.path.isdir(df):
                 setup_orig_dir = os.getcwd()
                 os.chdir(df)
@@ -1414,7 +1411,7 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
                         mo = [macro_name, moc, os.stat(df2)[stat.ST_MTIME]]
                         macro_list.insert(0, mo)
                     else:
-                        print "NOT SETUP INC OR MACRO: "+df2
+                        print("NOT SETUP INC OR MACRO: %s" %(df2))
 
                 os.chdir(setup_orig_dir)
             else:
@@ -1423,7 +1420,7 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
                 if have_option(new_options, "root_dir") and \
                    have_option(new_options, "in_dir"):
                     if verbosity >= 2:
-                        print "Found subsite in " + os.getcwd() + os.sep + df
+                        print("Found subsite in %s%s%s" %(os.getcwd(), os.sep, df))
                     root_dir = get_option_dir(options, "root_dir")
                     in_dir = get_option_dir(options, "in_dir")
                     return_dir = os.getcwd()
@@ -1478,13 +1475,13 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
                         value = l[18:]
                         try:
                             page.archive_by_count = int(l[17:])
-                        except ValueError, e:
+                        except ValueError as e:
                             print("Error in attribute part of %s: bad value for archive_by_count option: %s:%s" %(page.name, value, e))
                     elif l[:14].lower() == "make_printable":
                         page.make_printable = True
                     else:
-                        print "Warning: unknown option line in page.attr file"
-                        print "File: " + os.getcwd()+ os.sep + "page.attr:"
+                        print("Warning: unknown option line in page.attr file")
+                        print("File: %s%s page.attr:" %(os.getcwd(), os.sep))
         else:
             dir_files2.append(df)
     dir_files = dir_files2
@@ -1559,8 +1556,8 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
             #   item_date <date>: if not entered, clcms will add this!
             #             time the item was first made (todo :) )
             for option_name in file_name_parts[1:-1]:
-                print "Extension options are deprecated!"
-                print "This file should probably be updated: "+df
+                print("Extension options are deprecated!")
+                print("This file should probably be updated: " %(df))
                 sys.exit(2)
                 if option_name == "nowiki":
                     wiki_parse = False
@@ -1591,7 +1588,7 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
     for df in dir_files:
         if os.path.isdir(df):
             if verbosity >= 3:
-                print "Reading page from directory: " + os.getcwd() + os.sep + df
+                print("Reading page from directory: %s%s%s" %(os.getcwd(), os.sep, df))
             # stoppage checkage action
             #handle_dir = True
             #file_name_parts = df.split(get_option(options, "extension_separator"))
@@ -1640,18 +1637,18 @@ def print_usage():
     prints the usage of clcms.py
     """
 
-    print "Usage: clcms.py [OPTIONS]"
-    print "Options:"
-    print "-c or --write-config:\t\tprint the default options to stdout"
-    print "-f or --force-output:\t\tforce creation of all pages even if their"
-    print "\t\t\t\tsources are not changed"
-    print "-h or --help:\t\t\tshow this help"
-    print "-i or --inhibit-output\t\tinhibit creation for all pages"
-    print "\t\t\t\t(ie. do a test run)"
-    print "-n or --no-macros\t\tdo not evaluate macros"
-    print "-m or --macro-names\t\tSurround macro expansions with the name names"
+    print("Usage: clcms.py [OPTIONS]")
+    print("Options:")
+    print("-c or --write-config:\t\tprint the default options to stdout")
+    print("-f or --force-output:\t\tforce creation of all pages even if their")
+    print("\t\t\t\tsources are not changed")
+    print("-h or --help:\t\t\tshow this help")
+    print("-i or --inhibit-output\t\tinhibit creation for all pages")
+    print("\t\t\t\t(ie. do a test run)")
+    print("-n or --no-macros\t\tdo not evaluate macros")
+    print("-m or --macro-names\t\tSurround macro expansions with the name names")
     #print "-s <file>\t\t\tJust wiki-parse <file> and print output to\n\t\t\t\tstdout\n"
-    print "-v <lvl> or --verbosity <lvl>\tset verbosity: 0 for no output, 5 for a lot"
+    print("-v <lvl> or --verbosity <lvl>\tset verbosity: 0 for no output, 5 for a lot")
 
 
 #
