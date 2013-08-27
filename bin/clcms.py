@@ -712,9 +712,10 @@ def get_dir_files(options, directory, ignore_masks, invert = False):
         orig_path = os.getcwd()
         os.chdir(directory)
         files = os.listdir(".")
-        files = map( lambda f: (file_sort_number(options, f), os.stat(f)[stat.ST_MTIME], f), files )
+        files = [(file_sort_number(options, f), os.stat(f)[stat.ST_MTIME], f)
+                for f in files]
         files.sort(sort_dir_files)
-        #print files
+        #print(files)
         for fs in files:
             f = fs[2]
             matches = False
