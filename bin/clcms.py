@@ -622,7 +622,7 @@ def file_lines(readfile, filters = []):
     """
     lines = []
     try:
-        with open(readfile,"r") as readedfile:
+        with open(readfile, "r") as readedfile:
             for line in readedfile:
                 line = line.rstrip(" \t\n\r")
                 if filters == []:
