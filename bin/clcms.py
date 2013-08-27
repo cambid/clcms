@@ -15,7 +15,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+# USA.
 #
 # For the complete license, see the LICENSE file in this distribution
 
@@ -80,7 +81,8 @@ def bold_wiki_to_html(line):
     line_p = re.compile('(\'\'\'.{1,}?\'\'\')')
     result = line_p.search(line)
     while result:
-        line = line_p.sub("<b>" +line[result.start()+3:result.end()-3] +"</b>", line, 1)
+        line = line_p.sub("<b>"
+              +line[result.start()+3:result.end()-3] +"</b>", line, 1)
         result = line_p.search(line)
     return line
 
@@ -91,7 +93,8 @@ def italic_wiki_to_html(line):
     line_p = re.compile('(\'\'.{1,}?\'\')')
     result = line_p.search(line)
     while result:
-        line = line_p.sub("<i>" +line[result.start()+2:result.end()-2] +"</i>", line, 1)
+        line = line_p.sub("<i>"
+              +line[result.start()+2:result.end()-2] +"</i>", line, 1)
         result = line_p.search(line)
     return line
 
@@ -453,7 +456,6 @@ def handle_macro(macro_name, macro_source, input_line, page):
             print("Error parsing macro: %s" %(macro_name))
             print("(Matching on: '%s')" %(macro_m.group()))
             print("For page: %s" %(page.name))
-            print("In directory: %s" %(in_dir))
             print("Input line: %s" %(input_line))
             print("Error: %s" %(msg))
             print("Maybe the macro expects an argument?")
@@ -1553,7 +1555,6 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
                     show_item_title = False
                 elif option_name.isdigit():
                     content.sort_order = int(option_name)
-            lines = file_lines(df)
             if not content.parse_wiki_from_file:
                 content.parse_wiki = wiki_parse
             if not content.show_item_title_from_file:
@@ -1635,11 +1636,10 @@ def print_usage():
     print("-v <lvl> or --verbosity <lvl>\tset verbosity: 0 for no output, 5 for a lot")
 
 
-#
-#Initializer, argument parsing, and main loop call
-#
-
 def main():
+    """
+    Initializer, argument parsing, and main loop call
+    """
     verbosity = 1
 
     no_macros = False
