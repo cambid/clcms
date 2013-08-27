@@ -734,7 +734,7 @@ def print_indentation(depth):
     print("  " *depth)
 
 
-class Page:
+class Page(object):
     "A page object"
 
     def __init__(self, name, basedir, pagedir, parent = None):
@@ -1142,7 +1142,7 @@ class Page:
         else:
             return prev_page
 
-class Content:
+class Content(object):
     "A page content object"
     def __init__(self, page, file):
         self.input_file = page.input_dir + os.sep + file
@@ -1286,7 +1286,7 @@ class Content:
             page_lines.extend(flines)
         return page_lines
 
-class File:
+class File(object):
     "A file object"
     def __init__(self, file):
         self.input_file = os.getcwd() + os.sep + file
