@@ -614,25 +614,25 @@ system_options = add_option(system_options, "create_pages = yes")
 # Utility functions
 #
 
-# if filter contain any re's, only lines matching any of them are
-# returned. If filter is empty, all lines are returned
 def file_lines(readfile, filters = []):
     """
     read file and filter lines
+    if filter contain any re's, only lines matching any of them are returned.
+    If filter is empty, all lines are returned
     """
     lines = []
     try:
-        f_lines = open(readfile, "r")
-        for l in f_lines:
-            l = l.rstrip(" \t\n\r")
-            if filters == []:
-                lines.append(l + "\n")
-            else:
-                for searchfilter in filters:
-                    p = re.compile(searchfilter)
-                    m = p.search(l)
-                    if m:
-                        lines.append(l + "\n")
+        with open(readfile,"r") as readedfile:
+            for line in readedfile:
+                line = line.rstrip(" \t\n\r")
+                if filters == []:
+                    lines.append(line + "\n")
+                else:
+                    for searchfilter in filters:
+                        p = re.compile(searchfilter)
+                        m = p.search(line)
+                        if m:
+                            lines.append(line + "\n")
     except IOError as msg:
         print("Error reading file: %s" %(msg))
         print("Current directory: %s" %(os.getcwd))
