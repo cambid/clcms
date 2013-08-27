@@ -1017,10 +1017,10 @@ class Page(object):
             page_count = 0
             for p in html_pages:
                 if page_count > 0:
-                    file = "index"+str(page_count)+".html"
+                    pagefile = "index"+str(page_count)+".html"
                 else:
-                    file = "index.html"
-                out_file = open(out_dir + os.sep + file, "w")
+                    pagefile = "index.html"
+                out_file = open(out_dir + os.sep + pagefile, "w")
                 out_file.writelines(p)
                 out_file.close()
                 page_count += 1
@@ -1030,7 +1030,7 @@ class Page(object):
                     if not c.date.tm_year in years:
                         years.append(c.date.tm_year)
                 for y in years:
-                    file = "index_"+str(y)+".html"
+                    pagefile = "index_"+str(y)+".html"
                     clone = copy.deepcopy(self)
                     clone.archive_by_count = 0
                     for c in clone.contents:
@@ -1040,18 +1040,18 @@ class Page(object):
                     if len(html_pages) > 1:
                         print("ERROR YEAR ARCHIVE SHOULD ONLY HAVE 1 PAGE PER YEAR")
                     else:
-                        out_file = open(out_dir + os.sep + file, "w")
+                        out_file = open(out_dir + os.sep + pagefile, "w")
                         out_file.writelines(html_pages[0])
                         out_file.close()
             if self.make_printable:
-                file = "index_print.html"
+                pagefile = "index_print.html"
                 clone = copy.deepcopy(self)
                 clone.make_printable = False
                 clone.show_header = False
                 clone.show_separator = False
                 clone.show_submenu = False
                 html_pages = clone.toHTML()
-                out_file = open(out_dir + os.sep + file, "w")
+                out_file = open(out_dir + os.sep + pagefile, "w")
                 out_file.writelines(html_pages[0])
                 out_file.close()
         self.copyFiles(out_dir)
@@ -1144,14 +1144,14 @@ class Page(object):
 
 class Content(object):
     "A page content object"
-    def __init__(self, page, file):
-        self.input_file = page.input_dir + os.sep + file
+    def __init__(self, page, pagefile):
+        self.input_file = page.input_dir + os.sep + pagefile
 
-        name_parts = file.split(get_option(page.options, "extension_separator"))
+        name_parts = pagefile.split(get_option(page.options, "extension_separator"))
 
         self.name = name_parts[0]
         self.display_name = name_parts[0]
-        self.id = file
+        self.id = pagefile
         self.id_from_file = False
         # By default, the id is the input file
 
@@ -1171,7 +1171,7 @@ class Content(object):
 
         self.show = True
 
-        lines = file_lines(file)
+        lines = file_lines(pagefile)
         while len(lines) > 0 and lines[0][:6].lower() == "attr: ":
 
             descr_option = lines[0][6:].rstrip("\n\t ")
@@ -1288,10 +1288,10 @@ class Content(object):
 
 class File(object):
     "A file object"
-    def __init__(self, file):
-        self.input_file = os.getcwd() + os.sep + file
+    def __init__(self, filename):
+        self.input_file = os.getcwd() + os.sep + filename
         # By default, the id is the input file
-        self.id = os.getcwd() + os.sep + file
+        self.id = os.getcwd() + os.sep + filename
 
     def printOverview(self, depth = 0):
         print_indentation(depth)
@@ -1627,8 +1627,8 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
     # Copy rest
     #
     for df in dir_files:
-        file = File(df)
-        page.addFile(file)
+        pagefile = File(df)
+        page.addFile(pagefile)
 
     return page
 
