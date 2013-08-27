@@ -25,7 +25,6 @@ import shutil
 import time
 import re
 import sys
-import code
 import copy
 
 version = "0.6"
@@ -448,11 +447,10 @@ def handle_macro(macro_name, macro_source, input_line, page):
         macro_source = "for zcxcvad in [\"vasdferqerqewr\"]:\n"
         for ml in macro_lines:
             macro_source += "\t" + ml + "\n"
-
         try:
-            co = code.compile_command(macro_source)
-        except SyntaxError as msg:
-            print("Syntax error in macro: %s" %(macro_name))
+            exec(macro_source)
+        except IndexError as msg:
+            print("Error parsing macro: %s" %(macro_name))
             print("(Matching on: '%s')" %(macro_m.group()))
             print("For page: %s" %(page.name))
             print("In directory: %s" %(in_dir))
@@ -460,34 +458,19 @@ def handle_macro(macro_name, macro_source, input_line, page):
             print("Error: %s" %(msg))
             print("Maybe the macro expects an argument?")
             print("Macro code: %s" %(orig_macro_source))
-            sys.exit(4)
-        if co != None:
-            try:
-                exec(co)
-            except IndexError as msg:
-                print("Error parsing macro: %s" %(macro_name))
-                print("(Matching on: '%s')" %(macro_m.group()))
-                print("For page: %s" %(page.name))
-                print("In directory: %s" %(in_dir))
-                print("Input line: %s" %(input_line))
-                print("Error: %s" %(msg))
-                print("Maybe the macro expects an argument?")
-                print("Macro code: %s" %(orig_macro_source))
-                sys.exit(2)
-            if output == "<badmacro>":
-                print("Warning: Bad macro: %s" %(macro_name))
-                print("In line: " %(input_line))
-                output = ""
-            result_line = input_line[:macro_m.start()]
-            if show_macro_names:
-                result_line += "<!-- macro " + macro_name + " start -->"
-                #result_line = input_line[:macro_m.start()] + output + input_line[macro_m.end():]
-            result_line += output
-            if show_macro_names:
-                result_line += "<!-- macro " + macro_name + " end -->"
-            result_line += input_line[macro_m.end():]
-        else:
+            sys.exit(2)
+        if output == "<badmacro>":
             print("Warning: Bad macro: %s" %(macro_name))
+            print("In line: %s" %(input_line))
+            output = ""
+        result_line = input_line[:macro_m.start()]
+        if show_macro_names:
+            result_line += "<!-- macro " + macro_name + " start -->"
+            #result_line = input_line[:macro_m.start()] + output + input_line[macro_m.end():]
+        result_line += output
+        if show_macro_names:
+            result_line += "<!-- macro " + macro_name + " end -->"
+        result_line += input_line[macro_m.end():]
         return result_line
     return result_line
 
@@ -516,7 +499,8 @@ def handle_macros(page, input_line):
         if (i > 1000):
             print("Error, loop detected in macro. I have done 1000 macro expansions on the line: %s" %(orig_input_line))
             print("And it is still not done. Aborting. Your output may be incomplete.")
-            print("Last macro tried: %s" %(mo[0]))
+            if mo:
+                print("Last macro tried: %s" %(mo[0]))
             sys.exit(1)
     return cur_line
 
@@ -686,8 +670,7 @@ def sort_dir_files(a, b):
                     return -1
                 else:
                     return 0
-    except e:
-        print(e)
+    except:
         return 0
 
 def file_sort_number(options, filename):
