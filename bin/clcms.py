@@ -494,7 +494,7 @@ def handle_macros(page, input_line):
                     print(">>>>>>>>>>>>>>>>>>AFTER>>>>>>>>>>>>>>>>")
                     print(cur_line)
                 #if mo[2] > macro_last_modified:
-                    #print "MACRO CHANGED!"
+                    #print("MACRO CHANGED!")
                 #    macro_last_modified = mo[2]
                 break
         i += 1
@@ -724,7 +724,7 @@ class Page(object):
     "A page object"
 
     def __init__(self, name, basedir, pagedir, parent = None):
-        #print "Add page", dir
+        #print("Add page %s" %(dir))
         self.input_dir = basedir
         self.page_dir = pagedir
         self.parent = parent
@@ -788,23 +788,23 @@ class Page(object):
         else:
             return self.parent.getRootPage()
 
-    def printOverview(self, depth = 0):
+    def print_overview(self, depth = 0):
         print_indentation(depth)
         print(self.name)
         print_indentation(depth+1)
         print("Contents:")
         for c in self.contents:
-            c.printOverview(depth+2)
+            c.print_overview(depth+2)
         print_indentation(depth+1)
         print("Files:")
         for f in self.files:
-            f.printOverview(depth+2)
+            f.print_overview(depth+2)
         print_indentation(depth+1)
         print("%i Children:" %(len(self.children)))
         for c in self.children:
-            c.printOverview(depth+2)
+            c.print_overview(depth+2)
 
-    def printAll(self, max_depth = -1):
+    def print_all(self, max_depth = -1):
         print("-----------PAGE-------------")
         print("Name: %s" %(self.name))
         print("id: %s" %(self.id))
@@ -812,17 +812,17 @@ class Page(object):
         print("sort order: %s" %(self.sort_order))
         print("contents:")
         for c in self.contents:
-            c.printAll()
+            c.print_all()
         print("files:")
         for f in self.files:
-            f.printAll()
+            f.print_all()
         # print macros?
         # print options?
         for c in self.children:
             if max_depth > 0:
-                c.printAll(max_depth - 1)
+                c.print_all(max_depth - 1)
             elif max_depth == -1:
-                c.printAll(-1)
+                c.print_all(-1)
 
     def getOutputDir(self):
         #dir_parts = self.page_dir.split(get_option(self.options, "extension_separator"))
@@ -964,7 +964,7 @@ class Page(object):
             year_entry_count = {}
             for c in self.contents:
                 if not c.date.tm_year in years:
-                    #print c.date.tm_year
+                    #print(c.date.tm_year)
                     years.append(c.date.tm_year)
                     year_entry_count[c.date.tm_year] = 1
                 else:
@@ -993,7 +993,7 @@ class Page(object):
 
     def createPage(self, output_directory, recursive):
         out_dir = output_directory + os.sep + self.getOutputDir()
-        #print "out_dir: "+out_dir
+        #print("out_dir: %s" %(out_dir))
         if  not os.path.isdir(out_dir):
             os.mkdir(out_dir)
         if self.recreate:
@@ -1164,7 +1164,7 @@ class Content(object):
 
             if descr_option[:3] == "id ":
                 self.id = descr_option[3:]
-                #print "Set id to '"+id+"'"
+                #print("Set id to '%s'" %(id))
                 self.id_from_file = True
             elif descr_option[:5].lower() == "date ":
                 # try several formats
@@ -1209,7 +1209,7 @@ class Content(object):
             elif descr_option[:11].lower() == "sort order ":
                 try:
                     self.sort_order = int(descr_option[11:])
-                    #print "Sort order for "+self.input_file+":", sort_order
+                    #print("Sort order for %s: %s" %(self.input_file,sort_order))
                 except ValueError as e:
                     print("Error in attribute part of %s: unknown value for wiki option: %s" %(self.input_file, value))
                     print(e)
@@ -1238,14 +1238,14 @@ class Content(object):
         # parent page
         self.page = page
 
-    def printOverview(self, depth = 0):
+    def print_overview(self, depth = 0):
         print_indentation(depth)
         print(self.name)
 
     def getAnchorName(self):
         return escape_url(self.name)
 
-    def printAll(self):
+    def print_all(self):
         print("name: %s" %(self.name))
         print("id: %s%s%s" %(os.getcwd(), os.sep, self.id))
         print("sort order: %s" %(self.sort_order))
@@ -1279,11 +1279,11 @@ class File(object):
         # By default, the id is the input file
         self.id = os.getcwd() + os.sep + filename
 
-    def printOverview(self, depth = 0):
+    def print_overview(self, depth = 0):
         print_indentation(depth)
         print(self.input_file)
 
-    def printAll(self):
+    def print_all(self):
         print("id: %s" %(self.id))
         print("file: %s" %(self.input_file))
 
@@ -1334,9 +1334,9 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
     page = None
     page_dir_parts = page_dir.split(get_option(default_options, "extension_separator"))
     page = Page(page_dir_parts[0], os.getcwd(), page_dir)
-    #print "NEW PAGE!!!!!!!!!!!!!!!!"
-    #page.printOverview()
-    #print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    #print("NEW PAGE!!!!!!!!!!!!!!!!")
+    #page.print_overview()
+    #print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
     options = []
     options.extend(default_options)
@@ -1563,7 +1563,7 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
                 content.show_item_title_date = show_item_title_date
             page.addContent(content)
         else:
-            #print "FILEEXT: "+file_name_parts[-1]
+            #print("FILEEXT: %s" %(file_name_parts[-1]))
             dir_files2.append(df)
     dir_files = dir_files2
     dir_files2 = []
@@ -1581,20 +1581,20 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
             #for fp in file_name_parts[1:]:
             #       if fp == "stop":
             #           if verbosity >= 2:
-            #               print "Stop at dir: "+df
+            #               print("Stop at dir: %s" %(df))
             #           handle_dir = False
             #       elif fp.isdigit():
             #           sort_order = int(fp)
             #if handle_dir:
             sub_page_orig_dir = os.getcwd()
             os.chdir(df)
-            #print "Entering directory " + os.getcwd()
+            #print("Entering directory %s" %(os.getcwd()))
             child_page = build_page_tree(root_dir, df, options, macro_list, cur_depth+1)
             if child_page.is_subsite == False:
                 child_page.parent = page
             #if child_page.sort_order >= 0:
             #       if sort_order >= 0:
-            #           print "Warning, sort order for page '"+child_page.name+"' specified twice, taking order from directory name"
+            #           print("Warning, sort order for page '%s' specified twice, taking order from directory name" %(child_page.name))
             #           child_page.sort_order = sort_order
             #else:
             #       child_page.sort_order = sort_order
@@ -1632,7 +1632,7 @@ def print_usage():
     print("\t\t\t\t(ie. do a test run)")
     print("-n or --no-macros\t\tdo not evaluate macros")
     print("-m or --macro-names\t\tSurround macro expansions with the name names")
-    #print "-s <file>\t\t\tJust wiki-parse <file> and print output to\n\t\t\t\tstdout\n"
+    #print("-s <file>\t\t\tJust wiki-parse <file> and print output to\n\t\t\t\tstdout\n")
     print("-v <lvl> or --verbosity <lvl>\tset verbosity: 0 for no output, 5 for a lot")
 
 
@@ -1728,9 +1728,9 @@ def main():
         site.createPage(out_dir, True)
 
     if verbosity >= 5:
-        site.printAll(2)
+        site.print_all(2)
     elif verbosity >= 2:
-        site.printOverview()
+        site.print_overview()
 
 # --- direct call --------
 if __name__ == "__main__":
