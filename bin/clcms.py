@@ -1590,7 +1590,7 @@ def build_page_tree(root_dir, page_dir, default_options, default_macro_list, cur
             os.chdir(df)
             #print("Entering directory %s" %(os.getcwd()))
             child_page = build_page_tree(root_dir, df, options, macro_list, cur_depth+1)
-            if child_page.is_subsite == False:
+            if not child_page.is_subsite:
                 child_page.parent = page
             #if child_page.sort_order >= 0:
             #       if sort_order >= 0:
