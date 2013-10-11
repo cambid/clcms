@@ -37,6 +37,24 @@ inhibit_output = False
 show_macro_names = False
 store_dates = True
 
+def cmp_to_key(mycmp):
+    'Convert a cmp= function into a key= function'
+    class K(object):
+        def __init__(self, obj, *args):
+            self.obj = obj
+        def __lt__(self, other):
+            return mycmp(self.obj, other.obj) < 0
+        def __gt__(self, other):
+            return mycmp(self.obj, other.obj) > 0
+        def __eq__(self, other):
+            return mycmp(self.obj, other.obj) == 0
+        def __le__(self, other):
+            return mycmp(self.obj, other.obj) <= 0
+        def __ge__(self, other):
+            return mycmp(self.obj, other.obj) >= 0
+        def __ne__(self, other):
+            return mycmp(self.obj, other.obj) != 0
+    return K
 #
 # Wiki style parser
 #
@@ -699,7 +717,7 @@ def get_dir_files(options, directory, ignore_masks, invert = False):
         files = os.listdir(".")
         files = [(file_sort_number(options, f), os.stat(f)[stat.ST_MTIME], f)
                 for f in files]
-        files.sort(sort_dir_files)
+        sorted(files,key=cmp_to_key(sort_dir_files))
         #print(files)
         for fs in files:
             f = fs[2]
@@ -1055,8 +1073,8 @@ class Page(object):
         if os.path.exists(out_dir + os.sep + "index.html"):
             out_time = time.gmtime(os.stat(out_dir + os.sep + "index.html")[stat.ST_MTIME])
         in_time = self.findPageDate()
-        self.children.sort(compare_pages)
-        self.contents.sort(compare_contents)
+        sorted(self.children,key=cmp_to_key(compare_pages))
+        sorted(self.contents,key=cmp_to_key(compare_contents))
         if in_time > out_time or force_output:
             self.recreate = True
         for c in self.children:
@@ -1287,12 +1305,13 @@ class File(object):
         print("id: %s" %(self.id))
         print("file: %s" %(self.input_file))
 
-#
-# 'compares' pages based on their sort order, then on the last modified date of
-# their input directories (backwards)
-#
-# pages with a sort order come before those without (ie. have value -1)
 def compare_pages(a, b):
+    """
+    'compares' pages based on their sort order, then on the last modified date of
+    their input directories (backwards)
+
+    pages with a sort order come before those without (ie. have value -1)
+    """
     if a.sort_order == -1 and b.sort_order > -1:
         return 1
     elif a.sort_order > -1 and b.sort_order == -1:
@@ -1309,11 +1328,13 @@ def compare_pages(a, b):
         else:
             return 0
 
-# 'compares' page content items based on their sort order, then on the
-# last modified date of their input files (backwards)
-#
-# contents with a sort order come before those without (ie. have value -1)
 def compare_contents(a, b):
+    """
+    'compares' page content items based on their sort order, then on the
+    last modified date of their input files (backwards)
+
+    contents with a sort order come before those without (ie. have value -1)
+    """
     if a.sort_order == -1 and b.sort_order > -1:
         return 1
     elif a.sort_order > -1 and b.sort_order == -1:
