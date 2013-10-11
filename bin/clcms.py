@@ -236,7 +236,7 @@ def wiki_to_html_simple(line, page):
     master-function for parsing wiki-to-html
     """
     # if line starts with __, do not do rest
-    if line[:2] == "__":
+    if line.startswith("__"):
         line = "<pre>"+escapes_wiki_to_html(line[2:])+"</pre>"
     else:
         line = escapes_wiki_to_html(line)
