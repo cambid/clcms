@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+"""
+clcms (pronounced "clickmas") is a command line content management system. It's
+not a dynamic cms, but a script that takes a source tree and creates a web site
+out of it.
+"""
 
 # Copyright (C) 2005 - 2013 Jelte Jansen <Tjebbe@kanariepiet.com>
 # Copyright (C) 2013 - Jan Fader <jan.fader@web.de>
@@ -227,6 +232,9 @@ def link_wiki_to_html(line, page):
     return line
 
 def wiki_to_html_simple(line, page):
+    """
+    master-function for parsing wiki-to-html
+    """
     # if line starts with __, do not do rest
     if line[:2] == "__":
         line = "<pre>"+escapes_wiki_to_html(line[2:])+"</pre>"
@@ -856,7 +864,10 @@ class Page(object):
         else:
             return self.parent.getTotalOutputDir() + self.getOutputDir() + os.sep
 
-    def toHTML(self):
+    def to_html(self):
+        """
+        converts actual Page-object into HTML
+        """
         #page_count = 0
         pages_lines = []
         page_lines = []
@@ -871,7 +882,7 @@ class Page(object):
         for c in self.contents:
             if c.show:
                 content_count += 1
-                page_lines.extend(c.toHTML())
+                page_lines.extend(c.to_html())
                 if self.archive_by_count > 0 and content_count > self.archive_by_count:
                     page_lines.append("\n")
                     page_lines.append("_prevarchive_"+str(page_count+1)+"_")
@@ -1017,7 +1028,7 @@ class Page(object):
         if self.recreate:
             if verbosity >= 1:
                 print("Creating page '%s'" %(self.name))
-            html_pages = self.toHTML()
+            html_pages = self.to_html()
             page_count = 0
             for p in html_pages:
                 if page_count > 0:
@@ -1040,7 +1051,7 @@ class Page(object):
                     for c in clone.contents:
                         if c.date.tm_year != y:
                             c.show = False
-                    html_pages = clone.toHTML()
+                    html_pages = clone.to_html()
                     if len(html_pages) > 1:
                         print("ERROR YEAR ARCHIVE SHOULD ONLY HAVE 1 PAGE PER YEAR")
                     else:
@@ -1054,7 +1065,7 @@ class Page(object):
                 clone.show_header = False
                 clone.show_separator = False
                 clone.show_submenu = False
-                html_pages = clone.toHTML()
+                html_pages = clone.to_html()
                 out_file = open(out_dir + os.sep + pagefile, "w")
                 out_file.writelines(html_pages[0])
                 out_file.close()
@@ -1269,7 +1280,10 @@ class Content(object):
         print("sort order: %s" %(self.sort_order))
         print("input file: %s" %(self.input_file))
 
-    def toHTML(self):
+    def to_html(self):
+        """
+        converts actual Content-object into HTML
+        """
         page_lines = []
         flines = file_lines(self.input_file)
         # strip desc lines
