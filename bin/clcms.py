@@ -217,7 +217,7 @@ def link_wiki_to_html(line, page):
         elif url[:1] == ':':
             # this is an id
             if page:
-                targetPage = page.getRootPage().findPageByID(url[1:])
+                targetPage = page.getRootPage().find_page_by_id(url[1:])
                 if not targetPage:
                     print("Page with ID '%s' not found (referenced in '%s'). Quitting." %(url[1:], page.getTotalOutputDir()))
                     sys.exit(1)
@@ -1102,16 +1102,19 @@ class Page(object):
                 last_date = cld
         return last_date
 
-    def findPageByID(self, id):
+    def find_page_by_id(self, page_id):
+        """
+        find a page based on an id
+        """
         if not self:
             return None
-        if self.id == id:
+        if self.id == page_id:
             return self
         else:
-            for c in self.children:
-                p = c.findPageByID(id)
-                if p:
-                    return p
+            for child in self.children:
+                page = child.find_page_by_id(page_id)
+                if page:
+                    return page
             return None
 
     # Returns the first page after this one that has content
