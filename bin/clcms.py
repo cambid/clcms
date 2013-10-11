@@ -725,7 +725,7 @@ def get_dir_files(options, directory, ignore_masks, invert = False):
         files = os.listdir(".")
         files = [(file_sort_number(options, f), os.stat(f)[stat.ST_MTIME], f)
                 for f in files]
-        sorted(files,key=cmp_to_key(sort_dir_files))
+        sorted(files, key=cmp_to_key(sort_dir_files))
         #print(files)
         for fs in files:
             f = fs[2]
@@ -1084,8 +1084,8 @@ class Page(object):
         if os.path.exists(out_dir + os.sep + "index.html"):
             out_time = time.gmtime(os.stat(out_dir + os.sep + "index.html")[stat.ST_MTIME])
         in_time = self.findPageDate()
-        sorted(self.children,key=cmp_to_key(compare_pages))
-        sorted(self.contents,key=cmp_to_key(compare_contents))
+        sorted(self.children, key=cmp_to_key(compare_pages))
+        sorted(self.contents, key=cmp_to_key(compare_contents))
         if in_time > out_time or force_output:
             self.recreate = True
         for c in self.children:
