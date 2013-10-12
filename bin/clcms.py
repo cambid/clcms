@@ -136,8 +136,14 @@ def heading_wiki_to_html(line):
     '</p><h3>ABCDE</h3><p>'
     >>> heading_wiki_to_html("===ABCDE==")
     '</p><h2>=ABCDE</h2><p>'
+    >>> heading_wiki_to_html("== ==")
+    '</p><h2></h2><p>'
+    >>> heading_wiki_to_html("")
+    ''
+    >>> heading_wiki_to_html("ABCDE")
+    'ABCDE'
     """
-    line_p = re.compile('(==.{1,}==)')
+    line_p = re.compile('(==.+==)')
     result = line_p.search(line)
     if result:
         text = result.group(1)
@@ -145,11 +151,9 @@ def heading_wiki_to_html(line):
         while len(text) > 1 and text[0] == '=' and text[-1] == '=':
             heading_level += 1
             text = text[1:-1]
-        line = "</p><h" + str(heading_level) + ">"
-        text = text.lstrip(" \t")
-        text = text.rstrip(" \t")
-        line += text
-        line += "</h" + str(heading_level) + "><p>"
+        line = "</p><h%s>%s</h%s><p>" % (heading_level,
+                                        text.strip(),
+                                        heading_level)
     return line
 
 def link_wiki_to_html(line, page):
