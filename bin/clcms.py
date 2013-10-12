@@ -130,6 +130,12 @@ def italic_wiki_to_html(line):
 def heading_wiki_to_html(line):
     """
     convert heading-syntax '' to <h?>
+    >>> heading_wiki_to_html("==ABCDE==")
+    '</p><h2>ABCDE</h2><p>'
+    >>> heading_wiki_to_html("===ABCDE===")
+    '</p><h3>ABCDE</h3><p>'
+    >>> heading_wiki_to_html("===ABCDE==")
+    '</p><h2>=ABCDE</h2><p>'
     """
     line_p = re.compile('(==.{1,}==)')
     result = line_p.search(line)
