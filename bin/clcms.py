@@ -100,6 +100,12 @@ def escapes_wiki_to_html(line):
 def bold_wiki_to_html(line):
     """
     convert bold-syntax ''' to <b>
+    >>> bold_wiki_to_html("ABCDE'''FGHIJ'''KLMNO")
+    'ABCDE<b>FGHIJ</b>KLMNO'
+    >>> bold_wiki_to_html("ABCDEFGHIJ'''KLMNO")
+    "ABCDEFGHIJ'''KLMNO"
+    >>> bold_wiki_to_html("ABCDEFGH'''I'''JK'''L'''MNO")
+    'ABCDEFGH<b>I</b>JK<b>L</b>MNO'
     """
     line_p = re.compile('(\'\'\'.{1,}?\'\'\')')
     result = line_p.search(line)
