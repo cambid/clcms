@@ -558,8 +558,8 @@ def add_option(options, option):
     return options
 
 def add_options(options, optionsa):
-    for o in optionsa:
-        options = add_option(options, o)
+    for option in optionsa:
+        options = add_option(options, option)
     return options
 
 def have_option(options, option_name):
