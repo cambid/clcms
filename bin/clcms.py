@@ -379,13 +379,13 @@ def wiki_to_html(wiki_lines, page=None):
 system_macro_list = [
   ["menu", "menu_depth = 1\nmenu_start_depth = 0\nif len(arguments) > 0:\n\tmenu_depth = int(arguments[0])\nif len(arguments) > 1:\n\tmenu_start_depth = int(arguments[1])\nml = page.getRootPage().createMenu(page, menu_depth, menu_start_depth)\noutput = \"_menustart_\\n\"\nfor l in ml:\n\toutput += l\noutput += \"_menuend_\\n\"\n", 0],
   ["submenu", "output = \"\"\nsml = page.createAnchorMenu()\nfor l in sml:\n\toutput += l", 0],
-  ["stylesheet", "output = (os.pardir + os.sep)*(page.getPageDepth())+get_option(page.options, 'stylesheet')\n", 0 ],
-  ["title", "output = page.display_name\n", 0 ],
-  ["date", "output = time.strftime(\"%Y-%m-%d\")\n", 0 ],
+  ["stylesheet", "output = (os.pardir + os.sep)*(page.getPageDepth())+get_option(page.options, 'stylesheet')\n", 0],
+  ["title", "output = page.display_name\n", 0],
+  ["date", "output = time.strftime(\"%Y-%m-%d\")\n", 0],
 #TODO:
   ["datefile", "output = time.strftime(\"%Y-%m-%d\", page.findPageDate())\n", 0],
-  ["itemseparator", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\">\"", 0 ],
-  ["submenuitemseparator", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\">\"", 0 ],
+  ["itemseparator", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\">\"", 0],
+  ["submenuitemseparator", " output = \"<hr noshade=\\\"noshade\\\" size=\\\"1\\\" width=\\\"60%\\\" align=\\\"left\\\">\"", 0],
   ["header", "\
 output = \"\"\n\
 output += \"<!DOCTYPE html PUBLIC \\\"-//W3C//DTD HTML 4.01 Transitional//EN\\\" \\\"http://www.w3.org/TR/html4/loose.dtd\\\">\\n\"\n\
@@ -401,30 +401,30 @@ output += \"     <body>\\n\"\n\
 output += \"     _menu_1_\\n\"\n\
 output += \"     <div id=\\\"main\\\">\\n\"\n\
 output += \"     _submenu_\\n\"\n\
-", 0 ],
+", 0],
   ["footer", "\
 output = \"\"\n\
 output += \"    </div>\\n\"\n\
 output += \"    </body>\\n\"\n\
 output += \"</html>\\n\"\n\
-", 0 ],
-  ["menustart", "output = \"\"\n", 0 ],
-  ["menuend", "output = \"\"\n", 0 ],
-  ["menuitem1start", "output = \"\"\n", 0 ],
-  ["menuitem1end", "output = \"\"\n", 0 ],
-  ["menuitem1selected", "output = \"\"\n", 0 ],
-  ["menuitem2start", "output = \"\"\n", 0 ],
-  ["menuitem2end", "output = \"\"\n", 0 ],
-  ["menuitem2selected", "output = \"\"\n", 0 ],
-  ["menuitem3start", "output = \"\"\n", 0 ],
-  ["menuitem3end", "output = \"\"\n", 0 ],
-  ["menuitem3selected", "output = \"\"\n", 0 ],
-  ["menuitem4start", "output = \"\"\n", 0 ],
-  ["menuitem4end", "output = \"\"\n", 0 ],
-  ["menuitem4selected", "output = \"\"\n", 0 ],
-  ["menuitem5start", "output = \"\"\n", 0 ],
-  ["menuitem5end", "output = \"\"\n", 0 ],
-  ["menuitem5selected", "output = \"\"\n", 0 ],
+", 0],
+  ["menustart", "output = \"\"\n", 0],
+  ["menuend", "output = \"\"\n", 0],
+  ["menuitem1start", "output = \"\"\n", 0],
+  ["menuitem1end", "output = \"\"\n", 0],
+  ["menuitem1selected", "output = \"\"\n", 0],
+  ["menuitem2start", "output = \"\"\n", 0],
+  ["menuitem2end", "output = \"\"\n", 0],
+  ["menuitem2selected", "output = \"\"\n", 0],
+  ["menuitem3start", "output = \"\"\n", 0],
+  ["menuitem3end", "output = \"\"\n", 0],
+  ["menuitem3selected", "output = \"\"\n", 0],
+  ["menuitem4start", "output = \"\"\n", 0],
+  ["menuitem4end", "output = \"\"\n", 0],
+  ["menuitem4selected", "output = \"\"\n", 0],
+  ["menuitem5start", "output = \"\"\n", 0],
+  ["menuitem5end", "output = \"\"\n", 0],
+  ["menuitem5selected", "output = \"\"\n", 0],
   ["menuitem1start-arg", "output = \"_menuitem1start_\\n\"\nif arguments != []:\n\toutput += arguments[0]\n", 0],
   ["menuitem2start-arg", "output = \"_menuitem2start_\\n\"\nif arguments != []:\n\toutput += arguments[0]\n", 0],
   ["menuitem3start-arg", "output = \"_menuitem3start_\\n\"\nif arguments != []:\n\toutput += arguments[0]\n", 0],
@@ -434,21 +434,21 @@ output += \"</html>\\n\"\n\
   ["submenuend", "output = \"</div>\"\n", 0],
   ["yearmenustart", "output = \"<div id = \\\"submenu\\\">\"\n", 0],
   ["yearmenuend", "output = \"</div>\"\n", 0],
-  ["debug", "output = \"\"\nprint arguments[0]\n", 0 ],
-  ["dumpmacros", "for m in macro_list:\n\tprint m[0]\n\tprint m[1]\n\tprint m[2]\n\tprint \"\"\noutput=\"\"\n", 0 ],
-  ["submenuitemstart", "output = \"<div class=\\\"submenu_item\\\">\"\n", 0 ],
-  ["submenuitemend", "output = \"</div>\"\n", 0 ],
-  ["backdir", "output = page.getBackDir()\n", 0 ],
+  ["debug", "output = \"\"\nprint arguments[0]\n", 0],
+  ["dumpmacros", "for m in macro_list:\n\tprint m[0]\n\tprint m[1]\n\tprint m[2]\n\tprint \"\"\noutput=\"\"\n", 0],
+  ["submenuitemstart", "output = \"<div class=\\\"submenu_item\\\">\"\n", 0],
+  ["submenuitemend", "output = \"</div>\"\n", 0],
+  ["backdir", "output = page.getBackDir()\n", 0],
   ["nextpage", "output = \"\"\nnp = page.getNextPage()\nif np:\n\toutput = \"<a href=\\\"\"+page.getBackDir()+np.getTotalOutputDir()+\"index.html\\\">\"+np.name+\"</a>\"\n", 0],
   ["prevpage", "output = \"\"\npp = page.getPreviousPage()\nif pp:\n\toutput = \"<a href=\\\"\"+page.getBackDir()+pp.getTotalOutputDir()+\"index.html\\\">\"+pp.name+\"</a>\"\n", 0],
   ["uppage", "output = \"\"\nup = page.parent\nif up:\n\toutput = \"<a href=\\\"\"+page.getBackDir()+up.getTotalOutputDir()+\"index.html\\\">\"+up.name+\"</a>\"\n", 0],
-  ["fake", "output = \"\"\n", 0 ],
-  ["prevarchive", "output = \"<div id=\\\"prevarchive\\\"><a href=\\\"index\"\nif arguments != []:\n\toutput += arguments[0]\noutput += \".html\\\">_prevarchivetext_</a></div>\"\n", 0 ],
-  ["nextarchive", "output = \"<div id=\\\"nextarchive\\\"><a href=\\\"index\"\nif arguments != []:\n\toutput += arguments[0]\noutput += \".html\\\">_nextarchivetext_</a></div>\"\n", 0 ],
-  ["prevarchivetext", "output = \"Older entries\"\n", 0 ],
-  ["nextarchivetext", "output = \"Newer entries\"\n", 0 ],
+  ["fake", "output = \"\"\n", 0],
+  ["prevarchive", "output = \"<div id=\\\"prevarchive\\\"><a href=\\\"index\"\nif arguments != []:\n\toutput += arguments[0]\noutput += \".html\\\">_prevarchivetext_</a></div>\"\n", 0],
+  ["nextarchive", "output = \"<div id=\\\"nextarchive\\\"><a href=\\\"index\"\nif arguments != []:\n\toutput += arguments[0]\noutput += \".html\\\">_nextarchivetext_</a></div>\"\n", 0],
+  ["prevarchivetext", "output = \"Older entries\"\n", 0],
+  ["nextarchivetext", "output = \"Newer entries\"\n", 0],
   ["printablelink", "output = \"<div id=\\\"print_link\\\"><a href=\\\"index_print.html\\\">_printlinktext_</a></div>\"\n", 0],
-  ["printlinktext", "output = \"Printable version\"\n", 0 ]
+  ["printlinktext", "output = \"Printable version\"\n", 0]
 ]
 
 
@@ -588,7 +588,7 @@ def get_options(options, option_name):
         m = p.match(o)
         if m:
             result = o[m.end():].split(',')
-            if result != [ '' ]:
+            if result != ['']:
                 return result
             else:
                 return []
@@ -642,7 +642,7 @@ system_options = add_option(system_options, "create_pages = yes")
 # Utility functions
 #
 
-def file_lines(readfile, filters = []):
+def file_lines(readfile, filters=[]):
     """
     read file and filter lines
     if filter contain any re's, only lines matching any of them are returned.
@@ -678,7 +678,7 @@ def file_base_name(filename):
         result = filename
     return result
 
-def file_extension(filename, default = ""):
+def file_extension(filename, default=""):
     """
     returns the filename extension (without the .)
     optional value default is returned if there is no extension
@@ -728,7 +728,7 @@ def file_sort_number(options, filename):
         result = int(file_name_parts[1])
     return result
 
-def get_dir_files(options, directory, ignore_masks, invert = False):
+def get_dir_files(options, directory, ignore_masks, invert=False):
     """
     returns a list of filenames in the directory,
     excluding all re matches from ignore_masks
@@ -765,7 +765,7 @@ def print_indentation(depth):
 class Page(object):
     "A page object"
 
-    def __init__(self, name, basedir, pagedir, parent = None):
+    def __init__(self, name, basedir, pagedir, parent=None):
         #print("Add page %s" %(dir))
         self.input_dir = basedir
         self.page_dir = pagedir
@@ -830,7 +830,7 @@ class Page(object):
         else:
             return self.parent.getRootPage()
 
-    def print_overview(self, depth = 0):
+    def print_overview(self, depth=0):
         print_indentation(depth)
         print(self.name)
         print_indentation(depth+1)
@@ -902,9 +902,9 @@ class Page(object):
                 if self.archive_by_count > 0 and content_count > self.archive_by_count:
                     page_lines.append("\n")
                     page_lines.append("_prevarchive_"+str(page_count+1)+"_")
-                    if (page_count == 1):
+                    if page_count == 1:
                         page_lines.append("_nextarchive_")
-                    elif (page_count > 1):
+                    elif page_count > 1:
                         page_lines.append("_nextarchive_"+str(page_count-1)+"_")
                     page_lines.append("</div>\n")
                     page_lines.append("_footer_")
@@ -921,9 +921,9 @@ class Page(object):
 
         if self.archive_by_count > 0:
             #page_lines.append("_prev_archive_")
-            if (page_count == 1):
+            if page_count == 1:
                 page_lines.append("_nextarchive_")
-            elif (page_count > 1):
+            elif page_count > 1:
                 page_lines.append("_nextarchive_"+str(page_count-1)+"_")
         page_lines.append("</div>\n")
         if self.show_header:
@@ -1724,7 +1724,7 @@ def main():
             elif arg == "-m" or arg == "--macro-names":
                 show_macro_names = True
             elif arg == "-v" or arg == "--verbosity":
-                if (i < len(sys.argv)):
+                if i < len(sys.argv):
                     i = i + 1
                     verbosity = int(sys.argv[i])
                 else:
