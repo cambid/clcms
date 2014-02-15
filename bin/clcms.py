@@ -317,7 +317,7 @@ def wiki_handle_lists(prev_list_part, list_part, html_lines):
     if new_item:
         html_lines.append((cur_depth * "\t") + "<li>\n")
 
-def wiki_to_html(wiki_lines, page = None):
+def wiki_to_html(wiki_lines, page=None):
     html_lines = []
     i = 0
     no_wiki = False
@@ -540,7 +540,7 @@ def handle_macros(page, input_line):
                 #    macro_last_modified = mo[2]
                 break
         i += 1
-        if (i > 1000):
+        if i > 1000:
             print("Error, loop detected in macro. I have done 1000 macro expansions on the line: %s" %(orig_input_line))
             print("And it is still not done. Aborting. Your output may be incomplete.")
             if mo:
@@ -846,7 +846,7 @@ class Page(object):
         for c in self.children:
             c.print_overview(depth+2)
 
-    def print_all(self, max_depth = -1):
+    def print_all(self, max_depth=-1):
         print("-----------PAGE-------------")
         print("Name: %s" %(self.name))
         print("id: %s" %(self.id))
@@ -952,13 +952,13 @@ class Page(object):
     def getBackDir(self):
         return (os.pardir + os.sep)*(self.getPageDepth())
 
-    def createMenu(self, calling_page, depth, start_depth = 0):
+    def createMenu(self, calling_page, depth, start_depth=0):
         cur_depth = self.getPageDepth()
         menu_lines = []
         #menu_lines.append("menu for level "+ str(self.getPageDepth()) + " ("+self.name+") has " + str(len(self.children)) + "children\n")
         back_dir = ""
         if calling_page.getPageDepth() > 0:
-            back_dir =  calling_page.getBackDir()
+            back_dir = calling_page.getBackDir()
         for c in self.children:
             if c.show_menu_item:
                 link = ""
@@ -1137,7 +1137,7 @@ class Page(object):
     # if return_children is true (default) then the first child
     # (if any) is returned, otherwise it's first sibling
     # Returns None if this is the last page
-    def getNextPage(self, return_children = True):
+    def getNextPage(self, return_children=True):
         next_page = None
         if return_children and len(self.children) > 0:
             next_page = self.children[0]
@@ -1158,7 +1158,7 @@ class Page(object):
     # if return_children is true (default) then the last child
     # (if any) is returned, otherwise it's last sibling
     # Returns None if this is the first page
-    def getPreviousPage(self, return_children = True):
+    def getPreviousPage(self, return_children=True):
         prev_page = None
         if self.parent:
             lp = None
@@ -1286,7 +1286,7 @@ class Content(object):
         # parent page
         self.page = page
 
-    def print_overview(self, depth = 0):
+    def print_overview(self, depth=0):
         print_indentation(depth)
         print(self.name)
 
@@ -1330,7 +1330,7 @@ class File(object):
         # By default, the id is the input file
         self.id = os.getcwd() + os.sep + filename
 
-    def print_overview(self, depth = 0):
+    def print_overview(self, depth=0):
         print_indentation(depth)
         print(self.input_file)
 
